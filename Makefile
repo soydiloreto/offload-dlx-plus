@@ -130,17 +130,25 @@ env-clean: ## Destroy the local wp-env Docker stack and its volumes.
 	npx wp-env destroy
 
 # -- Deploy / release --------------------------------------------------
-# Override DEPLOY_SCRIPT= to point at your own copy of the script.
-DEPLOY_SCRIPT ?= $(HOME)/.local/bin/offload-dlx-plus-deploy-to-mug
+# The plugin is developed here and tried on a real site. `make deploy-test`
+# copies the working tree into that site's plugins directory — only what
+# ships, so no vendor/, no tests, no tooling — and leaves the site's own
+# files alone. Override SITE= to try it somewhere else.
+SITE ?= $(HOME)/repos/cst-website
+SITE_PLUGIN := $(SITE)/wp-content/plugins/offload-dlx-plus
 
 .PHONY: deploy-test
-deploy-test: ## Deploy current branch to the mug-website-v2 sibling repo for manual smoke-testing.
-	@if [ ! -x "$(DEPLOY_SCRIPT)" ]; then \
-	  echo "deploy script not found at $(DEPLOY_SCRIPT)."; \
-	  echo "Override DEPLOY_SCRIPT=/path/to/script to use a custom location."; \
+deploy-test: ## Copy the working tree into a real site for manual smoke-testing.
+	@if [ ! -d "$(SITE)/wp-content/plugins" ]; then \
+	  echo "no site at $(SITE). Override with SITE=/path/to/wordpress"; \
 	  exit 1; \
 	fi
-	"$(DEPLOY_SCRIPT)"
+	@mkdir -p "$(SITE_PLUGIN)"
+	rsync -a --delete \
+	  --exclude-from=.distignore \
+	  --exclude='.git' \
+	  ./ "$(SITE_PLUGIN)/"
+	@echo "✔ Copied to $(SITE_PLUGIN)"
 
 .PHONY: release
 release: check ## Pre-release validation: full quality gate + version-alignment dry-run.
