@@ -2,7 +2,7 @@
 Contributors: pablodiloreto
 Tags: media, offload, azure, cloud storage, uploads
 Requires at least: 5.0
-Tested up to: 6.9
+Tested up to: 7.1
 Requires PHP: 7.4
 Stable tag: 1.1.0
 License: GPLv2 or later
@@ -139,7 +139,7 @@ Requirements: PHP `ext-openssl` (enabled by default on virtually every host).
 == Upgrade Notice ==
 
 = 1.1.0 =
-* Clearer error messages when the plugin cannot read your cloud credentials (for example after restoring the site database from another environment). The Cloud Provider, Sync, Status and Overview tabs now show the same paused state with specific guidance — previously some panels stayed green or showed contradictory information.
+* The plugin is now called Offload Plus. Your settings and offloaded files are carried over automatically on the first load; cloud credentials keep working. Unreadable credentials now pause every tab with the same message instead of leaving some panels green.
 
 = 1.0.0 =
 * Initial release.

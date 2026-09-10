@@ -112,11 +112,7 @@ class Plugin {
 		if ( is_admin() ) {
 			Admin::init(); // Initialize legacy admin correctly
 
-			// Add AJAX handlers for new functionality
-			add_action( 'wp_ajax_offload_plus_start_sync', array( $this, 'ajax_start_sync' ) );
-			add_action( 'wp_ajax_offload_plus_get_sync_progress', array( $this, 'ajax_get_sync_progress' ) );
-
-			// ⭐ NEW: Recursion-based sync endpoints
+			// Recursion-based sync endpoints
 			add_action( 'wp_ajax_offload_plus_start_sync', array( $this, 'ajax_cs_start_sync' ) );
 			add_action( 'wp_ajax_offload_plus_process_batch', array( $this, 'ajax_cs_process_batch' ) );
 
@@ -202,56 +198,6 @@ class Plugin {
 		$editors[] = 'OffloadPlus\\OffloadPlus_Image_Editor_GD';
 
 		return $editors;
-	}
-
-	/**
-	 * AJAX: Start synchronization
-	 */
-	public function ajax_start_sync(): void {
-		check_ajax_referer( 'offload_plus_admin_nonce', 'nonce' );
-
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
-		}
-
-		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
-		}
-
-		$result = $this->sync_manager->start_sync();
-
-		if ( $result['success'] ) {
-			wp_send_json_success( $result );
-		} else {
-			wp_send_json_error( $result );
-		}
-	}
-
-	/**
-	 * AJAX: Get sync progress
-	 */
-	public function ajax_get_sync_progress(): void {
-		check_ajax_referer( 'offload_plus_admin_nonce', 'nonce' );
-
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
-		}
-
-		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
-		}
-
-		// Process batch if sync is active
-		$progress = $this->sync_manager->get_progress();
-
-		if ( $progress && $progress['status'] === 'started' ) {
-			// Process next batch
-			$batch_result = $this->sync_manager->process_batch();
-			wp_send_json_success( $batch_result );
-		} else {
-			// Just return current progress
-			wp_send_json_success( $progress ? $progress : array( 'status' => 'idle' ) );
-		}
 	}
 
 	/**
