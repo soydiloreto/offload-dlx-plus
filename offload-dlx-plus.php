@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Offload+
- * Description: Offload WordPress media files to Azure Blob Storage or Dilux One Cloud — complete replacement for /uploads/ directory using stream wrappers.
- * Version: 1.1.0-dev
+ * Description: Offload Plus for WordPress: move your media to Azure Blob Storage or Dilux One Cloud and serve it from there. Replaces the /uploads/ directory transparently, via PHP stream wrappers.
+ * Version: 1.0.0
  * Author: Pablo Ariel Di Loreto
  * Author URI: https://pablodiloreto.com/
  * License: GPLv2 or later
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'OFFLOAD_DLX_PLUS_VERSION', '1.1.0-dev' );
+define( 'OFFLOAD_DLX_PLUS_VERSION', '1.0.0' );
 define( 'OFFLOAD_DLX_PLUS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'OFFLOAD_DLX_PLUS_URL', plugin_dir_url( __FILE__ ) );
 define( 'OFFLOAD_DLX_PLUS_FILE', __FILE__ );

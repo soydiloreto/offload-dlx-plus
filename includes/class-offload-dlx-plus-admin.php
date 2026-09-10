@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin interface for Cloud Storage plugin
+ * The plugin's admin screen: one page with a tab bar.
  *
  * Direct $wpdb queries against the plugin's own table (`$wpdb->prefix .
  * 'offload_dlx_plus_files'`) are used in a few read-only spots to render real-time
@@ -24,9 +24,137 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Admin interface for Cloud Storage plugin.
+ * The plugin's admin screen.
  */
 class Admin {
+
+	/** The menu slug, written once. */
+	const MENU = 'offload-dlx-plus';
+
+	/**
+	 * How the plugin introduces itself in the dashboard.
+	 *
+	 * Written once: the menu, the heading and the browser tab all read it from
+	 * here. Spelled out in three places, sooner or later they say three
+	 * different things — which is exactly how the heading ended up still
+	 * saying "Cloud Storage" long after the plugin stopped being called that.
+	 *
+	 * @return string
+	 */
+	public static function plugin_name(): string {
+		return (string) \apply_filters( 'offload_dlx_plus_plugin_name', \__( 'Offload+', 'offload-dlx-plus' ) );
+	}
+
+	/**
+	 * The tabs, in order: slug => [label, dashicon, aliases, hidden].
+	 *
+	 * The tab bar, the browser title and the routing all walk this list, so a
+	 * tab cannot exist in one and be missing from another. A hidden tab still
+	 * answers to its URL and gets its own title, it just is not offered in the
+	 * bar.
+	 *
+	 * @return array<string, array{label: string, icon: string, aliases: string[], hidden: bool}>
+	 */
+	public static function tabs(): array {
+		return array(
+			'overview'        => array(
+				'label'   => \__( 'Overview', 'offload-dlx-plus' ),
+				'icon'    => 'dashicons-dashboard',
+				'aliases' => array(),
+				'hidden'  => false,
+			),
+			'cloud-provider'  => array(
+				'label'   => \__( 'Cloud Provider', 'offload-dlx-plus' ),
+				'icon'    => 'dashicons-cloud-upload',
+				'aliases' => array(),
+				'hidden'  => false,
+			),
+			'sync-offloading' => array(
+				'label'   => \__( 'Sync & Offloading', 'offload-dlx-plus' ),
+				'icon'    => 'dashicons-update',
+				'aliases' => array( 'sync' ),
+				'hidden'  => false,
+			),
+			'settings'        => array(
+				'label'   => \__( 'Settings', 'offload-dlx-plus' ),
+				'icon'    => 'dashicons-admin-settings',
+				'aliases' => array(),
+				'hidden'  => false,
+			),
+			'status'          => array(
+				'label'   => \__( 'Status', 'offload-dlx-plus' ),
+				'icon'    => 'dashicons-info',
+				'aliases' => array( 'status-tools' ),
+				'hidden'  => false,
+			),
+			'tools'           => array(
+				'label'   => \__( 'Tools', 'offload-dlx-plus' ),
+				'icon'    => 'dashicons-admin-tools',
+				'aliases' => array(),
+				'hidden'  => false,
+			),
+			'activity'        => array(
+				'label'   => \__( 'Activity', 'offload-dlx-plus' ),
+				'icon'    => 'dashicons-chart-line',
+				'aliases' => array(),
+				'hidden'  => true,
+			),
+		);
+	}
+
+	/**
+	 * The name of the tab currently open, resolved through its aliases.
+	 *
+	 * @param string $tab The raw `tab` parameter.
+	 * @return string The canonical tab slug.
+	 */
+	public static function current_tab( string $tab ): string {
+		$tabs = self::tabs();
+
+		if ( isset( $tabs[ $tab ] ) ) {
+			return $tab;
+		}
+
+		foreach ( $tabs as $slug => $datos ) {
+			if ( in_array( $tab, $datos['aliases'], true ) ) {
+				return $slug;
+			}
+		}
+
+		return 'overview';
+	}
+
+	/**
+	 * The browser tab: the plugin's name, then the screen's.
+	 *
+	 * In a dashboard with twenty plugins, "Status" says nothing about whose
+	 * screen it is. "Offload+ | Status" does.
+	 *
+	 * @param string $admin_title The title WordPress built.
+	 * @param string $title       The screen's own title.
+	 * @return string
+	 */
+	public static function admin_title( string $admin_title, string $title ): string {
+		$screen = \function_exists( 'get_current_screen' ) ? \get_current_screen() : null;
+
+		if ( ! $screen instanceof \WP_Screen || false === strpos( (string) $screen->id, self::MENU ) ) {
+			return $admin_title;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only routing parameter, no state change.
+		$tab     = isset( $_GET['tab'] ) ? \sanitize_text_field( \wp_unslash( $_GET['tab'] ) ) : 'overview';
+		$tabs    = self::tabs();
+		$abierta = $tabs[ self::current_tab( $tab ) ]['label'];
+
+		$nuevo = sprintf(
+			/* translators: 1: plugin name, 2: name of the screen */
+			\_x( '%1$s | %2$s', 'a dashboard screen title', 'offload-dlx-plus' ),
+			self::plugin_name(),
+			$abierta
+		);
+
+		return str_replace( $title, $nuevo, $admin_title );
+	}
 
 	/**
 	 * Initialize admin hooks
@@ -34,6 +162,7 @@ class Admin {
 	public static function init(): void {
 		Logger::debug( '[Offload+] Admin::init() called - registering hooks' );
 		\add_action( 'admin_menu', array( __CLASS__, 'add_admin_menu' ) );
+		\add_filter( 'admin_title', array( __CLASS__, 'admin_title' ), 10, 2 );
 		\add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		\add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
 		\add_action( 'admin_post_offload_dlx_plus_save_config', array( __CLASS__, 'save_config' ) );
@@ -60,22 +189,21 @@ class Admin {
 	}
 
 	/**
-	 * Register top-level admin menu "Offload+".
+	 * Register the top-level admin menu.
 	 *
-	 * Standalone menu — no shared "Dilux One" parent. The menu label is intentionally
-	 * left untranslated so the brand stays consistent across locales.
+	 * Standalone menu — no shared "Dilux One" parent.
 	 *
 	 * @return void
 	 */
 	public static function add_admin_menu() {
 		\add_menu_page(
-			'Offload+',              // Page title
-			'Offload+',              // Menu label (no translation — brand)
-			'manage_options',                   // Capability
-			'offload-dlx-plus',              // Menu slug
-			array( __CLASS__, 'render_admin_page' ),   // Callback
-			'dashicons-cloud',                  // Icon
-			81                                  // Position (below Settings block)
+			self::plugin_name(),                     // Page title.
+			self::plugin_name(),                     // Menu label.
+			'manage_options',                        // Capability.
+			self::MENU,                              // Menu slug.
+			array( __CLASS__, 'render_admin_page' ), // Callback.
+			'dashicons-cloud',                       // Icon.
+			81                                       // Position (below the Settings block).
 		);
 	}
 
@@ -83,8 +211,9 @@ class Admin {
 	 * Render the admin page (called dynamically by Dilux One Core)
 	 */
 	public static function render_admin_page(): void {
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only routing parameter, no state change.
-		$current_tab = isset( $_GET['tab'] ) ? \sanitize_text_field( wp_unslash( $_GET['tab'] ?? '' ) ) : 'overview';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only routing parameter, no state change.
+		$pedida      = isset( $_GET['tab'] ) ? \sanitize_text_field( \wp_unslash( $_GET['tab'] ) ) : 'overview';
+		$current_tab = self::current_tab( $pedida );
 
 		// Check configuration states
 		$is_configured         = ConfigManager::is_configured();
@@ -96,35 +225,34 @@ class Admin {
 		<div class="wrap offload-dlx-plus-admin">
 			<h1>
 				<span class="dashicons dashicons-cloud"></span>
-				Cloud Storage
+				<?php echo \esc_html( self::plugin_name() ); ?>
 			</h1>
 
 			<!-- Tabs Navigation -->
 			<nav class="nav-tab-wrapper">
-				<a href="?page=offload-dlx-plus&tab=overview" class="nav-tab <?php echo $current_tab === 'overview' ? 'nav-tab-active' : ''; ?>">
-					<span class="dashicons dashicons-dashboard"></span>
-					<?php \esc_html_e( 'Overview', 'offload-dlx-plus' ); ?>
-				</a>
-				<a href="?page=offload-dlx-plus&tab=cloud-provider" class="nav-tab <?php echo $current_tab === 'cloud-provider' ? 'nav-tab-active' : ''; ?>">
-					<span class="dashicons dashicons-cloud-upload"></span>
-					<?php \esc_html_e( 'Cloud Provider', 'offload-dlx-plus' ); ?>
-				</a>
-				<a href="?page=offload-dlx-plus&tab=sync-offloading" class="nav-tab <?php echo ( $current_tab === 'sync-offloading' || $current_tab === 'sync' ) ? 'nav-tab-active' : ''; ?>">
-					<span class="dashicons dashicons-update"></span>
-					<?php \esc_html_e( 'Sync & Offloading', 'offload-dlx-plus' ); ?>
-				</a>
-				<a href="?page=offload-dlx-plus&tab=settings" class="nav-tab <?php echo $current_tab === 'settings' ? 'nav-tab-active' : ''; ?>">
-					<span class="dashicons dashicons-admin-settings"></span>
-					<?php \esc_html_e( 'Settings', 'offload-dlx-plus' ); ?>
-				</a>
-				<a href="?page=offload-dlx-plus&tab=status" class="nav-tab <?php echo ( $current_tab === 'status' || $current_tab === 'status-tools' ) ? 'nav-tab-active' : ''; ?>">
-					<span class="dashicons dashicons-info"></span>
-					<?php \esc_html_e( 'Status', 'offload-dlx-plus' ); ?>
-				</a>
-				<a href="?page=offload-dlx-plus&tab=tools" class="nav-tab <?php echo $current_tab === 'tools' ? 'nav-tab-active' : ''; ?>">
-					<span class="dashicons dashicons-admin-tools"></span>
-					<?php \esc_html_e( 'Tools', 'offload-dlx-plus' ); ?>
-				</a>
+				<?php foreach ( self::tabs() as $slug => $datos ) : ?>
+					<?php
+					if ( $datos['hidden'] ) {
+						continue; }
+					?>
+					<a href="
+					<?php
+					echo \esc_url(
+						\add_query_arg(
+							array(
+								'page' => self::MENU,
+								'tab'  => $slug,
+							),
+							\admin_url( 'admin.php' )
+						)
+					);
+					?>
+								"
+						class="nav-tab <?php echo $current_tab === $slug ? 'nav-tab-active' : ''; ?>">
+						<span class="dashicons <?php echo \esc_attr( $datos['icon'] ); ?>"></span>
+						<?php echo \esc_html( $datos['label'] ); ?>
+					</a>
+				<?php endforeach; ?>
 			</nav>
 
 			<!-- Tab Content -->

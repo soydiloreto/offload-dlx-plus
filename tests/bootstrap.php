@@ -28,7 +28,7 @@ if (!defined('OFFLOAD_DLX_PLUS_DIR')) {
 }
 
 if (!defined('OFFLOAD_DLX_PLUS_VERSION')) {
-    define('OFFLOAD_DLX_PLUS_VERSION', '1.1.0-test');
+    define('OFFLOAD_DLX_PLUS_VERSION', '1.0.0-test');
 }
 
 if (!defined('OFFLOAD_DLX_PLUS_FILE')) {
