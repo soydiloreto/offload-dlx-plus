@@ -1,12 +1,12 @@
 {
-    "name": "soydiloreto/offload-plus",
-    "description": "Offload Plus WordPress plugin — Composer manifest for development tooling. Not used at runtime.",
+    "name": "soydiloreto/offload-dlx-plus",
+    "description": "Offload+ WordPress plugin — Composer manifest for development tooling. Not used at runtime.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
-    "homepage": "https://github.com/soydiloreto/offload-plus",
+    "homepage": "https://github.com/soydiloreto/offload-dlx-plus",
     "support": {
-        "issues": "https://github.com/soydiloreto/offload-plus/issues",
-        "source": "https://github.com/soydiloreto/offload-plus"
+        "issues": "https://github.com/soydiloreto/offload-dlx-plus/issues",
+        "source": "https://github.com/soydiloreto/offload-dlx-plus"
     },
     "require": {
         "php": ">=7.4"

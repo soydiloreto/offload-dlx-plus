@@ -2,17 +2,17 @@
 /**
  * Single source of truth for plugin configuration and connection-health state.
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  */
 
-namespace OffloadPlus;
+namespace OffloadDlxPlus;
 
-use OffloadPlus\Enums\PluginState;
-use OffloadPlus\Factories\CloudStorageFactory;
-use OffloadPlus\CloudStreamWrapper;
-use OffloadPlus\DTOs\PluginConfig;
-use OffloadPlus\DTOs\ProviderConfig;
-use OffloadPlus\DTOs\PluginSettings;
+use OffloadDlxPlus\Enums\PluginState;
+use OffloadDlxPlus\Factories\CloudStorageFactory;
+use OffloadDlxPlus\CloudStreamWrapper;
+use OffloadDlxPlus\DTOs\PluginConfig;
+use OffloadDlxPlus\DTOs\ProviderConfig;
+use OffloadDlxPlus\DTOs\PluginSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -29,25 +29,25 @@ if ( ! defined( 'ABSPATH' ) ) {
  * STORAGE MAP:
  * ============
  *
- * 1. CONFIGURATION (offload_plus_config) - autoload=TRUE
+ * 1. CONFIGURATION (offload_dlx_plus_config) - autoload=TRUE
  *    - Azure/GCP credentials, plugin settings
  *    - Small (~500 bytes), needed on every request (stream wrapper)
  *    - Accessed via: ConfigManager::get_config(), ConfigManager::save_config()
  *
- * 2. PLUGIN STATE (offload_plus_plugin_state) - autoload=TRUE
+ * 2. PLUGIN STATE (offload_dlx_plus_plugin_state) - autoload=TRUE
  *    - Current state: CONFIGURED, SYNCING, SYNCED, OFFLOADING_ACTIVE
  *    - Tiny (~10 bytes), checked frequently in admin UI
  *    - Accessed via: ConfigManager::get_state(), ConfigManager::set_state()
  *
- * 3. SYNC METADATA (offload_plus_sync_meta) - autoload=FALSE
+ * 3. SYNC METADATA (offload_dlx_plus_sync_meta) - autoload=FALSE
  *    - Progress info: total_files, processed_files, start_time, etc.
  *    - Large (~1-2 KB), changes constantly during sync, temporary
  *    - Accessed DIRECTLY via get_option/update_option (not via ConfigManager)
  *    - Used by: SyncManager, Admin, Plugin
  *
- * 4. FILE TRACKING (wp_offload_plus_files table) - MySQL custom table
+ * 4. FILE TRACKING (wp_offload_dlx_plus_files table) - MySQL custom table
  *    - Individual file status: synced, deleted, errors, etc.
- *    - Accessed via: OffloadPlusDB class
+ *    - Accessed via: OffloadDlxPlusDB class
  *
  * WHY AUTOLOAD MATTERS:
  * =====================
@@ -67,19 +67,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ConfigManager {
 
 	/** @var string Option name for configuration - Stores Azure/GCP credentials and plugin settings */
-	const CONFIG_OPTION = 'offload_plus_config';
+	const CONFIG_OPTION = 'offload_dlx_plus_config';
 
 	/** @var string Option name for plugin state - Current state: CONFIGURED, SYNCING, SYNCED, OFFLOADING_ACTIVE */
-	const STATE_OPTION = 'offload_plus_plugin_state';
+	const STATE_OPTION = 'offload_dlx_plus_plugin_state';
 
 	/** @var string Option name for sync metadata - Progress info, temporary operational data */
-	const SYNC_META_OPTION = 'offload_plus_sync_meta';
+	const SYNC_META_OPTION = 'offload_dlx_plus_sync_meta';
 
 	/** @var string Option name for failed files (persistent) */
-	const FAILED_FILES_OPTION = 'offload_plus_failed_files';
+	const FAILED_FILES_OPTION = 'offload_dlx_plus_failed_files';
 
 	/** @var string Option name for connection health status */
-	const HEALTH_OPTION = 'offload_plus_connection_health';
+	const HEALTH_OPTION = 'offload_dlx_plus_connection_health';
 
 	/** @var array<string, mixed> Default connection health values */
 	const DEFAULT_HEALTH = array(
@@ -152,7 +152,7 @@ class ConfigManager {
 		try {
 			return PluginConfig::fromArray( $merged );
 		} catch ( \InvalidArgumentException $e ) {
-			Logger::error( '[Offload Plus ConfigManager] Invalid config in database, using defaults: ' . $e->getMessage() );
+			Logger::error( '[Offload+ ConfigManager] Invalid config in database, using defaults: ' . $e->getMessage() );
 			return PluginConfig::fromArray( self::DEFAULT_CONFIG );
 		}
 	}
@@ -173,7 +173,7 @@ class ConfigManager {
 			if ( is_string( $value ) && $value !== '' && ! Crypto::is_encrypted( $value ) ) {
 				$encrypted = Crypto::encrypt( $value );
 				if ( $encrypted === '' ) {
-					Logger::error( '[Offload Plus ConfigManager] Refusing to persist credential "' . $field . '" — encryption failed (openssl missing?).' );
+					Logger::error( '[Offload+ ConfigManager] Refusing to persist credential "' . $field . '" — encryption failed (openssl missing?).' );
 					$config['provider_config'][ $field ] = '';
 				} else {
 					$config['provider_config'][ $field ] = $encrypted;
@@ -205,7 +205,7 @@ class ConfigManager {
 			}
 			$plain = Crypto::decrypt( $value );
 			if ( $plain === null ) {
-				Logger::error( '[Offload Plus ConfigManager] Failed to decrypt "' . $field . '" — credential will need to be re-entered.' );
+				Logger::error( '[Offload+ ConfigManager] Failed to decrypt "' . $field . '" — credential will need to be re-entered.' );
 				$config['provider_config'][ $field ] = '';
 				$first_failure_field                 = $first_failure_field ?? $field;
 			} else {
@@ -230,7 +230,7 @@ class ConfigManager {
 					'decrypt_failed',
 					sprintf(
 						/* translators: %s: provider config field name (e.g. access_key) */
-						__( 'Stored credential "%s" cannot be decrypted. WordPress salts may have changed since this credential was saved.', 'offload-plus' ),
+						__( 'Stored credential "%s" cannot be decrypted. WordPress salts may have changed since this credential was saved.', 'offload-dlx-plus' ),
 						$first_failure_field
 					),
 					'crypto'
@@ -266,14 +266,14 @@ class ConfigManager {
 		try {
 			$plugin_config = PluginConfig::fromArray( $new_config );
 		} catch ( \InvalidArgumentException $e ) {
-			Logger::error( '[Offload Plus ConfigManager] Invalid config: ' . $e->getMessage() );
+			Logger::error( '[Offload+ ConfigManager] Invalid config: ' . $e->getMessage() );
 			return false;
 		}
 
 		// Additional validation for cloud provider
 		$validation_result = self::validate_config( $new_config );
 		if ( ! $validation_result['valid'] ) {
-			Logger::error( '[Offload Plus ConfigManager] Invalid config: ' . $validation_result['error'] );
+			Logger::error( '[Offload+ ConfigManager] Invalid config: ' . $validation_result['error'] );
 			return false;
 		}
 
@@ -286,7 +286,7 @@ class ConfigManager {
 
 		if ( $saved ) {
 			Logger::refresh();
-			Logger::info( '[Offload Plus ConfigManager] Configuration saved successfully' );
+			Logger::info( '[Offload+ ConfigManager] Configuration saved successfully' );
 
 			// Update plugin state based on config
 			self::update_state_from_config( $new_config );
@@ -331,7 +331,7 @@ class ConfigManager {
 			try {
 				$provider_config = ProviderConfig::fromArray( $provider_config );
 			} catch ( \InvalidArgumentException $e ) {
-				Logger::error( '[Offload Plus ConfigManager] Invalid provider config: ' . $e->getMessage() );
+				Logger::error( '[Offload+ ConfigManager] Invalid provider config: ' . $e->getMessage() );
 				return false;
 			}
 		}
@@ -346,12 +346,12 @@ class ConfigManager {
 		$provider_array = $provider_config->toArray();
 		if ( ! empty( $provider_array['cloud_provider'] ) ) {
 			if ( ! CloudStorageFactory::is_provider_supported( $provider_array['cloud_provider'] ) ) {
-				Logger::error( '[Offload Plus ConfigManager] Unsupported cloud provider: ' . $provider_array['cloud_provider'] );
+				Logger::error( '[Offload+ ConfigManager] Unsupported cloud provider: ' . $provider_array['cloud_provider'] );
 				return false;
 			}
 
 			if ( ! self::validate_provider_config( $provider_array['cloud_provider'], $provider_array['provider_config'] ?? array() ) ) {
-				Logger::error( '[Offload Plus ConfigManager] Invalid provider configuration' );
+				Logger::error( '[Offload+ ConfigManager] Invalid provider configuration' );
 				return false;
 			}
 		}
@@ -361,7 +361,7 @@ class ConfigManager {
 		$saved   = update_option( self::CONFIG_OPTION, $payload, true );
 
 		if ( $saved ) {
-			Logger::info( '[Offload Plus ConfigManager] Provider configuration saved successfully' );
+			Logger::info( '[Offload+ ConfigManager] Provider configuration saved successfully' );
 
 			// Update plugin state
 			self::update_state_from_config( $new_plugin_config->toArray() );
@@ -382,7 +382,7 @@ class ConfigManager {
 			try {
 				$settings = PluginSettings::fromArray( $settings );
 			} catch ( \InvalidArgumentException $e ) {
-				Logger::error( '[Offload Plus ConfigManager] Invalid plugin settings: ' . $e->getMessage() );
+				Logger::error( '[Offload+ ConfigManager] Invalid plugin settings: ' . $e->getMessage() );
 				return false;
 			}
 		}
@@ -401,7 +401,7 @@ class ConfigManager {
 		if ( $saved ) {
 			// Setting toggle may have changed — pick it up without requiring a reload.
 			Logger::refresh();
-			Logger::info( '[Offload Plus ConfigManager] Plugin settings saved successfully' );
+			Logger::info( '[Offload+ ConfigManager] Plugin settings saved successfully' );
 		}
 
 		return $saved;
@@ -425,7 +425,7 @@ class ConfigManager {
 	 */
 	public static function set_state( $state ) {
 		if ( ! in_array( $state, PluginState::get_all_states(), true ) ) {
-			Logger::error( '[Offload Plus ConfigManager] Invalid state: ' . $state );
+			Logger::error( '[Offload+ ConfigManager] Invalid state: ' . $state );
 			return false;
 		}
 
@@ -438,8 +438,8 @@ class ConfigManager {
 			// Get caller information for debugging — only when verbose logging is on,
 			// since debug_backtrace() is mildly expensive and intended for diagnostics.
 			$verbose = ( defined( 'WP_DEBUG' ) && WP_DEBUG )
-				|| ( defined( 'OFFLOAD_PLUS_VERBOSE_LOGGING' ) && OFFLOAD_PLUS_VERBOSE_LOGGING )
-				|| (bool) get_option( 'offload_plus_debug_enabled', false );
+				|| ( defined( 'OFFLOAD_DLX_PLUS_VERBOSE_LOGGING' ) && OFFLOAD_DLX_PLUS_VERBOSE_LOGGING )
+				|| (bool) get_option( 'offload_dlx_plus_debug_enabled', false );
 
 			if ( $verbose ) {
                 // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Diagnostic info only logged when verbose logging is explicitly enabled.
@@ -449,9 +449,9 @@ class ConfigManager {
 				$caller_file = isset( $frame['file'] ) ? basename( $frame['file'] ) : 'unknown';
 				$caller_line = $frame['line'] ?? 'unknown';
 
-				Logger::info( '[Offload Plus ConfigManager] State changed: ' . $old_state . ' → ' . $state . ' (called from ' . $caller . ' in ' . $caller_file . ':' . $caller_line . ')' );
+				Logger::info( '[Offload+ ConfigManager] State changed: ' . $old_state . ' → ' . $state . ' (called from ' . $caller . ' in ' . $caller_file . ':' . $caller_line . ')' );
 			} else {
-				Logger::info( '[Offload Plus ConfigManager] State changed: ' . $old_state . ' → ' . $state );
+				Logger::info( '[Offload+ ConfigManager] State changed: ' . $old_state . ' → ' . $state );
 			}
 		}
 
@@ -477,7 +477,7 @@ class ConfigManager {
 	/**
 	 * Get cloud storage client instance
 	 *
-	 * @return \OffloadPlus\Interfaces\CloudStorageClientInterface|null
+	 * @return \OffloadDlxPlus\Interfaces\CloudStorageClientInterface|null
 	 */
 	public static function get_cloud_client() {
 		if ( ! self::is_configured() ) {
@@ -492,7 +492,7 @@ class ConfigManager {
 				$plugin_config->getProviderConfig()
 			);
 		} catch ( \Exception $e ) {
-			Logger::error( '[Offload Plus ConfigManager] Failed to create cloud client: ' . $e->getMessage() );
+			Logger::error( '[Offload+ ConfigManager] Failed to create cloud client: ' . $e->getMessage() );
 			return null;
 		}
 	}
@@ -601,7 +601,7 @@ class ConfigManager {
 	 * @return bool
 	 */
 	public static function migrate_from_legacy() {
-		$legacy_config = get_option( 'offload_plus_config', array() );
+		$legacy_config = get_option( 'offload_dlx_plus_config', array() );
 
 		if ( empty( $legacy_config ) ) {
 			// No legacy config to migrate
@@ -626,7 +626,7 @@ class ConfigManager {
 		$saved = self::save_config( $new_config );
 
 		if ( $saved ) {
-			Logger::info( '[Offload Plus ConfigManager] Legacy configuration migrated successfully' );
+			Logger::info( '[Offload+ ConfigManager] Legacy configuration migrated successfully' );
 		}
 
 		return $saved;
@@ -731,18 +731,18 @@ class ConfigManager {
 		$state = self::get_state();
 
 		if ( ! PluginState::can_activate_offloading( $state ) ) {
-			Logger::warning( '[Offload Plus ConfigManager] Cannot enable offloading in state: ' . $state );
+			Logger::warning( '[Offload+ ConfigManager] Cannot enable offloading in state: ' . $state );
 			return false;
 		}
 
 		// Activate stream wrapper
 		if ( CloudStreamWrapper::register() && CloudStreamWrapper::activate_offloading() ) {
 			self::set_state( PluginState::OFFLOADING_ACTIVE );
-			Logger::info( '[Offload Plus ConfigManager] Offloading enabled successfully' );
+			Logger::info( '[Offload+ ConfigManager] Offloading enabled successfully' );
 			return true;
 		}
 
-		Logger::error( '[Offload Plus ConfigManager] Failed to enable offloading' );
+		Logger::error( '[Offload+ ConfigManager] Failed to enable offloading' );
 		return false;
 	}
 
@@ -758,12 +758,12 @@ class ConfigManager {
 			// Deactivate stream wrapper
 			if ( CloudStreamWrapper::deactivate_offloading() && CloudStreamWrapper::unregister() ) {
 				self::set_state( PluginState::SYNCED );
-				Logger::info( '[Offload Plus ConfigManager] Offloading disabled successfully' );
+				Logger::info( '[Offload+ ConfigManager] Offloading disabled successfully' );
 				return true;
 			}
 		}
 
-		Logger::error( '[Offload Plus ConfigManager] Failed to disable offloading or not active' );
+		Logger::error( '[Offload+ ConfigManager] Failed to disable offloading or not active' );
 		return false;
 	}
 
@@ -846,10 +846,10 @@ class ConfigManager {
 		update_option( self::HEALTH_OPTION, $health, true );
 
 		// Clear stats transients to prevent stale data
-		delete_transient( 'offload_plus_azure_stats' );
-		delete_transient( 'offload_plus_stats' );
+		delete_transient( 'offload_dlx_plus_azure_stats' );
+		delete_transient( 'offload_dlx_plus_stats' );
 
-		Logger::warning( '[Offload Plus ConfigManager] Connection failure recorded: ' . $error_code . ' - ' . $error_message . ' (source: ' . $source . ', consecutive: ' . $health['consecutive_failures'] . ')' );
+		Logger::warning( '[Offload+ ConfigManager] Connection failure recorded: ' . $error_code . ' - ' . $error_message . ' (source: ' . $source . ', consecutive: ' . $health['consecutive_failures'] . ')' );
 	}
 
 	/**
@@ -861,7 +861,7 @@ class ConfigManager {
 
 		// Only log recovery if was previously unhealthy
 		if ( $health['status'] === 'unhealthy' ) {
-			Logger::info( '[Offload Plus ConfigManager] Connection recovered — marking healthy' );
+			Logger::info( '[Offload+ ConfigManager] Connection recovered — marking healthy' );
 		}
 
 		$health['status']               = 'healthy';
@@ -894,7 +894,7 @@ class ConfigManager {
 		delete_option( self::HEALTH_OPTION );
 
 		if ( $deleted_config || $deleted_state || $deleted_progress ) {
-			Logger::info( '[Offload Plus ConfigManager] Plugin reset completed' );
+			Logger::info( '[Offload+ ConfigManager] Plugin reset completed' );
 		}
 
 		return true;

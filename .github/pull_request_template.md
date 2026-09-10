@@ -2,10 +2,10 @@
 Thanks for sending a pull request! Please fill in the sections below to help us review faster.
 
 For end-user questions, do NOT open a PR — use the wp.org support forum:
-https://wordpress.org/support/plugin/offload-plus/
+https://wordpress.org/support/plugin/offload-dlx-plus/
 
 For security vulnerabilities, do NOT open a public PR — use GitHub Security Advisories:
-https://github.com/soydiloreto/offload-plus/security/advisories/new
+https://github.com/soydiloreto/offload-dlx-plus/security/advisories/new
 -->
 
 ## Summary
@@ -50,7 +50,7 @@ How did you verify this works? Be specific.
 
 - [ ] Branch follows the naming convention from `CONTRIBUTING.md` (`feat/`, `fix/`, `chore/`, `docs/`, `ci/`, `refactor/`, `style/`).
 - [ ] Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/).
-- [ ] User-facing strings are wrapped in WordPress translation functions with the `offload-plus` text domain.
+- [ ] User-facing strings are wrapped in WordPress translation functions with the `offload-dlx-plus` text domain.
 - [ ] User input is sanitized; output is escaped.
 - [ ] No credentials, API keys, or secrets are logged.
 - [ ] If this changes user-visible behavior, the `readme.txt` `== Changelog ==` section is updated.

@@ -2,10 +2,10 @@
 /**
  * Extension-to-MIME-type mapping helper.
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  */
 
-namespace OffloadPlus;
+namespace OffloadDlxPlus;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * - SyncManager: Batch sync operations
  * - Future providers (AWS, GCP)
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  */
 class MimeHelper {
 

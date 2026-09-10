@@ -2,14 +2,14 @@
 /**
  * Factory that instantiates a cloud-storage provider by name.
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  */
 
-namespace OffloadPlus\Factories;
+namespace OffloadDlxPlus\Factories;
 
-use OffloadPlus\Interfaces\CloudStorageClientInterface;
-use OffloadPlus\Providers\AzureProvider;
-use OffloadPlus\Providers\DiluxOneCloudProvider;
+use OffloadDlxPlus\Interfaces\CloudStorageClientInterface;
+use OffloadDlxPlus\Providers\AzureProvider;
+use OffloadDlxPlus\Providers\DiluxOneCloudProvider;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

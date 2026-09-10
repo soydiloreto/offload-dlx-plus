@@ -2,10 +2,10 @@
 namespace Tests\Unit\CloudStorage;
 
 use PHPUnit\Framework\TestCase;
-use OffloadPlus\Factories\CloudStorageFactory;
-use OffloadPlus\Interfaces\CloudStorageClientInterface;
-use OffloadPlus\Providers\AzureProvider;
-use OffloadPlus\Providers\DiluxOneCloudProvider;
+use OffloadDlxPlus\Factories\CloudStorageFactory;
+use OffloadDlxPlus\Interfaces\CloudStorageClientInterface;
+use OffloadDlxPlus\Providers\AzureProvider;
+use OffloadDlxPlus\Providers\DiluxOneCloudProvider;
 
 /**
  * Unit tests for CloudStorageFactory — provider instantiation, supported

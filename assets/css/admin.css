@@ -4,13 +4,13 @@
    Tab Navigation with Icons
    ========================================================================== */
 
-.offload-plus-admin .nav-tab-wrapper {
+.offload-dlx-plus-admin .nav-tab-wrapper {
     border-bottom: 1px solid #c3c4c7;
     padding: 0;
     margin: 20px 0 0 0;
 }
 
-.offload-plus-admin .nav-tab {
+.offload-dlx-plus-admin .nav-tab {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -18,27 +18,27 @@
     padding: 10px 15px;
 }
 
-.offload-plus-admin .nav-tab .dashicons {
+.offload-dlx-plus-admin .nav-tab .dashicons {
     font-size: 16px;
     width: 16px;
     height: 16px;
 }
 
-.offload-plus-admin h1 {
+.offload-dlx-plus-admin h1 {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.offload-plus-admin h1 .dashicons {
+.offload-dlx-plus-admin h1 .dashicons {
     color: #0073aa;
 }
 
-.offload-plus-settings,
-.offload-plus-overview,
-.offload-plus-migration,
-.offload-plus-activity,
-.offload-plus-status {
+.offload-dlx-plus-settings,
+.offload-dlx-plus-overview,
+.offload-dlx-plus-migration,
+.offload-dlx-plus-activity,
+.offload-dlx-plus-status {
     margin-top: 20px;
 }
 
@@ -417,13 +417,13 @@
 }
 
 /* DiluxOne Stats Panel */
-.offload-plus-stats-grid {
+.offload-dlx-plus-stats-grid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 12px;
 }
 
-.offload-plus-stat-card {
+.offload-dlx-plus-stat-card {
 	background: #f9f9f9;
 	border: 1px solid #e2e4e7;
 	border-radius: 6px;
@@ -431,11 +431,11 @@
 	text-align: center;
 }
 
-.offload-plus-stat-card-wide {
+.offload-dlx-plus-stat-card-wide {
 	grid-column: 1 / -1;
 }
 
-.offload-plus-stat-label {
+.offload-dlx-plus-stat-label {
 	font-size: 12px;
 	color: #646970;
 	text-transform: uppercase;
@@ -443,26 +443,26 @@
 	margin-bottom: 6px;
 }
 
-.offload-plus-stat-value {
+.offload-dlx-plus-stat-value {
 	font-size: 20px;
 	font-weight: 600;
 	color: #1d2327;
 }
 
-.offload-plus-stat-detail {
+.offload-dlx-plus-stat-detail {
 	font-size: 13px;
 	color: #50575e;
 	margin-top: 6px;
 }
 
-.offload-plus-stat-bar-container {
+.offload-dlx-plus-stat-bar-container {
 	height: 10px;
 	border-radius: 5px;
 	overflow: hidden;
 	margin-top: 8px;
 }
 
-.offload-plus-stat-bar {
+.offload-dlx-plus-stat-bar {
 	height: 100%;
 	border-radius: 5px;
 	transition: width 0.3s ease;
@@ -470,24 +470,24 @@
 
 /* Spin animation for refresh button */
 .dashicons.spin {
-	animation: offload-plus-spin 1s linear infinite;
+	animation: offload-dlx-plus-spin 1s linear infinite;
 }
 
-@keyframes offload-plus-spin {
+@keyframes offload-dlx-plus-spin {
 	100% { transform: rotate(360deg); }
 }
 
 /* Provider Info table */
-.offload-plus-provider-info th {
+.offload-dlx-plus-provider-info th {
 	width: 150px;
 	padding: 8px 10px 8px 0;
 }
 
-.offload-plus-provider-info td {
+.offload-dlx-plus-provider-info td {
 	padding: 8px 10px;
 }
 
-.offload-plus-provider-info code {
+.offload-dlx-plus-provider-info code {
 	background: #f0f0f1;
 	padding: 2px 6px;
 	border-radius: 3px;
@@ -500,7 +500,7 @@
         grid-template-columns: 1fr;
     }
 
-    .offload-plus-stats-grid {
+    .offload-dlx-plus-stats-grid {
         grid-template-columns: 1fr;
     }
     

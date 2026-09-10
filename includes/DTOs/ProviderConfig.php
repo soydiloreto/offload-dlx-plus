@@ -2,10 +2,10 @@
 /**
  * Cloud-provider configuration value object.
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  */
 
-namespace OffloadPlus\DTOs;
+namespace OffloadDlxPlus\DTOs;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Immutable value object for cloud provider settings and credentials
  *
- * @package OffloadPlus\DTOs
+ * @package OffloadDlxPlus\DTOs
  * @since 1.0.0
  */
 class ProviderConfig {

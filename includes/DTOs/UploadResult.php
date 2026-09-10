@@ -2,10 +2,10 @@
 /**
  * Single-file upload result envelope.
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  */
 
-namespace OffloadPlus\DTOs;
+namespace OffloadDlxPlus\DTOs;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Immutable value object for upload operation results
  * Note: Uses composition instead of inheritance to avoid method signature conflicts
  *
- * @package OffloadPlus\DTOs
+ * @package OffloadDlxPlus\DTOs
  * @since 1.0.0
  */
 class UploadResult {

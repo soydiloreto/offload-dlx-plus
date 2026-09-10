@@ -28,24 +28,24 @@
  *          |
  *          +-- DiluxOne API (verify + sas-token only, ~1 call/hour)
  *
- * @package OffloadPlus\Providers
+ * @package OffloadDlxPlus\Providers
  * @since 1.0.0
  */
 
-namespace OffloadPlus\Providers;
+namespace OffloadDlxPlus\Providers;
 
-use OffloadPlus\Interfaces\CloudStorageClientInterface;
-use OffloadPlus\ConfigManager;
-use OffloadPlus\Logger;
-use OffloadPlus\MimeHelper;
-use OffloadPlus\DTOs\FileInfo;
+use OffloadDlxPlus\Interfaces\CloudStorageClientInterface;
+use OffloadDlxPlus\ConfigManager;
+use OffloadDlxPlus\Logger;
+use OffloadDlxPlus\MimeHelper;
+use OffloadDlxPlus\DTOs\FileInfo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Dilux One Cloud provider — managed cloud storage backed by the Offload Plus
+ * Dilux One Cloud provider — managed cloud storage backed by the Offload+
  * One Cloud REST API.
  *
  * All file operations route through https://api.diluxone.com/cloud-storage-wp/v1
@@ -94,7 +94,7 @@ class DiluxOneCloudProvider implements CloudStorageClientInterface {
 	 * @throws \Exception If token cannot be obtained
 	 */
 	private function get_or_refresh_sas_token(): string {
-		$cached = get_transient( 'offload_plus_sas_token' );
+		$cached = get_transient( 'offload_dlx_plus_sas_token' );
 		if ( $cached !== false ) {
 			return $cached;
 		}
@@ -133,7 +133,7 @@ class DiluxOneCloudProvider implements CloudStorageClientInterface {
 		$expires_in = $body['data']['expiresIn'] ?? 3600;
 
 		// Cache at 83% of expiry (~50 min for 60 min token)
-		set_transient( 'offload_plus_sas_token', $sas_token, (int) ( $expires_in * 0.83 ) );
+		set_transient( 'offload_dlx_plus_sas_token', $sas_token, (int) ( $expires_in * 0.83 ) );
 
 		// Update cdn_base_url if provided
 		if ( ! empty( $body['data']['containerUrl'] ) ) {
@@ -150,7 +150,7 @@ class DiluxOneCloudProvider implements CloudStorageClientInterface {
 	 * @return void
 	 */
 	private function invalidate_sas_token(): void {
-		delete_transient( 'offload_plus_sas_token' );
+		delete_transient( 'offload_dlx_plus_sas_token' );
 	}
 
 	/**
@@ -297,7 +297,7 @@ class DiluxOneCloudProvider implements CloudStorageClientInterface {
 	 */
 	public function get_stats( bool $force_refresh = false ): array {
 		if ( ! $force_refresh ) {
-			$cached = get_transient( 'offload_plus_stats' );
+			$cached = get_transient( 'offload_dlx_plus_stats' );
 			if ( $cached !== false ) {
 				return array(
 					'success' => true,
@@ -330,9 +330,9 @@ class DiluxOneCloudProvider implements CloudStorageClientInterface {
 
 			if ( $code !== 200 || ! isset( $body['data'] ) ) {
 				$error = $body['error']['message'] ?? "HTTP $code";
-				delete_transient( 'offload_plus_stats' );
+				delete_transient( 'offload_dlx_plus_stats' );
 				$error_code = (string) $code;
-				\OffloadPlus\ConfigManager::record_connection_failure( $error_code, $error, 'stats_refresh' );
+				\OffloadDlxPlus\ConfigManager::record_connection_failure( $error_code, $error, 'stats_refresh' );
 				return array(
 					'success' => false,
 					'message' => $error,
@@ -340,7 +340,7 @@ class DiluxOneCloudProvider implements CloudStorageClientInterface {
 			}
 
 			$data = $body['data'];
-			set_transient( 'offload_plus_stats', $data, 300 );
+			set_transient( 'offload_dlx_plus_stats', $data, 300 );
 
 			return array(
 				'success' => true,
@@ -348,8 +348,8 @@ class DiluxOneCloudProvider implements CloudStorageClientInterface {
 			);
 
 		} catch ( \Exception $e ) {
-			delete_transient( 'offload_plus_stats' );
-			\OffloadPlus\ConfigManager::record_connection_failure( 'exception', $e->getMessage(), 'stats_refresh' );
+			delete_transient( 'offload_dlx_plus_stats' );
+			\OffloadDlxPlus\ConfigManager::record_connection_failure( 'exception', $e->getMessage(), 'stats_refresh' );
 			return array(
 				'success' => false,
 				'message' => $e->getMessage(),
@@ -885,8 +885,8 @@ class DiluxOneCloudProvider implements CloudStorageClientInterface {
 
 				// Do NOT retry client errors (4xx)
 				if ( $this->is_non_retryable_error( $error_code ) ) {
-					Logger::info( '[Offload Plus DiluxOneProvider] Non-retryable error (' . $error_code . '): ' . $e->getMessage() );
-					\OffloadPlus\ConfigManager::record_connection_failure(
+					Logger::info( '[Offload+ DiluxOneProvider] Non-retryable error (' . $error_code . '): ' . $e->getMessage() );
+					\OffloadDlxPlus\ConfigManager::record_connection_failure(
 						$error_code,
 						$e->getMessage(),
 						'list_files'
@@ -895,7 +895,7 @@ class DiluxOneCloudProvider implements CloudStorageClientInterface {
 				}
 
 				if ( $attempt < $max_retries ) {
-					Logger::info( '[Offload Plus DiluxOneProvider] list_files attempt ' . $attempt . ' failed, retrying: ' . $e->getMessage() );
+					Logger::info( '[Offload+ DiluxOneProvider] list_files attempt ' . $attempt . ' failed, retrying: ' . $e->getMessage() );
 					sleep( $retry_delay );
 					continue;
 				}

@@ -10,17 +10,17 @@
  *
  * phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use OffloadPlus\Admin;
-use OffloadPlus\ConfigManager;
+use OffloadDlxPlus\Admin;
+use OffloadDlxPlus\ConfigManager;
 
-use OffloadPlus\Enums\PluginState;
+use OffloadDlxPlus\Enums\PluginState;
 
 // Get plugin state and config
 $plugin_state = ConfigManager::get_state();
@@ -45,14 +45,14 @@ $pause_cause = (string) ( $health['error_code'] ?? '' );
 $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 ?>
 
-<div class="offload-plus-overview">
+<div class="offload-dlx-plus-overview">
 	<!-- Welcome Header -->
 	<div class="welcome-header">
-		<h2><?php esc_html_e( 'Welcome to Offload Plus', 'offload-plus' ); ?></h2>
+		<h2><?php esc_html_e( 'Welcome to Offload+', 'offload-dlx-plus' ); ?></h2>
 		<p class="description">
-			<?php esc_html_e( 'Offload your WordPress media files to cloud storage and free up server space.', 'offload-plus' ); ?>
+			<?php esc_html_e( 'Offload your WordPress media files to cloud storage and free up server space.', 'offload-dlx-plus' ); ?>
 			<a href="<?php echo esc_url( 'https://diluxone.com/' ); ?>" target="_blank" rel="noopener noreferrer">
-				<?php esc_html_e( 'More Info', 'offload-plus' ); ?>
+				<?php esc_html_e( 'More Info', 'offload-dlx-plus' ); ?>
 			</a>
 		</p>
 	</div>
@@ -77,9 +77,9 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 				<span class="dashicons <?php echo esc_attr( $config_card_icon ); ?>"></span>
 			</div>
 			<div class="status-content">
-				<h3><?php esc_html_e( 'Configuration', 'offload-plus' ); ?></h3>
+				<h3><?php esc_html_e( 'Configuration', 'offload-dlx-plus' ); ?></h3>
 				<?php if ( $is_configured && ! $is_paused ) : ?>
-					<p class="status-label status-active"><?php esc_html_e( 'Configured', 'offload-plus' ); ?></p>
+					<p class="status-label status-active"><?php esc_html_e( 'Configured', 'offload-dlx-plus' ); ?></p>
 					<p class="status-details">
 						<?php
 						$provider_names   = array(
@@ -90,7 +90,7 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 						echo wp_kses(
 							sprintf(
 								/* translators: %s: cloud provider name */
-								__( 'Provider: <strong>%s</strong>', 'offload-plus' ),
+								__( 'Provider: <strong>%s</strong>', 'offload-dlx-plus' ),
 								esc_html( $provider_display )
 							),
 							array( 'strong' => array() )
@@ -102,40 +102,40 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 							<?php
 							echo wp_kses(
 								/* translators: %s: storage account name */
-								sprintf( __( 'Account: <strong>%s</strong>', 'offload-plus' ), esc_html( $config['account_name'] ) ),
+								sprintf( __( 'Account: <strong>%s</strong>', 'offload-dlx-plus' ), esc_html( $config['account_name'] ) ),
 								array( 'strong' => array() )
 							);
 							?>
 						</p>
 					<?php endif; ?>
 				<?php elseif ( $is_decrypt_failure ) : ?>
-					<p class="status-label" style="color:#dba617;"><?php esc_html_e( 'Awaiting Re-entry', 'offload-plus' ); ?></p>
+					<p class="status-label" style="color:#dba617;"><?php esc_html_e( 'Awaiting Re-entry', 'offload-dlx-plus' ); ?></p>
 					<p class="status-details" style="color:#856404;">
-						<?php esc_html_e( 'Stored credentials cannot be decrypted. See banner above.', 'offload-plus' ); ?>
+						<?php esc_html_e( 'Stored credentials cannot be decrypted. See banner above.', 'offload-dlx-plus' ); ?>
 					</p>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=offload-plus&tab=cloud-provider' ) ); ?>" class="button button-primary button-small">
-						<?php esc_html_e( 'Re-enter Credentials', 'offload-plus' ); ?>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=offload-dlx-plus&tab=cloud-provider' ) ); ?>" class="button button-primary button-small">
+						<?php esc_html_e( 'Re-enter Credentials', 'offload-dlx-plus' ); ?>
 					</a>
 				<?php elseif ( $is_configured && $is_paused ) : ?>
 					<p class="status-label" style="color:#dba617;">
 						<?php
 						printf(
 							/* translators: %s: short reason for the pause */
-							esc_html__( 'Paused (%s)', 'offload-plus' ),
+							esc_html__( 'Paused (%s)', 'offload-dlx-plus' ),
 							esc_html( $pause_label )
 						);
 						?>
 					</p>
 					<p class="status-details" style="color:#856404;">
-						<?php esc_html_e( 'See banner above for details.', 'offload-plus' ); ?>
+						<?php esc_html_e( 'See banner above for details.', 'offload-dlx-plus' ); ?>
 					</p>
 				<?php else : ?>
-					<p class="status-label status-inactive"><?php esc_html_e( 'Not Configured', 'offload-plus' ); ?></p>
+					<p class="status-label status-inactive"><?php esc_html_e( 'Not Configured', 'offload-dlx-plus' ); ?></p>
 					<p class="status-details">
-						<?php esc_html_e( 'Connect a cloud provider to get started', 'offload-plus' ); ?>
+						<?php esc_html_e( 'Connect a cloud provider to get started', 'offload-dlx-plus' ); ?>
 					</p>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=offload-plus&tab=cloud-provider' ) ); ?>" class="button button-primary button-small">
-						<?php esc_html_e( 'Configure Now', 'offload-plus' ); ?>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=offload-dlx-plus&tab=cloud-provider' ) ); ?>" class="button button-primary button-small">
+						<?php esc_html_e( 'Configure Now', 'offload-dlx-plus' ); ?>
 					</a>
 				<?php endif; ?>
 			</div>
@@ -150,39 +150,39 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 				<span class="dashicons <?php echo $is_synced ? 'dashicons-cloud-saved' : 'dashicons-cloud-upload'; ?>"></span>
 			</div>
 			<div class="status-content">
-				<h3><?php esc_html_e( 'Synchronization', 'offload-plus' ); ?></h3>
+				<h3><?php esc_html_e( 'Synchronization', 'offload-dlx-plus' ); ?></h3>
 				<?php if ( $is_synced && ! $is_paused ) : ?>
-					<p class="status-label status-active"><?php esc_html_e( 'Synced', 'offload-plus' ); ?></p>
+					<p class="status-label status-active"><?php esc_html_e( 'Synced', 'offload-dlx-plus' ); ?></p>
 					<p class="status-details">
-						<?php esc_html_e( 'Your files are in the cloud', 'offload-plus' ); ?>
+						<?php esc_html_e( 'Your files are in the cloud', 'offload-dlx-plus' ); ?>
 					</p>
 				<?php elseif ( $is_synced && $is_paused ) : ?>
 					<p class="status-label" style="color:#dba617;">
 						<?php
 						printf(
 							/* translators: %s: short reason for the pause */
-							esc_html__( 'Paused (%s)', 'offload-plus' ),
+							esc_html__( 'Paused (%s)', 'offload-dlx-plus' ),
 							esc_html( $pause_label )
 						);
 						?>
 					</p>
 					<p class="status-details">
-						<?php esc_html_e( 'Files were synced previously, but the plugin cannot reach the cloud right now.', 'offload-plus' ); ?>
+						<?php esc_html_e( 'Files were synced previously, but the plugin cannot reach the cloud right now.', 'offload-dlx-plus' ); ?>
 					</p>
 				<?php else : ?>
-					<p class="status-label status-inactive"><?php esc_html_e( 'Not Synced', 'offload-plus' ); ?></p>
+					<p class="status-label status-inactive"><?php esc_html_e( 'Not Synced', 'offload-dlx-plus' ); ?></p>
 					<p class="status-details">
 						<?php
 						if ( $is_configured ) {
-							esc_html_e( 'Ready to sync your files', 'offload-plus' );
+							esc_html_e( 'Ready to sync your files', 'offload-dlx-plus' );
 						} else {
-							esc_html_e( 'Configure cloud storage first', 'offload-plus' );
+							esc_html_e( 'Configure cloud storage first', 'offload-dlx-plus' );
 						}
 						?>
 					</p>
 					<?php if ( $is_configured && ! $is_paused ) : ?>
-						<a href="<?php echo esc_url( admin_url( 'admin.php?page=offload-plus&tab=sync' ) ); ?>" class="button button-primary button-small">
-							<?php esc_html_e( 'Start Sync', 'offload-plus' ); ?>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=offload-dlx-plus&tab=sync' ) ); ?>" class="button button-primary button-small">
+							<?php esc_html_e( 'Start Sync', 'offload-dlx-plus' ); ?>
 						</a>
 					<?php endif; ?>
 				<?php endif; ?>
@@ -198,33 +198,33 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 				<span class="dashicons <?php echo $is_offloading ? 'dashicons-superhero' : 'dashicons-database'; ?>"></span>
 			</div>
 			<div class="status-content">
-				<h3><?php esc_html_e( 'Offloading', 'offload-plus' ); ?></h3>
+				<h3><?php esc_html_e( 'Offloading', 'offload-dlx-plus' ); ?></h3>
 				<?php if ( $is_offloading && ! $is_paused ) : ?>
-					<p class="status-label status-active"><?php esc_html_e( 'Active', 'offload-plus' ); ?></p>
+					<p class="status-label status-active"><?php esc_html_e( 'Active', 'offload-dlx-plus' ); ?></p>
 					<p class="status-details">
-						<?php esc_html_e( 'Files served from cloud storage', 'offload-plus' ); ?>
+						<?php esc_html_e( 'Files served from cloud storage', 'offload-dlx-plus' ); ?>
 					</p>
 				<?php elseif ( $is_offloading && $is_paused ) : ?>
 					<p class="status-label" style="color:#dba617;">
 						<?php
 						printf(
 							/* translators: %s: short reason for the pause */
-							esc_html__( 'Paused (%s)', 'offload-plus' ),
+							esc_html__( 'Paused (%s)', 'offload-dlx-plus' ),
 							esc_html( $pause_label )
 						);
 						?>
 					</p>
 					<p class="status-details">
-						<?php esc_html_e( 'Falling back to local storage for new uploads.', 'offload-plus' ); ?>
+						<?php esc_html_e( 'Falling back to local storage for new uploads.', 'offload-dlx-plus' ); ?>
 					</p>
 				<?php else : ?>
-					<p class="status-label status-inactive"><?php esc_html_e( 'Inactive', 'offload-plus' ); ?></p>
+					<p class="status-label status-inactive"><?php esc_html_e( 'Inactive', 'offload-dlx-plus' ); ?></p>
 					<p class="status-details">
 						<?php
 						if ( $is_synced ) {
-							esc_html_e( 'Files still served locally', 'offload-plus' );
+							esc_html_e( 'Files still served locally', 'offload-dlx-plus' );
 						} else {
-							esc_html_e( 'Sync files first to enable', 'offload-plus' );
+							esc_html_e( 'Sync files first to enable', 'offload-dlx-plus' );
 						}
 						?>
 					</p>
@@ -238,7 +238,7 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 				<span class="dashicons dashicons-info"></span>
 			</div>
 			<div class="status-content">
-				<h3><?php esc_html_e( 'Plugin State', 'offload-plus' ); ?></h3>
+				<h3><?php esc_html_e( 'Plugin State', 'offload-dlx-plus' ); ?></h3>
 				<p class="status-label">
 					<?php
 					$badge_class = 'state-gray';
@@ -246,23 +246,23 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 					switch ( $plugin_state ) {
 						case PluginState::NOT_CONFIGURED:
 							$badge_class = 'state-gray';
-							$badge_label = __( 'Not Configured', 'offload-plus' );
+							$badge_label = __( 'Not Configured', 'offload-dlx-plus' );
 							break;
 						case PluginState::CONFIGURED:
 							$badge_class = 'state-blue';
-							$badge_label = __( 'Configured', 'offload-plus' );
+							$badge_label = __( 'Configured', 'offload-dlx-plus' );
 							break;
 						case PluginState::SYNCING:
 							$badge_class = 'state-yellow';
-							$badge_label = __( 'Syncing', 'offload-plus' );
+							$badge_label = __( 'Syncing', 'offload-dlx-plus' );
 							break;
 						case PluginState::SYNCED:
 							$badge_class = 'state-green';
-							$badge_label = __( 'Synced', 'offload-plus' );
+							$badge_label = __( 'Synced', 'offload-dlx-plus' );
 							break;
 						case PluginState::OFFLOADING_ACTIVE:
 							$badge_class = 'state-purple';
-							$badge_label = __( 'Offloading Active', 'offload-plus' );
+							$badge_label = __( 'Offloading Active', 'offload-dlx-plus' );
 							break;
 					}
 					if ( $is_paused ) {
@@ -276,14 +276,14 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 						<?php
 						printf(
 							/* translators: %s: short reason for the pause */
-							esc_html__( 'Paused (%s) — see banner above.', 'offload-plus' ),
+							esc_html__( 'Paused (%s) — see banner above.', 'offload-dlx-plus' ),
 							esc_html( $pause_label )
 						);
 						?>
 					</p>
 				<?php else : ?>
 					<p class="status-details">
-						<?php esc_html_e( 'Current operational mode', 'offload-plus' ); ?>
+						<?php esc_html_e( 'Current operational mode', 'offload-dlx-plus' ); ?>
 					</p>
 				<?php endif; ?>
 			</div>
@@ -294,36 +294,36 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 	<?php if ( $is_configured && $cloud_stats ) : ?>
 		<div class="storage-overview-section">
 			<h3 style="display: flex; align-items: center; justify-content: space-between;">
-				<?php esc_html_e( 'Storage Overview', 'offload-plus' ); ?>
+				<?php esc_html_e( 'Storage Overview', 'offload-dlx-plus' ); ?>
 				<button type="button" id="refresh-stats-btn" class="button button-small">
 					<span class="dashicons dashicons-update" style="font-size: 14px; width: 14px; height: 14px; vertical-align: middle;"></span>
-					<?php esc_html_e( 'Refresh', 'offload-plus' ); ?>
+					<?php esc_html_e( 'Refresh', 'offload-dlx-plus' ); ?>
 				</button>
 			</h3>
 
 			<div id="stats-loading" style="display: none; text-align: center; padding: 20px;">
 				<span class="spinner is-active" style="float: none;"></span>
-				<p class="description"><?php esc_html_e( 'Loading storage statistics...', 'offload-plus' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Loading storage statistics...', 'offload-dlx-plus' ); ?></p>
 			</div>
 
 			<div id="stats-content">
 				<?php if ( ! $cloud_stats['success'] ) : ?>
 					<!-- Storage bar with ERROR -->
-					<div class="offload-plus-overview-bars">
-						<div class="offload-plus-bar-section">
-							<div class="offload-plus-bar-header">
-								<span class="offload-plus-bar-title"><?php esc_html_e( 'Storage', 'offload-plus' ); ?></span>
-								<span class="offload-plus-bar-value" id="stat-storage-detail" style="color: #d63638; font-weight: 600;">ERROR</span>
+					<div class="offload-dlx-plus-overview-bars">
+						<div class="offload-dlx-plus-bar-section">
+							<div class="offload-dlx-plus-bar-header">
+								<span class="offload-dlx-plus-bar-title"><?php esc_html_e( 'Storage', 'offload-dlx-plus' ); ?></span>
+								<span class="offload-dlx-plus-bar-value" id="stat-storage-detail" style="color: #d63638; font-weight: 600;">ERROR</span>
 							</div>
 						</div>
 					</div>
 					<!-- Files section with ERROR -->
-					<div class="offload-plus-files-section">
-						<div class="offload-plus-files-grid">
-							<div class="offload-plus-files-count">
-								<span class="offload-plus-stat-label"><?php esc_html_e( 'Total Files', 'offload-plus' ); ?></span>
-								<div id="stat-file-count" class="offload-plus-stat-value" style="color: #d63638; font-size: 16px;">
-									<?php esc_html_e( 'ERROR: please update your credentials', 'offload-plus' ); ?>
+					<div class="offload-dlx-plus-files-section">
+						<div class="offload-dlx-plus-files-grid">
+							<div class="offload-dlx-plus-files-count">
+								<span class="offload-dlx-plus-stat-label"><?php esc_html_e( 'Total Files', 'offload-dlx-plus' ); ?></span>
+								<div id="stat-file-count" class="offload-dlx-plus-stat-value" style="color: #d63638; font-size: 16px;">
+									<?php esc_html_e( 'ERROR: please update your credentials', 'offload-dlx-plus' ); ?>
 								</div>
 							</div>
 						</div>
@@ -348,7 +348,7 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 					$files_by_type = $cs_data['filesByType'] ?? null;
 
 					// Color helper for bar charts
-					$offload_plus_bar_color = function ( float $pct, bool $exceeded = false ): array {
+					$offload_dlx_plus_bar_color = function ( float $pct, bool $exceeded = false ): array {
 						if ( $exceeded ) {
 							return array(
 								'color' => '#d63638',
@@ -366,31 +366,31 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 							'bg'    => '#d1e7dd',
 						);
 					};
-					$storage_colors         = $offload_plus_bar_color( $storage_pct, $quota_exceeded );
-					$bw_colors              = $offload_plus_bar_color( $bw_pct );
+					$storage_colors             = $offload_dlx_plus_bar_color( $storage_pct, $quota_exceeded );
+					$bw_colors                  = $offload_dlx_plus_bar_color( $bw_pct );
 					?>
 
 					<?php if ( $quota_exceeded ) : ?>
 					<div id="quota-exceeded-warning" style="background: #f8d7da; border-left: 4px solid #d63638; padding: 12px; margin-bottom: 15px; border-radius: 4px;">
-						<strong style="color: #721c24;"><?php esc_html_e( 'Storage quota exceeded. Uploads are disabled until you free up space or upgrade your plan.', 'offload-plus' ); ?></strong>
+						<strong style="color: #721c24;"><?php esc_html_e( 'Storage quota exceeded. Uploads are disabled until you free up space or upgrade your plan.', 'offload-dlx-plus' ); ?></strong>
 					</div>
 					<?php endif; ?>
 
 					<!-- Plan name -->
 					<?php if ( ( $cs_data['plan'] ?? null ) !== null ) : ?>
 					<div id="stat-plan-section" style="text-align: center; margin-bottom: 20px;">
-						<span class="offload-plus-stat-label"><?php esc_html_e( 'Current Plan', 'offload-plus' ); ?></span>
+						<span class="offload-dlx-plus-stat-label"><?php esc_html_e( 'Current Plan', 'offload-dlx-plus' ); ?></span>
 						<div id="stat-plan" style="font-size: 28px; font-weight: 700; color: #2271b1; margin-top: 4px;"><?php echo esc_html( $cs_data['plan'] ); ?></div>
 					</div>
 					<?php endif; ?>
 
 					<!-- Progress bars -->
-					<div class="offload-plus-overview-bars">
+					<div class="offload-dlx-plus-overview-bars">
 						<!-- Storage bar -->
-						<div class="offload-plus-bar-section">
-							<div class="offload-plus-bar-header">
-								<span class="offload-plus-bar-title"><?php esc_html_e( 'Storage', 'offload-plus' ); ?></span>
-								<span class="offload-plus-bar-value" id="stat-storage-detail">
+						<div class="offload-dlx-plus-bar-section">
+							<div class="offload-dlx-plus-bar-header">
+								<span class="offload-dlx-plus-bar-title"><?php esc_html_e( 'Storage', 'offload-dlx-plus' ); ?></span>
+								<span class="offload-dlx-plus-bar-value" id="stat-storage-detail">
 									<?php if ( $has_storage_limit ) : ?>
 										<?php echo esc_html( sprintf( '%s / %s (%s%%)', (string) size_format( $used_bytes ), (string) size_format( $storage_limit ), $storage_pct ) ); ?>
 									<?php else : ?>
@@ -399,28 +399,28 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 								</span>
 							</div>
 							<?php if ( $has_storage_limit ) : ?>
-							<div class="offload-plus-stat-bar-container" style="background: <?php echo esc_attr( $storage_colors['bg'] ); ?>;">
-								<div id="stat-storage-bar" class="offload-plus-stat-bar" style="width: <?php echo esc_attr( (string) min( $storage_pct, 100 ) ); ?>%; background: <?php echo esc_attr( $storage_colors['color'] ); ?>;"></div>
+							<div class="offload-dlx-plus-stat-bar-container" style="background: <?php echo esc_attr( $storage_colors['bg'] ); ?>;">
+								<div id="stat-storage-bar" class="offload-dlx-plus-stat-bar" style="width: <?php echo esc_attr( (string) min( $storage_pct, 100 ) ); ?>%; background: <?php echo esc_attr( $storage_colors['color'] ); ?>;"></div>
 							</div>
 							<?php endif; ?>
 						</div>
 
 						<!-- Bandwidth bar (DiluxOne only) -->
 						<?php if ( $bw_used !== null ) : ?>
-						<div class="offload-plus-bar-section" id="stat-bandwidth-section">
-							<div class="offload-plus-bar-header">
-								<span class="offload-plus-bar-title"><?php esc_html_e( 'Bandwidth (30 days)', 'offload-plus' ); ?></span>
-								<span class="offload-plus-bar-value" id="stat-bandwidth-detail">
+						<div class="offload-dlx-plus-bar-section" id="stat-bandwidth-section">
+							<div class="offload-dlx-plus-bar-header">
+								<span class="offload-dlx-plus-bar-title"><?php esc_html_e( 'Bandwidth (30 days)', 'offload-dlx-plus' ); ?></span>
+								<span class="offload-dlx-plus-bar-value" id="stat-bandwidth-detail">
 									<?php if ( $has_bw_limit ) : ?>
 										<?php echo esc_html( sprintf( '%s / %s (%s%%)', (string) size_format( $bw_used ), (string) size_format( $bw_limit ), $bw_pct ) ); ?>
 									<?php else : ?>
-										<?php echo $bw_used > 0 ? esc_html( (string) size_format( $bw_used ) ) : esc_html__( 'Not available', 'offload-plus' ); ?>
+										<?php echo $bw_used > 0 ? esc_html( (string) size_format( $bw_used ) ) : esc_html__( 'Not available', 'offload-dlx-plus' ); ?>
 									<?php endif; ?>
 								</span>
 							</div>
 							<?php if ( $has_bw_limit ) : ?>
-							<div class="offload-plus-stat-bar-container" style="background: <?php echo esc_attr( $bw_colors['bg'] ); ?>;">
-								<div id="stat-bandwidth-bar" class="offload-plus-stat-bar" style="width: <?php echo esc_attr( (string) min( $bw_pct, 100 ) ); ?>%; background: <?php echo esc_attr( $bw_colors['color'] ); ?>;"></div>
+							<div class="offload-dlx-plus-stat-bar-container" style="background: <?php echo esc_attr( $bw_colors['bg'] ); ?>;">
+								<div id="stat-bandwidth-bar" class="offload-dlx-plus-stat-bar" style="width: <?php echo esc_attr( (string) min( $bw_pct, 100 ) ); ?>%; background: <?php echo esc_attr( $bw_colors['color'] ); ?>;"></div>
 							</div>
 							<?php endif; ?>
 						</div>
@@ -428,12 +428,12 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 					</div>
 
 					<!-- Files section with pie chart -->
-					<div class="offload-plus-files-section">
-						<div class="offload-plus-files-grid">
+					<div class="offload-dlx-plus-files-section">
+						<div class="offload-dlx-plus-files-grid">
 							<!-- File count -->
-							<div class="offload-plus-files-count">
-								<span class="offload-plus-stat-label"><?php esc_html_e( 'Total Files', 'offload-plus' ); ?></span>
-								<div id="stat-file-count" class="offload-plus-stat-value"><?php echo esc_html( number_format_i18n( $cs_data['fileCount'] ?? 0 ) ); ?></div>
+							<div class="offload-dlx-plus-files-count">
+								<span class="offload-dlx-plus-stat-label"><?php esc_html_e( 'Total Files', 'offload-dlx-plus' ); ?></span>
+								<div id="stat-file-count" class="offload-dlx-plus-stat-value"><?php echo esc_html( number_format_i18n( $cs_data['fileCount'] ?? 0 ) ); ?></div>
 							</div>
 
 							<!-- Pie chart (only if filesByType exists from API) -->
@@ -449,31 +449,31 @@ $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 									$s2         = $s1 + $pct_videos;
 									$s3         = $s2 + $pct_audio;
 									?>
-							<div class="offload-plus-pie-container" id="stat-pie-section">
-								<div class="offload-plus-pie" style="background: conic-gradient(#2271b1 0% <?php echo esc_attr( (string) $s1 ); ?>%, #d63638 <?php echo esc_attr( (string) $s1 ); ?>% <?php echo esc_attr( (string) $s2 ); ?>%, #dba617 <?php echo esc_attr( (string) $s2 ); ?>% <?php echo esc_attr( (string) $s3 ); ?>%, #8c8f94 <?php echo esc_attr( (string) $s3 ); ?>% 100%);"></div>
-								<div class="offload-plus-pie-legend">
-									<div class="offload-plus-legend-item"><span class="offload-plus-legend-dot" style="background: #2271b1;"></span>
+							<div class="offload-dlx-plus-pie-container" id="stat-pie-section">
+								<div class="offload-dlx-plus-pie" style="background: conic-gradient(#2271b1 0% <?php echo esc_attr( (string) $s1 ); ?>%, #d63638 <?php echo esc_attr( (string) $s1 ); ?>% <?php echo esc_attr( (string) $s2 ); ?>%, #dba617 <?php echo esc_attr( (string) $s2 ); ?>% <?php echo esc_attr( (string) $s3 ); ?>%, #8c8f94 <?php echo esc_attr( (string) $s3 ); ?>% 100%);"></div>
+								<div class="offload-dlx-plus-pie-legend">
+									<div class="offload-dlx-plus-legend-item"><span class="offload-dlx-plus-legend-dot" style="background: #2271b1;"></span>
 									<?php
 										/* translators: 1: number of files, 2: percentage */
-										echo esc_html( sprintf( __( 'Images %1$s (%2$s%%)', 'offload-plus' ), number_format_i18n( $files_by_type['images'] ?? 0 ), $pct_images ) );
+										echo esc_html( sprintf( __( 'Images %1$s (%2$s%%)', 'offload-dlx-plus' ), number_format_i18n( $files_by_type['images'] ?? 0 ), $pct_images ) );
 									?>
 									</div>
-									<div class="offload-plus-legend-item"><span class="offload-plus-legend-dot" style="background: #d63638;"></span>
+									<div class="offload-dlx-plus-legend-item"><span class="offload-dlx-plus-legend-dot" style="background: #d63638;"></span>
 									<?php
 										/* translators: 1: number of files, 2: percentage */
-										echo esc_html( sprintf( __( 'Videos %1$s (%2$s%%)', 'offload-plus' ), number_format_i18n( $files_by_type['videos'] ?? 0 ), $pct_videos ) );
+										echo esc_html( sprintf( __( 'Videos %1$s (%2$s%%)', 'offload-dlx-plus' ), number_format_i18n( $files_by_type['videos'] ?? 0 ), $pct_videos ) );
 									?>
 									</div>
-									<div class="offload-plus-legend-item"><span class="offload-plus-legend-dot" style="background: #dba617;"></span>
+									<div class="offload-dlx-plus-legend-item"><span class="offload-dlx-plus-legend-dot" style="background: #dba617;"></span>
 									<?php
 										/* translators: 1: number of files, 2: percentage */
-										echo esc_html( sprintf( __( 'Audio %1$s (%2$s%%)', 'offload-plus' ), number_format_i18n( $files_by_type['audio'] ?? 0 ), $pct_audio ) );
+										echo esc_html( sprintf( __( 'Audio %1$s (%2$s%%)', 'offload-dlx-plus' ), number_format_i18n( $files_by_type['audio'] ?? 0 ), $pct_audio ) );
 									?>
 									</div>
-									<div class="offload-plus-legend-item"><span class="offload-plus-legend-dot" style="background: #8c8f94;"></span>
+									<div class="offload-dlx-plus-legend-item"><span class="offload-dlx-plus-legend-dot" style="background: #8c8f94;"></span>
 									<?php
 										/* translators: 1: number of files, 2: percentage */
-										echo esc_html( sprintf( __( 'Other %1$s (%2$s%%)', 'offload-plus' ), number_format_i18n( $files_by_type['other'] ?? 0 ), $pct_other ) );
+										echo esc_html( sprintf( __( 'Other %1$s (%2$s%%)', 'offload-dlx-plus' ), number_format_i18n( $files_by_type['other'] ?? 0 ), $pct_other ) );
 									?>
 									</div>
 								</div>
@@ -492,15 +492,15 @@ endif;
 						$timestamp = strtotime( $checked_at );
 						$diff      = time() - $timestamp;
 						if ( $diff < 60 ) {
-							$ago = __( 'just now', 'offload-plus' );
+							$ago = __( 'just now', 'offload-dlx-plus' );
 						} elseif ( $diff < 3600 ) {
 							$minutes = (int) ( $diff / 60 );
 							/* translators: %d: number of minutes */
-							$ago = sprintf( _n( '%d minute ago', '%d minutes ago', $minutes, 'offload-plus' ), $minutes );
+							$ago = sprintf( _n( '%d minute ago', '%d minutes ago', $minutes, 'offload-dlx-plus' ), $minutes );
 						} elseif ( $diff < 86400 ) {
 							$hours = (int) ( $diff / 3600 );
 							/* translators: %d: number of hours */
-							$ago = sprintf( _n( '%d hour ago', '%d hours ago', $hours, 'offload-plus' ), $hours );
+							$ago = sprintf( _n( '%d hour ago', '%d hours ago', $hours, 'offload-dlx-plus' ), $hours );
 						} else {
 							$ago = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp );
 						}
@@ -508,7 +508,7 @@ endif;
 					<p id="stat-last-updated" class="description" style="margin-top: 10px; text-align: right; font-size: 12px;">
 						<?php
 						/* translators: %s: relative time, e.g. "3 minutes ago" */
-						echo esc_html( sprintf( __( 'Last updated: %s', 'offload-plus' ), $ago ) );
+						echo esc_html( sprintf( __( 'Last updated: %s', 'offload-dlx-plus' ), $ago ) );
 						?>
 					</p>
 					<?php endif; ?>
@@ -520,15 +520,15 @@ endif;
 	<!-- Quick Actions -->
 	<?php if ( $is_configured ) : ?>
 		<div class="quick-links-section">
-			<h3><?php esc_html_e( 'Quick Actions', 'offload-plus' ); ?></h3>
+			<h3><?php esc_html_e( 'Quick Actions', 'offload-dlx-plus' ); ?></h3>
 			<div class="quick-links">
 				<a href="<?php echo esc_url( 'https://diluxone.com/support' ); ?>" target="_blank" rel="noopener noreferrer" class="quick-link">
 					<span class="dashicons dashicons-sos"></span>
-					<?php esc_html_e( 'Get Help', 'offload-plus' ); ?>
+					<?php esc_html_e( 'Get Help', 'offload-dlx-plus' ); ?>
 				</a>
 				<a href="<?php echo esc_url( 'https://diluxone.com/' ); ?>" target="_blank" rel="noopener noreferrer" class="quick-link">
 					<span class="dashicons dashicons-info"></span>
-					<?php esc_html_e( 'More Info', 'offload-plus' ); ?>
+					<?php esc_html_e( 'More Info', 'offload-dlx-plus' ); ?>
 				</a>
 			</div>
 		</div>
@@ -537,22 +537,22 @@ endif;
 	<!-- Getting Started (if not configured) -->
 	<?php if ( ! $is_configured ) : ?>
 		<div class="getting-started-section">
-			<h3><?php esc_html_e( 'Getting Started', 'offload-plus' ); ?></h3>
+			<h3><?php esc_html_e( 'Getting Started', 'offload-dlx-plus' ); ?></h3>
 			<ol class="setup-steps">
 				<li>
-					<strong><?php esc_html_e( 'Configure Cloud Provider', 'offload-plus' ); ?></strong>
-					<p><?php esc_html_e( 'Choose your cloud provider and enter your credentials', 'offload-plus' ); ?></p>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=offload-plus&tab=cloud-provider' ) ); ?>" class="button button-primary">
-						<?php esc_html_e( 'Go to Cloud Provider', 'offload-plus' ); ?>
+					<strong><?php esc_html_e( 'Configure Cloud Provider', 'offload-dlx-plus' ); ?></strong>
+					<p><?php esc_html_e( 'Choose your cloud provider and enter your credentials', 'offload-dlx-plus' ); ?></p>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=offload-dlx-plus&tab=cloud-provider' ) ); ?>" class="button button-primary">
+						<?php esc_html_e( 'Go to Cloud Provider', 'offload-dlx-plus' ); ?>
 					</a>
 				</li>
 				<li>
-					<strong><?php esc_html_e( 'Sync Your Files', 'offload-plus' ); ?></strong>
-					<p><?php esc_html_e( 'Upload your existing media files to the cloud', 'offload-plus' ); ?></p>
+					<strong><?php esc_html_e( 'Sync Your Files', 'offload-dlx-plus' ); ?></strong>
+					<p><?php esc_html_e( 'Upload your existing media files to the cloud', 'offload-dlx-plus' ); ?></p>
 				</li>
 				<li>
-					<strong><?php esc_html_e( 'Enable Offloading', 'offload-plus' ); ?></strong>
-					<p><?php esc_html_e( 'Serve files directly from the cloud', 'offload-plus' ); ?></p>
+					<strong><?php esc_html_e( 'Enable Offloading', 'offload-dlx-plus' ); ?></strong>
+					<p><?php esc_html_e( 'Serve files directly from the cloud', 'offload-dlx-plus' ); ?></p>
 				</li>
 			</ol>
 		</div>
@@ -560,7 +560,7 @@ endif;
 </div>
 
 <style>
-.offload-plus-overview {
+.offload-dlx-plus-overview {
 	max-width: 1200px;
 }
 
@@ -879,78 +879,78 @@ endif;
 }
 
 /* Progress bars layout */
-.offload-plus-overview-bars {
+.offload-dlx-plus-overview-bars {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
 	margin-bottom: 20px;
 }
 
-.offload-plus-bar-section {
+.offload-dlx-plus-bar-section {
 	background: #f9f9f9;
 	border: 1px solid #e2e4e7;
 	border-radius: 6px;
 	padding: 14px;
 }
 
-.offload-plus-bar-header {
+.offload-dlx-plus-bar-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 8px;
 }
 
-.offload-plus-bar-title {
+.offload-dlx-plus-bar-title {
 	font-size: 13px;
 	font-weight: 600;
 	color: #1d2327;
 }
 
-.offload-plus-bar-value {
+.offload-dlx-plus-bar-value {
 	font-size: 13px;
 	color: #50575e;
 }
 
 /* Files section with pie */
-.offload-plus-files-section {
+.offload-dlx-plus-files-section {
 	margin-top: 20px;
 	padding-top: 16px;
 	border-top: 1px solid #eee;
 }
 
-.offload-plus-files-grid {
+.offload-dlx-plus-files-grid {
 	display: flex;
 	align-items: center;
 	gap: 30px;
 }
 
-.offload-plus-files-count {
+.offload-dlx-plus-files-count {
 	text-align: center;
 	min-width: 120px;
 }
 
 /* Pie chart CSS */
-.offload-plus-pie-container {
+.offload-dlx-plus-pie-container {
 	display: flex;
 	align-items: center;
 	gap: 24px;
 	flex: 1;
 }
 
-.offload-plus-pie {
+.offload-dlx-plus-pie {
 	width: 140px;
 	height: 140px;
 	border-radius: 50%;
 	flex-shrink: 0;
 }
 
-.offload-plus-pie-legend {
+.offload-dlx-plus-pie-legend {
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
 }
 
-.offload-plus-legend-item {
+.offload-dlx-plus-legend-item {
 	display: flex;
 	align-items: center;
 	gap: 6px;
@@ -958,7 +958,7 @@ endif;
 	color: #50575e;
 }
 
-.offload-plus-legend-dot {
+.offload-dlx-plus-legend-dot {
 	width: 12px;
 	height: 12px;
 	border-radius: 50%;
@@ -967,21 +967,21 @@ endif;
 
 /* Spin animation */
 .dashicons.spin {
-	animation: offload-plus-spin 1s linear infinite;
+	animation: offload-dlx-plus-spin 1s linear infinite;
 }
 
-@keyframes offload-plus-spin {
+@keyframes offload-dlx-plus-spin {
 	100% { transform: rotate(360deg); }
 }
 
 /* Responsive for storage overview */
 @media (max-width: 782px) {
-	.offload-plus-files-grid {
+	.offload-dlx-plus-files-grid {
 		flex-direction: column;
 		text-align: center;
 	}
 
-	.offload-plus-pie-container {
+	.offload-dlx-plus-pie-container {
 		flex-direction: column;
 	}
 }
@@ -1011,8 +1011,8 @@ jQuery(document).ready(function($) {
 			url: ajaxurl,
 			type: 'POST',
 			data: {
-				action: 'offload_plus_refresh_stats',
-				nonce: '<?php echo esc_js( wp_create_nonce( 'offload_plus_admin' ) ); ?>'
+				action: 'offload_dlx_plus_refresh_stats',
+				nonce: '<?php echo esc_js( wp_create_nonce( 'offload_dlx_plus_admin' ) ); ?>'
 			},
 			timeout: 30000,
 			success: function(response) {
@@ -1065,57 +1065,57 @@ jQuery(document).ready(function($) {
 							var s3 = s2 + parseFloat(pAudio);
 							var $pie = $('#stat-pie-section');
 							if ($pie.length) {
-								$pie.find('.offload-plus-pie').css('background', 'conic-gradient(#2271b1 0% ' + s1 + '%, #d63638 ' + s1 + '% ' + s2 + '%, #dba617 ' + s2 + '% ' + s3 + '%, #8c8f94 ' + s3 + '% 100%)');
-								var $legends = $pie.find('.offload-plus-legend-item');
+								$pie.find('.offload-dlx-plus-pie').css('background', 'conic-gradient(#2271b1 0% ' + s1 + '%, #d63638 ' + s1 + '% ' + s2 + '%, #dba617 ' + s2 + '% ' + s3 + '%, #8c8f94 ' + s3 + '% 100%)');
+								var $legends = $pie.find('.offload-dlx-plus-legend-item');
 								var labels = [
-									'<?php echo esc_js( __( 'Images', 'offload-plus' ) ); ?>',
-									'<?php echo esc_js( __( 'Videos', 'offload-plus' ) ); ?>',
-									'<?php echo esc_js( __( 'Audio', 'offload-plus' ) ); ?>',
-									'<?php echo esc_js( __( 'Other', 'offload-plus' ) ); ?>'
+									'<?php echo esc_js( __( 'Images', 'offload-dlx-plus' ) ); ?>',
+									'<?php echo esc_js( __( 'Videos', 'offload-dlx-plus' ) ); ?>',
+									'<?php echo esc_js( __( 'Audio', 'offload-dlx-plus' ) ); ?>',
+									'<?php echo esc_js( __( 'Other', 'offload-dlx-plus' ) ); ?>'
 								];
 								var counts = [ft.images || 0, ft.videos || 0, ft.audio || 0, ft.other || 0];
 								var pcts = [pImages, pVideos, pAudio, pOther];
 								$legends.each(function(i) {
-									var $dot = $(this).find('.offload-plus-legend-dot').clone();
+									var $dot = $(this).find('.offload-dlx-plus-legend-dot').clone();
 									$(this).empty().append($dot).append(document.createTextNode(' ' + labels[i] + ' ' + parseInt(counts[i]).toLocaleString() + ' (' + pcts[i] + '%)'));
 								});
 							} else {
 								// Pie chart section doesn't exist yet — build it
-								var pieHtml = '<div class="offload-plus-pie-container" id="stat-pie-section">';
-								pieHtml += '<div class="offload-plus-pie" style="background: conic-gradient(#2271b1 0% ' + s1 + '%, #d63638 ' + s1 + '% ' + s2 + '%, #dba617 ' + s2 + '% ' + s3 + '%, #8c8f94 ' + s3 + '% 100%);"></div>';
-								pieHtml += '<div class="offload-plus-pie-legend">';
+								var pieHtml = '<div class="offload-dlx-plus-pie-container" id="stat-pie-section">';
+								pieHtml += '<div class="offload-dlx-plus-pie" style="background: conic-gradient(#2271b1 0% ' + s1 + '%, #d63638 ' + s1 + '% ' + s2 + '%, #dba617 ' + s2 + '% ' + s3 + '%, #8c8f94 ' + s3 + '% 100%);"></div>';
+								pieHtml += '<div class="offload-dlx-plus-pie-legend">';
 								var colors = ['#2271b1', '#d63638', '#dba617', '#8c8f94'];
 								var labels2 = [
-									'<?php echo esc_js( __( 'Images', 'offload-plus' ) ); ?>',
-									'<?php echo esc_js( __( 'Videos', 'offload-plus' ) ); ?>',
-									'<?php echo esc_js( __( 'Audio', 'offload-plus' ) ); ?>',
-									'<?php echo esc_js( __( 'Other', 'offload-plus' ) ); ?>'
+									'<?php echo esc_js( __( 'Images', 'offload-dlx-plus' ) ); ?>',
+									'<?php echo esc_js( __( 'Videos', 'offload-dlx-plus' ) ); ?>',
+									'<?php echo esc_js( __( 'Audio', 'offload-dlx-plus' ) ); ?>',
+									'<?php echo esc_js( __( 'Other', 'offload-dlx-plus' ) ); ?>'
 								];
 								var counts2 = [ft.images || 0, ft.videos || 0, ft.audio || 0, ft.other || 0];
 								var pcts2 = [pImages, pVideos, pAudio, pOther];
 								for (var i = 0; i < 4; i++) {
-									pieHtml += '<div class="offload-plus-legend-item"><span class="offload-plus-legend-dot" style="background: ' + colors[i] + ';"></span> ' + labels2[i] + ' ' + parseInt(counts2[i]).toLocaleString() + ' (' + pcts2[i] + '%)</div>';
+									pieHtml += '<div class="offload-dlx-plus-legend-item"><span class="offload-dlx-plus-legend-dot" style="background: ' + colors[i] + ';"></span> ' + labels2[i] + ' ' + parseInt(counts2[i]).toLocaleString() + ' (' + pcts2[i] + '%)</div>';
 								}
 								pieHtml += '</div></div>';
-								$('.offload-plus-files-count').after(pieHtml);
+								$('.offload-dlx-plus-files-count').after(pieHtml);
 							}
 						}
 					}
 
-					$('#stat-last-updated').text('<?php echo esc_js( __( 'Last updated:', 'offload-plus' ) ); ?> <?php echo esc_js( __( 'just now', 'offload-plus' ) ); ?>');
+					$('#stat-last-updated').text('<?php echo esc_js( __( 'Last updated:', 'offload-dlx-plus' ) ); ?> <?php echo esc_js( __( 'just now', 'offload-dlx-plus' ) ); ?>');
 				} else {
 					// Remove stale pie chart and show ERROR state
 					$('#stat-pie-section').remove();
-					var errorHtml = '<div class="offload-plus-overview-bars"><div class="offload-plus-bar-section"><div class="offload-plus-bar-header"><span class="offload-plus-bar-title"><?php echo esc_js( __( 'Storage', 'offload-plus' ) ); ?></span><span class="offload-plus-bar-value" id="stat-storage-detail" style="color: #d63638; font-weight: 600;">ERROR</span></div></div></div>';
-					errorHtml += '<div class="offload-plus-files-section"><div class="offload-plus-files-grid"><div class="offload-plus-files-count"><span class="offload-plus-stat-label"><?php echo esc_js( __( 'Total Files', 'offload-plus' ) ); ?></span><div id="stat-file-count" class="offload-plus-stat-value" style="color: #d63638; font-size: 16px;"><?php echo esc_js( __( 'ERROR: please update your credentials', 'offload-plus' ) ); ?></div></div></div></div>';
+					var errorHtml = '<div class="offload-dlx-plus-overview-bars"><div class="offload-dlx-plus-bar-section"><div class="offload-dlx-plus-bar-header"><span class="offload-dlx-plus-bar-title"><?php echo esc_js( __( 'Storage', 'offload-dlx-plus' ) ); ?></span><span class="offload-dlx-plus-bar-value" id="stat-storage-detail" style="color: #d63638; font-weight: 600;">ERROR</span></div></div></div>';
+					errorHtml += '<div class="offload-dlx-plus-files-section"><div class="offload-dlx-plus-files-grid"><div class="offload-dlx-plus-files-count"><span class="offload-dlx-plus-stat-label"><?php echo esc_js( __( 'Total Files', 'offload-dlx-plus' ) ); ?></span><div id="stat-file-count" class="offload-dlx-plus-stat-value" style="color: #d63638; font-size: 16px;"><?php echo esc_js( __( 'ERROR: please update your credentials', 'offload-dlx-plus' ) ); ?></div></div></div></div>';
 					errorHtml += '<p class="description" style="color: #d63638; margin-top: 10px;">' + (response.data.message || 'Unknown error') + '</p>';
 					$('#stats-content').html(errorHtml);
 				}
 			},
 			error: function(xhr, status, error) {
-				var msg = status === 'timeout' ? '<?php echo esc_js( __( 'Request timed out. Try again later.', 'offload-plus' ) ); ?>' : 'Network error: ' + error;
-				var errorHtml = '<div class="offload-plus-overview-bars"><div class="offload-plus-bar-section"><div class="offload-plus-bar-header"><span class="offload-plus-bar-title"><?php echo esc_js( __( 'Storage', 'offload-plus' ) ); ?></span><span class="offload-plus-bar-value" style="color: #d63638; font-weight: 600;">ERROR</span></div></div></div>';
-				errorHtml += '<div class="offload-plus-files-section"><div class="offload-plus-files-grid"><div class="offload-plus-files-count"><span class="offload-plus-stat-label"><?php echo esc_js( __( 'Total Files', 'offload-plus' ) ); ?></span><div class="offload-plus-stat-value" style="color: #d63638; font-size: 16px;"><?php echo esc_js( __( 'ERROR: please update your credentials', 'offload-plus' ) ); ?></div></div></div></div>';
+				var msg = status === 'timeout' ? '<?php echo esc_js( __( 'Request timed out. Try again later.', 'offload-dlx-plus' ) ); ?>' : 'Network error: ' + error;
+				var errorHtml = '<div class="offload-dlx-plus-overview-bars"><div class="offload-dlx-plus-bar-section"><div class="offload-dlx-plus-bar-header"><span class="offload-dlx-plus-bar-title"><?php echo esc_js( __( 'Storage', 'offload-dlx-plus' ) ); ?></span><span class="offload-dlx-plus-bar-value" style="color: #d63638; font-weight: 600;">ERROR</span></div></div></div>';
+				errorHtml += '<div class="offload-dlx-plus-files-section"><div class="offload-dlx-plus-files-grid"><div class="offload-dlx-plus-files-count"><span class="offload-dlx-plus-stat-label"><?php echo esc_js( __( 'Total Files', 'offload-dlx-plus' ) ); ?></span><div class="offload-dlx-plus-stat-value" style="color: #d63638; font-size: 16px;"><?php echo esc_js( __( 'ERROR: please update your credentials', 'offload-dlx-plus' ) ); ?></div></div></div></div>';
 				errorHtml += '<p class="description" style="color: #d63638; margin-top: 10px;">' + msg + '</p>';
 				$('#stats-content').html(errorHtml);
 			},

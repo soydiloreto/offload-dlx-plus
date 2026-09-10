@@ -1,9 +1,9 @@
 <?php
 /**
- * Offload Plus Database Manager
+ * Offload+ Database Manager
  *
  * Manages a custom database table for file tracking. Every query targets the
- * plugin's own table whose name is `$wpdb->prefix . 'offload_plus_files'` — never
+ * plugin's own table whose name is `$wpdb->prefix . 'offload_dlx_plus_files'` — never
  * derived from user input. WordPress's $wpdb->prepare() does not support
  * identifier placeholders on all currently supported WP versions, so the table
  * name is interpolated directly. Cache layers don't apply because the data is
@@ -17,10 +17,10 @@
  * phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
  * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_export
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  */
 
-namespace OffloadPlus;
+namespace OffloadDlxPlus;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -29,16 +29,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Custom-table data-access layer for sync state.
  *
- * Owns the wp_offload_plus_files table — a per-file record of sync status
+ * Owns the wp_offload_dlx_plus_files table — a per-file record of sync status
  * (synced, deleted, errors, error_message, upload_id, timestamps).
- * Created on plugin init via OffloadPlusDB::create_files_table() and migrated
+ * Created on plugin init via OffloadDlxPlusDB::create_files_table() and migrated
  * via TABLE_VERSION when the schema changes. All queries route through
  * $wpdb->prepare() inside the methods of this class.
  */
-class OffloadPlusDB {
+class OffloadDlxPlusDB {
 
 	const TABLE_VERSION        = '1.2';
-	const TABLE_VERSION_OPTION = 'offload_plus_db_version';
+	const TABLE_VERSION_OPTION = 'offload_dlx_plus_db_version';
 
 	/**
 	 * Get table name
@@ -47,7 +47,7 @@ class OffloadPlusDB {
 	 */
 	public static function get_table_name() {
 		global $wpdb;
-		return $wpdb->prefix . 'offload_plus_files';
+		return $wpdb->prefix . 'offload_dlx_plus_files';
 	}
 
 	/**
@@ -78,7 +78,7 @@ class OffloadPlusDB {
             KEY `errors` (`errors`),
             KEY `synced_errors` (`synced`, `errors`),
             KEY `synced_deleted` (`synced`, `deleted`)
-        ) $charset_collate COMMENT='Offload Plus file tracking';";
+        ) $charset_collate COMMENT='Offload+ file tracking';";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
@@ -86,7 +86,7 @@ class OffloadPlusDB {
 		// Update version
 		update_option( self::TABLE_VERSION_OPTION, self::TABLE_VERSION, false );
 
-		Logger::info( '[Offload Plus DB] Table created/updated: ' . $table_name );
+		Logger::info( '[Offload+ DB] Table created/updated: ' . $table_name );
 	}
 
 	/**
@@ -125,7 +125,7 @@ class OffloadPlusDB {
 		);
 
 		if ( $result === false ) {
-			Logger::error( '[Offload Plus DB] Error adding file: ' . $wpdb->last_error );
+			Logger::error( '[Offload+ DB] Error adding file: ' . $wpdb->last_error );
 		}
 
 		return $result !== false;
@@ -167,11 +167,11 @@ class OffloadPlusDB {
 		$result = $wpdb->query( $wpdb->prepare( $query, $values ) );
 
 		if ( $result === false ) {
-			Logger::error( '[Offload Plus DB] Error adding files batch: ' . $wpdb->last_error );
+			Logger::error( '[Offload+ DB] Error adding files batch: ' . $wpdb->last_error );
 			return false;
 		}
 
-		Logger::info( '[Offload Plus DB] Added ' . count( $files ) . ' files to tracking table' );
+		Logger::info( '[Offload+ DB] Added ' . count( $files ) . ' files to tracking table' );
 		return true;
 	}
 
@@ -204,7 +204,7 @@ class OffloadPlusDB {
 
 		// Debug logging when marking fails
 		if ( $result === false || $result === 0 ) {
-			Logger::error( '[Offload Plus DB] ⚠️ mark_synced FAILED for: ' . $file_path . ' (result=' . var_export( $result, true ) . ', wpdb->last_error=' . $wpdb->last_error . ')' );
+			Logger::error( '[Offload+ DB] ⚠️ mark_synced FAILED for: ' . $file_path . ' (result=' . var_export( $result, true ) . ', wpdb->last_error=' . $wpdb->last_error . ')' );
 		}
 
 		return $result;
@@ -452,7 +452,7 @@ class OffloadPlusDB {
         '
 		);
 
-		Logger::info( '[Offload Plus DB] Reset errors for ' . $count . ' files' );
+		Logger::info( '[Offload+ DB] Reset errors for ' . $count . ' files' );
 		return $count;
 	}
 
@@ -465,7 +465,7 @@ class OffloadPlusDB {
 		$result = $wpdb->query( 'TRUNCATE TABLE ' . self::get_table_name() );
 
 		if ( $result !== false ) {
-			Logger::info( '[Offload Plus DB] Table cleared' );
+			Logger::info( '[Offload+ DB] Table cleared' );
 		}
 
 		return $result !== false;
@@ -488,7 +488,7 @@ class OffloadPlusDB {
 		);
 
 		if ( $result !== false ) {
-			Logger::info( '[Offload Plus DB] Reset ' . $result . ' files to pending' );
+			Logger::info( '[Offload+ DB] Reset ' . $result . ' files to pending' );
 		}
 
 		return $result !== false;
@@ -513,7 +513,7 @@ class OffloadPlusDB {
 		);
 
 		if ( $result !== false ) {
-			Logger::info( '[Offload Plus DB] Reset ' . $result . ' failed files to pending for retry (errors → 0)' );
+			Logger::info( '[Offload+ DB] Reset ' . $result . ' failed files to pending for retry (errors → 0)' );
 		}
 
 		return $result !== false;
@@ -534,7 +534,7 @@ class OffloadPlusDB {
         '
 		);
 
-		Logger::info( '[Offload Plus DB] Deleted ' . $count . ' synced files from tracking' );
+		Logger::info( '[Offload+ DB] Deleted ' . $count . ' synced files from tracking' );
 		return $count;
 	}
 
@@ -590,7 +590,7 @@ class OffloadPlusDB {
 		);
 
 		if ( $result === false ) {
-			Logger::error( '[Offload Plus DB] Error adding cloud-only file: ' . $wpdb->last_error );
+			Logger::error( '[Offload+ DB] Error adding cloud-only file: ' . $wpdb->last_error );
 		}
 
 		return $result !== false;
@@ -632,11 +632,11 @@ class OffloadPlusDB {
 		$result = $wpdb->query( $wpdb->prepare( $query, $values ) );
 
 		if ( $result === false ) {
-			Logger::error( '[Offload Plus DB] Error adding cloud-only files batch: ' . $wpdb->last_error );
+			Logger::error( '[Offload+ DB] Error adding cloud-only files batch: ' . $wpdb->last_error );
 			return false;
 		}
 
-		Logger::info( '[Offload Plus DB] Added ' . count( $files ) . ' cloud-only files (deleted locally)' );
+		Logger::info( '[Offload+ DB] Added ' . count( $files ) . ' cloud-only files (deleted locally)' );
 		return true;
 	}
 

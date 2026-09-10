@@ -2,10 +2,10 @@
 /**
  * Symmetric encryption helper for sensitive credentials at rest (AES-256-GCM).
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  */
 
-namespace OffloadPlus;
+namespace OffloadDlxPlus;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Crypto {
 
-	private const PREFIX = 'OFFLOADPLUSENC1:';
+	private const PREFIX = 'OFFLOADDLXPLUSENC1:';
 
 	/**
 	 * Prefixes written by earlier releases of this plugin, still readable.
@@ -33,7 +33,7 @@ class Crypto {
 	 *
 	 * @var string[]
 	 */
-	private const LEGACY_PREFIXES = array( 'DILUXENC1:' );
+	private const LEGACY_PREFIXES = array( 'DILUXENC1:', 'OFFLOADPLUSENC1:' );
 
 	private const CIPHER  = 'aes-256-gcm';
 	private const IV_LEN  = 12;   // 96-bit IV recommended for GCM
@@ -82,7 +82,7 @@ class Crypto {
 			return $plaintext;
 		}
 		if ( ! self::is_available() ) {
-			Logger::error( '[Offload Plus Crypto] openssl/AES-256-GCM unavailable; refusing to store credential.' );
+			Logger::error( '[Offload+ Crypto] openssl/AES-256-GCM unavailable; refusing to store credential.' );
 			return '';
 		}
 
@@ -92,12 +92,12 @@ class Crypto {
 			$tag    = '';
 			$cipher = openssl_encrypt( $plaintext, self::CIPHER, $key, OPENSSL_RAW_DATA, $iv, $tag, '', self::TAG_LEN );
 			if ( $cipher === false ) {
-				Logger::error( '[Offload Plus Crypto] openssl_encrypt failed.' );
+				Logger::error( '[Offload+ Crypto] openssl_encrypt failed.' );
 				return '';
 			}
 			return self::PREFIX . base64_encode( $iv . $tag . $cipher );
 		} catch ( \Throwable $e ) {
-			Logger::error( '[Offload Plus Crypto] Encryption error: ' . $e->getMessage() );
+			Logger::error( '[Offload+ Crypto] Encryption error: ' . $e->getMessage() );
 			return '';
 		}
 	}
@@ -132,7 +132,7 @@ class Crypto {
 			$plain = openssl_decrypt( $cipher, self::CIPHER, $key, OPENSSL_RAW_DATA, $iv, $tag );
 			return $plain === false ? null : $plain;
 		} catch ( \Throwable $e ) {
-			Logger::error( '[Offload Plus Crypto] Decryption error: ' . $e->getMessage() );
+			Logger::error( '[Offload+ Crypto] Decryption error: ' . $e->getMessage() );
 			return null;
 		}
 	}
@@ -144,6 +144,6 @@ class Crypto {
 	 */
 	private static function derive_key(): string {
 		$material = wp_salt( 'auth' ) . wp_salt( 'secure_auth' );
-		return hash_hmac( 'sha256', 'offload-plus-v1', $material, true );
+		return hash_hmac( 'sha256', 'offload-dlx-plus-v1', $material, true );
 	}
 }

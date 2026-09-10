@@ -1,11 +1,11 @@
 {
-  "name": "offload-plus-dev",
+  "name": "offload-dlx-plus-dev",
   "private": true,
-  "description": "Local development environment scripts for the Offload Plus WordPress plugin. Not published to npm — only used to pin @wordpress/env for contributors.",
+  "description": "Local development environment scripts for the Offload+ WordPress plugin. Not published to npm — only used to pin @wordpress/env for contributors.",
   "license": "GPL-2.0-or-later",
   "repository": {
     "type": "git",
-    "url": "https://github.com/soydiloreto/offload-plus.git"
+    "url": "https://github.com/soydiloreto/offload-dlx-plus.git"
   },
   "engines": {
     "node": ">=18"

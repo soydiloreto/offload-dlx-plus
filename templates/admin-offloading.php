@@ -7,24 +7,24 @@
  *
  * phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use OffloadPlus\ConfigManager;
+use OffloadDlxPlus\ConfigManager;
 
 $config          = ConfigManager::get_config();
 $provider_config = ConfigManager::get_current_provider_config();
 ?>
 
-<div class="offload-plus-offloading">
-	<div class="offload-plus-header">
-		<h2><?php esc_html_e( 'Media Offloading Configuration', 'offload-plus' ); ?></h2>
+<div class="offload-dlx-plus-offloading">
+	<div class="offload-dlx-plus-header">
+		<h2><?php esc_html_e( 'Media Offloading Configuration', 'offload-dlx-plus' ); ?></h2>
 		<p class="description">
-			<?php esc_html_e( 'Configure how your media files are handled and stored in the cloud.', 'offload-plus' ); ?>
+			<?php esc_html_e( 'Configure how your media files are handled and stored in the cloud.', 'offload-dlx-plus' ); ?>
 		</p>
 	</div>
 
@@ -32,13 +32,13 @@ $provider_config = ConfigManager::get_current_provider_config();
 		<!-- Configuration Required Notice -->
 		<div class="notice notice-warning">
 			<p>
-				<strong><?php esc_html_e( 'Cloud Storage Configuration Required', 'offload-plus' ); ?></strong><br>
+				<strong><?php esc_html_e( 'Cloud Storage Configuration Required', 'offload-dlx-plus' ); ?></strong><br>
 				<?php
 				echo wp_kses(
 					sprintf(
 						/* translators: %s: URL of the Settings tab */
-						__( 'Please configure your cloud storage settings in the <a href="%s">Settings tab</a> before enabling offloading.', 'offload-plus' ),
-						esc_url( admin_url( 'admin.php?page=offload-plus&tab=settings' ) )
+						__( 'Please configure your cloud storage settings in the <a href="%s">Settings tab</a> before enabling offloading.', 'offload-dlx-plus' ),
+						esc_url( admin_url( 'admin.php?page=offload-dlx-plus&tab=settings' ) )
 					),
 					array( 'a' => array( 'href' => true ) )
 				);
@@ -48,8 +48,8 @@ $provider_config = ConfigManager::get_current_provider_config();
 	<?php else : ?>
 		
 		<!-- Offloading Status -->
-		<div class="offload-plus-offloading-status">
-			<h3><?php esc_html_e( 'Current Status', 'offload-plus' ); ?></h3>
+		<div class="offload-dlx-plus-offloading-status">
+			<h3><?php esc_html_e( 'Current Status', 'offload-dlx-plus' ); ?></h3>
 			
 			<div class="status-cards">
 				<div class="status-card <?php echo ConfigManager::is_offloading_enabled() ? 'active' : 'inactive'; ?>">
@@ -57,13 +57,13 @@ $provider_config = ConfigManager::get_current_provider_config();
 						<span class="dashicons <?php echo ConfigManager::is_offloading_enabled() ? 'dashicons-cloud' : 'dashicons-cloud-outline'; ?>"></span>
 					</div>
 					<div class="status-content">
-						<h4><?php esc_html_e( 'Media Offloading', 'offload-plus' ); ?></h4>
+						<h4><?php esc_html_e( 'Media Offloading', 'offload-dlx-plus' ); ?></h4>
 						<p class="status-text">
 							<?php if ( ConfigManager::is_offloading_enabled() ) : ?>
-								<?php esc_html_e( 'Active', 'offload-plus' ); ?>
+								<?php esc_html_e( 'Active', 'offload-dlx-plus' ); ?>
 								<span class="strategy">(<?php echo esc_html( ConfigManager::get_offloading_strategy() ); ?>)</span>
 							<?php else : ?>
-								<?php esc_html_e( 'Disabled', 'offload-plus' ); ?>
+								<?php esc_html_e( 'Disabled', 'offload-dlx-plus' ); ?>
 							<?php endif; ?>
 						</p>
 					</div>
@@ -74,7 +74,7 @@ $provider_config = ConfigManager::get_current_provider_config();
 						<span class="dashicons dashicons-admin-settings"></span>
 					</div>
 					<div class="status-content">
-						<h4><?php esc_html_e( 'Cloud Provider', 'offload-plus' ); ?></h4>
+						<h4><?php esc_html_e( 'Cloud Provider', 'offload-dlx-plus' ); ?></h4>
 						<p class="status-text">
 							<?php echo esc_html( ucfirst( $config['cloud_provider'] ) ); ?>
 							<small>(<?php echo esc_html( $provider_config['account_name'] ); ?>)</small>
@@ -85,20 +85,20 @@ $provider_config = ConfigManager::get_current_provider_config();
 		</div>
 
 		<!-- Offloading Configuration Form -->
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="offload-plus-offloading-form">
-			<input type="hidden" name="action" value="offload_plus_save_offloading">
-			<?php wp_nonce_field( 'offload_plus_save_offloading', '_wpnonce' ); ?>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="offload-dlx-plus-offloading-form">
+			<input type="hidden" name="action" value="offload_dlx_plus_save_offloading">
+			<?php wp_nonce_field( 'offload_dlx_plus_save_offloading', '_wpnonce' ); ?>
 			
 			<div class="settings-section">
-				<h3><?php esc_html_e( 'Offloading Strategy', 'offload-plus' ); ?></h3>
+				<h3><?php esc_html_e( 'Offloading Strategy', 'offload-dlx-plus' ); ?></h3>
 				
 				<table class="form-table">
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Enable Media Offloading', 'offload-plus' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Enable Media Offloading', 'offload-dlx-plus' ); ?></th>
 						<td>
 							<fieldset>
 								<legend class="screen-reader-text">
-									<span><?php esc_html_e( 'Enable Media Offloading', 'offload-plus' ); ?></span>
+									<span><?php esc_html_e( 'Enable Media Offloading', 'offload-dlx-plus' ); ?></span>
 								</legend>
 								<label for="offloading_enabled">
 									<input type="checkbox" 
@@ -106,18 +106,18 @@ $provider_config = ConfigManager::get_current_provider_config();
 											name="offloading_enabled" 
 											value="1" 
 											<?php checked( $config['offloading_enabled'] ); ?>>
-									<?php esc_html_e( 'Enable automatic media offloading to cloud storage', 'offload-plus' ); ?>
+									<?php esc_html_e( 'Enable automatic media offloading to cloud storage', 'offload-dlx-plus' ); ?>
 								</label>
 							</fieldset>
 							<p class="description">
-								<?php esc_html_e( 'When enabled, media files will be automatically uploaded to cloud storage based on the strategy selected below.', 'offload-plus' ); ?>
+								<?php esc_html_e( 'When enabled, media files will be automatically uploaded to cloud storage based on the strategy selected below.', 'offload-dlx-plus' ); ?>
 							</p>
 						</td>
 					</tr>
 				</table>
 
 				<div class="strategy-section" style="<?php echo ! $config['offloading_enabled'] ? 'display: none;' : ''; ?>">
-					<h4><?php esc_html_e( 'Offloading Strategy', 'offload-plus' ); ?></h4>
+					<h4><?php esc_html_e( 'Offloading Strategy', 'offload-dlx-plus' ); ?></h4>
 					
 					<div class="strategy-options">
 						<label class="strategy-option">
@@ -126,12 +126,12 @@ $provider_config = ConfigManager::get_current_provider_config();
 									value="complete" 
 									<?php checked( $config['offloading_strategy'], 'complete' ); ?>>
 							<div class="strategy-content">
-								<h5><?php esc_html_e( 'Complete Migration', 'offload-plus' ); ?></h5>
-								<p><?php esc_html_e( 'Upload all existing media files to cloud storage and serve all media from the cloud.', 'offload-plus' ); ?></p>
+								<h5><?php esc_html_e( 'Complete Migration', 'offload-dlx-plus' ); ?></h5>
+								<p><?php esc_html_e( 'Upload all existing media files to cloud storage and serve all media from the cloud.', 'offload-dlx-plus' ); ?></p>
 								<div class="strategy-features">
-									<span class="feature"><?php esc_html_e( '✓ All media in cloud', 'offload-plus' ); ?></span>
-									<span class="feature"><?php esc_html_e( '✓ Consistent experience', 'offload-plus' ); ?></span>
-									<span class="feature"><?php esc_html_e( '⚠ Requires migration time', 'offload-plus' ); ?></span>
+									<span class="feature"><?php esc_html_e( '✓ All media in cloud', 'offload-dlx-plus' ); ?></span>
+									<span class="feature"><?php esc_html_e( '✓ Consistent experience', 'offload-dlx-plus' ); ?></span>
+									<span class="feature"><?php esc_html_e( '⚠ Requires migration time', 'offload-dlx-plus' ); ?></span>
 								</div>
 							</div>
 						</label>
@@ -142,12 +142,12 @@ $provider_config = ConfigManager::get_current_provider_config();
 									value="new_uploads_only" 
 									<?php checked( $config['offloading_strategy'], 'new_uploads_only' ); ?>>
 							<div class="strategy-content">
-								<h5><?php esc_html_e( 'New Files Only', 'offload-plus' ); ?></h5>
-								<p><?php esc_html_e( 'Only upload new media files to cloud storage. Existing files remain local.', 'offload-plus' ); ?></p>
+								<h5><?php esc_html_e( 'New Files Only', 'offload-dlx-plus' ); ?></h5>
+								<p><?php esc_html_e( 'Only upload new media files to cloud storage. Existing files remain local.', 'offload-dlx-plus' ); ?></p>
 								<div class="strategy-features">
-									<span class="feature"><?php esc_html_e( '✓ Immediate activation', 'offload-plus' ); ?></span>
-									<span class="feature"><?php esc_html_e( '✓ No migration needed', 'offload-plus' ); ?></span>
-									<span class="feature"><?php esc_html_e( '⚠ Mixed storage locations', 'offload-plus' ); ?></span>
+									<span class="feature"><?php esc_html_e( '✓ Immediate activation', 'offload-dlx-plus' ); ?></span>
+									<span class="feature"><?php esc_html_e( '✓ No migration needed', 'offload-dlx-plus' ); ?></span>
+									<span class="feature"><?php esc_html_e( '⚠ Mixed storage locations', 'offload-dlx-plus' ); ?></span>
 								</div>
 							</div>
 						</label>
@@ -157,15 +157,15 @@ $provider_config = ConfigManager::get_current_provider_config();
 
 			<!-- Additional Offloading Options -->
 			<div class="additional-options" style="<?php echo ! $config['offloading_enabled'] ? 'display: none;' : ''; ?>">
-				<h3><?php esc_html_e( 'Offloading Options', 'offload-plus' ); ?></h3>
+				<h3><?php esc_html_e( 'Offloading Options', 'offload-dlx-plus' ); ?></h3>
 				
 				<table class="form-table">
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Local File Management', 'offload-plus' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Local File Management', 'offload-dlx-plus' ); ?></th>
 						<td>
 							<fieldset>
 								<legend class="screen-reader-text">
-									<span><?php esc_html_e( 'Local File Management', 'offload-plus' ); ?></span>
+									<span><?php esc_html_e( 'Local File Management', 'offload-dlx-plus' ); ?></span>
 								</legend>
 								<label for="delete_local_files">
 									<input type="checkbox" 
@@ -173,21 +173,21 @@ $provider_config = ConfigManager::get_current_provider_config();
 											name="delete_local_files" 
 											value="1" 
 											<?php checked( $config['offloading']['remove_local_copies'] ?? false ); ?>>
-									<?php esc_html_e( 'Delete local files after uploading to cloud', 'offload-plus' ); ?>
+									<?php esc_html_e( 'Delete local files after uploading to cloud', 'offload-dlx-plus' ); ?>
 								</label>
 								<p class="description">
-									<?php esc_html_e( 'Save local disk space by removing files after successful cloud upload. Local files will be deleted permanently.', 'offload-plus' ); ?>
+									<?php esc_html_e( 'Save local disk space by removing files after successful cloud upload. Local files will be deleted permanently.', 'offload-dlx-plus' ); ?>
 								</p>
 							</fieldset>
 						</td>
 					</tr>
 					
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Backup & Safety', 'offload-plus' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Backup & Safety', 'offload-dlx-plus' ); ?></th>
 						<td>
 							<fieldset>
 								<legend class="screen-reader-text">
-									<span><?php esc_html_e( 'Backup & Safety', 'offload-plus' ); ?></span>
+									<span><?php esc_html_e( 'Backup & Safety', 'offload-dlx-plus' ); ?></span>
 								</legend>
 								<label for="backup_originals">
 									<input type="checkbox" 
@@ -195,10 +195,10 @@ $provider_config = ConfigManager::get_current_provider_config();
 											name="backup_originals" 
 											value="1" 
 											<?php checked( $config['offloading']['backup_originals'] ?? true ); ?>>
-									<?php esc_html_e( 'Keep backup copies of original files during migration', 'offload-plus' ); ?>
+									<?php esc_html_e( 'Keep backup copies of original files during migration', 'offload-dlx-plus' ); ?>
 								</label>
 								<p class="description">
-									<?php esc_html_e( 'Recommended for safety. Original files will be preserved during the migration process.', 'offload-plus' ); ?>
+									<?php esc_html_e( 'Recommended for safety. Original files will be preserved during the migration process.', 'offload-dlx-plus' ); ?>
 								</p>
 							</fieldset>
 						</td>
@@ -209,34 +209,34 @@ $provider_config = ConfigManager::get_current_provider_config();
 			<!-- Migration Status (for complete strategy) -->
 			<?php if ( $config['offloading_strategy'] === 'complete' && $config['migration_status'] !== 'completed' ) : ?>
 				<div class="settings-section migration-section">
-					<h3><?php esc_html_e( 'Migration Status', 'offload-plus' ); ?></h3>
+					<h3><?php esc_html_e( 'Migration Status', 'offload-dlx-plus' ); ?></h3>
 					
 					<?php if ( $config['migration_status'] === 'pending' ) : ?>
 						<div class="migration-pending">
-							<p><?php esc_html_e( 'Migration is required to complete the setup. This process will:', 'offload-plus' ); ?></p>
+							<p><?php esc_html_e( 'Migration is required to complete the setup. This process will:', 'offload-dlx-plus' ); ?></p>
 							<ul>
-								<li><?php esc_html_e( 'Analyze all existing media files', 'offload-plus' ); ?></li>
-								<li><?php esc_html_e( 'Upload files to cloud storage (without deleting local copies)', 'offload-plus' ); ?></li>
-								<li><?php esc_html_e( 'Enable URL rewriting to serve files from cloud', 'offload-plus' ); ?></li>
+								<li><?php esc_html_e( 'Analyze all existing media files', 'offload-dlx-plus' ); ?></li>
+								<li><?php esc_html_e( 'Upload files to cloud storage (without deleting local copies)', 'offload-dlx-plus' ); ?></li>
+								<li><?php esc_html_e( 'Enable URL rewriting to serve files from cloud', 'offload-dlx-plus' ); ?></li>
 							</ul>
 							<button type="button" class="button button-primary" id="start-migration">
-								<?php esc_html_e( 'Start Migration', 'offload-plus' ); ?>
+								<?php esc_html_e( 'Start Migration', 'offload-dlx-plus' ); ?>
 							</button>
 						</div>
 					<?php elseif ( $config['migration_status'] === 'running' ) : ?>
 						<div class="migration-running">
-							<p><?php esc_html_e( 'Migration in progress...', 'offload-plus' ); ?></p>
+							<p><?php esc_html_e( 'Migration in progress...', 'offload-dlx-plus' ); ?></p>
 							<div class="progress-bar">
 								<div class="progress-fill" style="width: <?php echo intval( $config['migration_progress'] ); ?>%"></div>
 							</div>
-							<p class="progress-text"><?php echo intval( $config['migration_progress'] ); ?>% <?php esc_html_e( 'completed', 'offload-plus' ); ?></p>
+							<p class="progress-text"><?php echo intval( $config['migration_progress'] ); ?>% <?php esc_html_e( 'completed', 'offload-dlx-plus' ); ?></p>
 						</div>
 					<?php endif; ?>
 				</div>
 			<?php endif; ?>
 
 			<div class="submit-section">
-				<?php submit_button( __( 'Save Offloading Configuration', 'offload-plus' ), 'primary', 'save_offloading' ); ?>
+				<?php submit_button( __( 'Save Offloading Configuration', 'offload-dlx-plus' ), 'primary', 'save_offloading' ); ?>
 			</div>
 		</form>
 
@@ -244,7 +244,7 @@ $provider_config = ConfigManager::get_current_provider_config();
 </div>
 
 <style>
-.offload-plus-offloading {
+.offload-dlx-plus-offloading {
 	max-width: 800px;
 }
 
@@ -349,9 +349,9 @@ jQuery(document).ready(function($) {
 
 	// Migration start
 	$('#start-migration').on('click', function() {
-		if (confirm('<?php esc_html_e( 'Are you sure you want to start the migration? This process may take some time.', 'offload-plus' ); ?>')) {
+		if (confirm('<?php esc_html_e( 'Are you sure you want to start the migration? This process may take some time.', 'offload-dlx-plus' ); ?>')) {
 			// TODO: Implement migration start
-			alert('<?php esc_html_e( 'Migration functionality will be implemented in the next phase.', 'offload-plus' ); ?>');
+			alert('<?php esc_html_e( 'Migration functionality will be implemented in the next phase.', 'offload-dlx-plus' ); ?>');
 		}
 	});
 });

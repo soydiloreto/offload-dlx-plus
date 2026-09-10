@@ -1,8 +1,8 @@
 <?php
 /**
- * Offload Plus custom Image Editor for GD
+ * Offload+ custom Image Editor for GD
  *
- * Extends WP_Image_Editor_GD to handle offloadplus:// stream wrapper paths.
+ * Extends WP_Image_Editor_GD to handle offloaddlxplus:// stream wrapper paths.
  * Uses temp files to avoid stream wrapper limitations with GD library. Temp
  * file cleanup uses native unlink() because the temp paths live outside
  * /wp-content/uploads/. The image_make_intermediate_size filter is a WordPress
@@ -14,31 +14,31 @@
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  *
  * Why this is needed:
- * - GD can't handle offloadplus:// paths directly for saving images
+ * - GD can't handle offloaddlxplus:// paths directly for saving images
  * - WordPress needs local files to generate thumbnails
- * - Solution: Save to temp file, copy to offloadplus://, clean up temp
+ * - Solution: Save to temp file, copy to offloaddlxplus://, clean up temp
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  * @since 1.0.0
  */
 
-namespace OffloadPlus;
+namespace OffloadDlxPlus;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * GD image editor that handles offloadplus:// paths via temp files.
+ * GD image editor that handles offloaddlxplus:// paths via temp files.
  *
  * Fallback used when Imagick is unavailable on the host. Extends the
  * WordPress core GD editor so standard image processing works against
  * cloud-hosted media.
  */
-class OffloadPlus_Image_Editor_GD extends \WP_Image_Editor_GD {
+class OffloadDlxPlus_Image_Editor_GD extends \WP_Image_Editor_GD {
 
 	/**
-	 * Remote filename (offloadplus:// path)
+	 * Remote filename (offloaddlxplus:// path)
 	 *
 	 * @var string
 	 */
@@ -55,7 +55,7 @@ class OffloadPlus_Image_Editor_GD extends \WP_Image_Editor_GD {
 	/**
 	 * Load image into GD resource
 	 *
-	 * If file is in offloadplus://, download to temp first, then load.
+	 * If file is in offloaddlxplus://, download to temp first, then load.
 	 *
 	 * @return true|\WP_Error True if loaded; \WP_Error on failure.
 	 */
@@ -65,7 +65,7 @@ class OffloadPlus_Image_Editor_GD extends \WP_Image_Editor_GD {
 		}
 
 		if ( ! is_file( $this->file ) && ! preg_match( '|^https?://|', $this->file ) ) {
-			return new \WP_Error( 'error_loading_image', __( 'File doesn&#8217;t exist?', 'offload-plus' ), $this->file );
+			return new \WP_Error( 'error_loading_image', __( 'File doesn&#8217;t exist?', 'offload-dlx-plus' ), $this->file );
 		}
 
 		$upload_dir = wp_upload_dir();
@@ -75,14 +75,14 @@ class OffloadPlus_Image_Editor_GD extends \WP_Image_Editor_GD {
 			return parent::load();
 		}
 
-		// ⭐ File is offloadplus:// - download to temp for GD processing
-		$temp_filename = tempnam( get_temp_dir(), 'offload-plus' );
+		// ⭐ File is offloaddlxplus:// - download to temp for GD processing
+		$temp_filename = tempnam( get_temp_dir(), 'offload-dlx-plus' );
 		if ( $temp_filename === false ) {
-			return new \WP_Error( 'error_loading_image', __( 'Could not create temp file for cloud download.', 'offload-plus' ) );
+			return new \WP_Error( 'error_loading_image', __( 'Could not create temp file for cloud download.', 'offload-dlx-plus' ) );
 		}
 		$this->temp_files_to_cleanup[] = $temp_filename;
 
-		// Copy from offloadplus:// to local temp
+		// Copy from offloaddlxplus:// to local temp
 		copy( $this->file, $temp_filename );
 
 		// Store remote path and switch to temp
@@ -99,11 +99,11 @@ class OffloadPlus_Image_Editor_GD extends \WP_Image_Editor_GD {
 	}
 
 	/**
-	 * Save image to offloadplus:// path
+	 * Save image to offloaddlxplus:// path
 	 *
-	 * GD can't save directly to offloadplus://, so:
+	 * GD can't save directly to offloaddlxplus://, so:
 	 * 1. Save to temp file
-	 * 2. Copy temp to offloadplus:// (triggers stream wrapper upload to Azure)
+	 * 2. Copy temp to offloaddlxplus:// (triggers stream wrapper upload to Azure)
 	 * 3. Delete temp
 	 *
 	 * @param resource|object $image GD image (resource on PHP 7, \GdImage on PHP 8+)
@@ -122,7 +122,7 @@ class OffloadPlus_Image_Editor_GD extends \WP_Image_Editor_GD {
 
 		// Only use temp file if saving to our stream wrapper
 		if ( strpos( $filename, $upload_dir['basedir'] ) === 0 ) {
-			$temp_filename = tempnam( get_temp_dir(), 'offload-plus' );
+			$temp_filename = tempnam( get_temp_dir(), 'offload-dlx-plus' );
 		} else {
 			// Not our stream wrapper, use parent directly.
 			// PHPStan can't resolve \GdImage because the GD extension may not
@@ -141,7 +141,7 @@ class OffloadPlus_Image_Editor_GD extends \WP_Image_Editor_GD {
 			return $save;
 		}
 
-		// Copy temp to offloadplus:// (triggers upload to Azure)
+		// Copy temp to offloaddlxplus:// (triggers upload to Azure)
 		$copy_result = copy( $save['path'], $filename );
 
 		// Clean up temp files
@@ -151,7 +151,7 @@ class OffloadPlus_Image_Editor_GD extends \WP_Image_Editor_GD {
 		if ( ! $copy_result ) {
 			return new \WP_Error(
 				'unable-to-copy-to-cloud',
-				__( 'Unable to copy the temp image to the cloud', 'offload-plus' )
+				__( 'Unable to copy the temp image to the cloud', 'offload-dlx-plus' )
 			);
 		}
 

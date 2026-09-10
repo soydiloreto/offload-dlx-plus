@@ -2,10 +2,10 @@
 /**
  * PluginState enum — values for the plugin top-level state machine.
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  */
 
-namespace OffloadPlus\Enums;
+namespace OffloadDlxPlus\Enums;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -51,11 +51,11 @@ class PluginState {
 	 */
 	public static function get_state_name( $state ) {
 		$names = array(
-			self::NOT_CONFIGURED    => __( 'Not Configured', 'offload-plus' ),
-			self::CONFIGURED        => __( 'Configured', 'offload-plus' ),
-			self::SYNCING           => __( 'Syncing Files', 'offload-plus' ),
-			self::SYNCED            => __( 'Synced', 'offload-plus' ),
-			self::OFFLOADING_ACTIVE => __( 'Offloading Active', 'offload-plus' ),
+			self::NOT_CONFIGURED    => __( 'Not Configured', 'offload-dlx-plus' ),
+			self::CONFIGURED        => __( 'Configured', 'offload-dlx-plus' ),
+			self::SYNCING           => __( 'Syncing Files', 'offload-dlx-plus' ),
+			self::SYNCED            => __( 'Synced', 'offload-dlx-plus' ),
+			self::OFFLOADING_ACTIVE => __( 'Offloading Active', 'offload-dlx-plus' ),
 		);
 
 		return $names[ $state ] ?? $state;

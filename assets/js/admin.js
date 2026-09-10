@@ -29,8 +29,8 @@ jQuery(document).ready(function($) {
         
         // Get form data
         var formData = {
-            action: 'offload_plus_test_connection',
-            nonce: offloadPlusAdmin.nonce,
+            action: 'offload_dlx_plus_test_connection',
+            nonce: offloadDlxPlusAdmin.nonce,
             account_name: $('#account_name').val(),
             account_key: $('#account_key').val(),
             container_name: $('#container_name').val(),
@@ -53,7 +53,7 @@ jQuery(document).ready(function($) {
         
         // Make AJAX request
         $.ajax({
-            url: offloadPlusAdmin.ajaxUrl,
+            url: offloadDlxPlusAdmin.ajaxUrl,
             type: 'POST',
             data: formData,
             timeout: 30000, // 30 seconds timeout
@@ -170,8 +170,8 @@ jQuery(document).ready(function($) {
             url: ajaxurl,
             type: 'POST',
             data: {
-                action: 'offload_plus_migration_action',
-                nonce: offloadPlusAdmin.nonce,
+                action: 'offload_dlx_plus_migration_action',
+                nonce: offloadDlxPlusAdmin.nonce,
                 migration_action: action
             },
             success: function(response) {
@@ -255,8 +255,8 @@ jQuery(document).ready(function($) {
             url: ajaxurl,
             type: 'POST',
             data: {
-                action: 'offload_plus_test_check',
-                nonce: offloadPlusAdmin.nonce,
+                action: 'offload_dlx_plus_test_check',
+                nonce: offloadDlxPlusAdmin.nonce,
                 check_type: checkType
             },
             success: function(response) {
@@ -283,7 +283,7 @@ jQuery(document).ready(function($) {
     });
     
     // Auto-refresh status checks every 5 minutes
-    if ($('.offload-plus-status').length && offloadPlusAdmin.autoRefresh) {
+    if ($('.offload-dlx-plus-status').length && offloadDlxPlusAdmin.autoRefresh) {
         setInterval(function() {
             location.reload();
         }, 300000); // 5 minutes
@@ -342,7 +342,7 @@ jQuery(document).ready(function($) {
     }
     
     // Initialize any existing functionality
-    if (typeof initializeOffloadPlus === 'function') {
-        initializeOffloadPlus();
+    if (typeof initializeOffloadDlxPlus === 'function') {
+        initializeOffloadDlxPlus();
     }
 });

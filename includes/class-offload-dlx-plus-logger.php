@@ -1,6 +1,6 @@
 <?php
 /**
- * Logging helper for the Offload Plus plugin.
+ * Logging helper for the Offload+ plugin.
  *
  * This class IS the plugin's logger. Its job is to call error_log() once
  * formatted and gated by the verbose-logging toggle. The development-functions
@@ -8,30 +8,30 @@
  *
  * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  */
 
-namespace OffloadPlus;
+namespace OffloadDlxPlus;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Logging helper for the Offload Plus plugin.
+ * Logging helper for the Offload+ plugin.
  *
  * Single entry point for every log line. Levels:
  *
  * - error   — always written.
  * - warning — always written.
  * - info    — only when verbose logging is enabled (Settings tab toggle, WP_DEBUG,
- *             or OFFLOAD_PLUS_VERBOSE_LOGGING constant), unless $force = true.
+ *             or OFFLOAD_DLX_PLUS_VERBOSE_LOGGING constant), unless $force = true.
  * - debug   — only when verbose logging is enabled.
  *
  * Deduplicates repeated messages within a 5-minute window to prevent log spam
  * from hot paths (stream wrapper, cache lookups, etc.).
  *
- * @package OffloadPlus
+ * @package OffloadDlxPlus
  * @since 1.0.0
  */
 class Logger {
@@ -51,8 +51,8 @@ class Logger {
 	/**
 	 * Initialize logger — reads verbose-logging state from:
 	 *
-	 *   1. OFFLOAD_PLUS_VERBOSE_LOGGING constant (wins if defined and true).
-	 *   2. offload_plus_config['enable_debug_logging'] (Settings tab toggle).
+	 *   1. OFFLOAD_DLX_PLUS_VERBOSE_LOGGING constant (wins if defined and true).
+	 *   2. offload_dlx_plus_config['enable_debug_logging'] (Settings tab toggle).
 	 *   3. WP_DEBUG (as a fallback developer hint).
 	 *
 	 * Idempotent; subsequent calls are no-ops.
@@ -64,10 +64,10 @@ class Logger {
 			return;
 		}
 
-		if ( defined( 'OFFLOAD_PLUS_VERBOSE_LOGGING' ) && OFFLOAD_PLUS_VERBOSE_LOGGING ) {
+		if ( defined( 'OFFLOAD_DLX_PLUS_VERBOSE_LOGGING' ) && OFFLOAD_DLX_PLUS_VERBOSE_LOGGING ) {
 			self::$verbose_logging = true;
 		} else {
-			$config = get_option( 'offload_plus_config', array() );
+			$config = get_option( 'offload_dlx_plus_config', array() );
 			if ( is_array( $config ) && ! empty( $config['enable_debug_logging'] ) ) {
 				self::$verbose_logging = true;
 			} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {

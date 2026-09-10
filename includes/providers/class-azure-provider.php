@@ -23,20 +23,20 @@
  * phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  *
- * @package OffloadPlus\Providers
+ * @package OffloadDlxPlus\Providers
  * @since 1.0.0
  */
 
-namespace OffloadPlus\Providers;
+namespace OffloadDlxPlus\Providers;
 
-use OffloadPlus\Interfaces\CloudStorageClientInterface;
-use OffloadPlus\Logger;
-use OffloadPlus\MimeHelper;
-use OffloadPlus\DTOs\AzureConfig;
-use OffloadPlus\DTOs\ConnectionResult;
-use OffloadPlus\DTOs\UploadResult;
-use OffloadPlus\DTOs\OperationResult;
-use OffloadPlus\DTOs\FileInfo;
+use OffloadDlxPlus\Interfaces\CloudStorageClientInterface;
+use OffloadDlxPlus\Logger;
+use OffloadDlxPlus\MimeHelper;
+use OffloadDlxPlus\DTOs\AzureConfig;
+use OffloadDlxPlus\DTOs\ConnectionResult;
+use OffloadDlxPlus\DTOs\UploadResult;
+use OffloadDlxPlus\DTOs\OperationResult;
+use OffloadDlxPlus\DTOs\FileInfo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -82,9 +82,9 @@ class AzureProvider implements CloudStorageClientInterface {
 		if ( ! empty( $this->storage_account ) && ! empty( $this->container_name ) && ! empty( $this->access_key ) ) {
 			try {
 				AzureConfig::fromArray( $config );
-				Logger::log( '[Offload Plus AzureProvider] Initialized with account: ' . $this->storage_account, 'info' );
+				Logger::log( '[Offload+ AzureProvider] Initialized with account: ' . $this->storage_account, 'info' );
 			} catch ( \InvalidArgumentException $e ) {
-				Logger::log( '[Offload Plus AzureProvider] Invalid config: ' . $e->getMessage(), 'error' );
+				Logger::log( '[Offload+ AzureProvider] Invalid config: ' . $e->getMessage(), 'error' );
 			}
 		}
 	}
@@ -307,7 +307,7 @@ class AzureProvider implements CloudStorageClientInterface {
 			return wp_remote_retrieve_response_code( $response ) === 200;
 
 		} catch ( \Exception $e ) {
-			Logger::info( '[Offload Plus AzureProvider] file_exists error: ' . $e->getMessage() );
+			Logger::info( '[Offload+ AzureProvider] file_exists error: ' . $e->getMessage() );
 			return false;
 		}
 	}
@@ -345,7 +345,7 @@ class AzureProvider implements CloudStorageClientInterface {
 			return false;
 
 		} catch ( \Exception $e ) {
-			Logger::info( '[Offload Plus AzureProvider] get_file_checksum error: ' . $e->getMessage() );
+			Logger::info( '[Offload+ AzureProvider] get_file_checksum error: ' . $e->getMessage() );
 			return false;
 		}
 	}
@@ -400,7 +400,7 @@ class AzureProvider implements CloudStorageClientInterface {
 			return null;
 
 		} catch ( \Exception $e ) {
-			Logger::info( '[Offload Plus AzureProvider] get_file_info error: ' . $e->getMessage() );
+			Logger::info( '[Offload+ AzureProvider] get_file_info error: ' . $e->getMessage() );
 			return null;
 		}
 	}
@@ -554,7 +554,7 @@ class AzureProvider implements CloudStorageClientInterface {
 			// Azure returns 202 (Accepted) for successful copy
 			if ( $response_code === 202 ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					Logger::info( '[Offload Plus AzureProvider] Copy successful: ' . $source_path . ' -> ' . $dest_path );
+					Logger::info( '[Offload+ AzureProvider] Copy successful: ' . $source_path . ' -> ' . $dest_path );
 				}
 				return OperationResult::success( 'Blob copied successfully' );
 			}
@@ -597,7 +597,7 @@ class AzureProvider implements CloudStorageClientInterface {
 	 */
 	public function get_container_stats( bool $force_refresh = false ): array {
 		if ( ! $force_refresh ) {
-			$cached = get_transient( 'offload_plus_azure_stats' );
+			$cached = get_transient( 'offload_dlx_plus_azure_stats' );
 			if ( $cached !== false ) {
 				return array(
 					'success' => true,
@@ -645,15 +645,15 @@ class AzureProvider implements CloudStorageClientInterface {
 				'filesByType'        => $files_by_type,
 			);
 
-			set_transient( 'offload_plus_azure_stats', $data, 300 );
+			set_transient( 'offload_dlx_plus_azure_stats', $data, 300 );
 			return array(
 				'success' => true,
 				'data'    => $data,
 			);
 
 		} catch ( \Exception $e ) {
-			delete_transient( 'offload_plus_azure_stats' );
-			\OffloadPlus\ConfigManager::record_connection_failure(
+			delete_transient( 'offload_dlx_plus_azure_stats' );
+			\OffloadDlxPlus\ConfigManager::record_connection_failure(
 				$this->extract_error_code( $e->getMessage() ),
 				$e->getMessage(),
 				'stats_refresh'
@@ -710,7 +710,7 @@ class AzureProvider implements CloudStorageClientInterface {
 					// ⭐ FIX: Lanzar excepción en vez de break silencioso
 					if ( is_wp_error( $response ) ) {
 						$error_msg = $response->get_error_message();
-						Logger::info( '[Offload Plus AzureProvider] list_files error on page ' . $page_number . ', attempt ' . $attempt . ': ' . $error_msg );
+						Logger::info( '[Offload+ AzureProvider] list_files error on page ' . $page_number . ', attempt ' . $attempt . ': ' . $error_msg );
 						throw new \Exception( 'Azure API error on page ' . $page_number . ': ' . $error_msg );
 					}
 
@@ -724,7 +724,7 @@ class AzureProvider implements CloudStorageClientInterface {
 
 					// ⭐ FIX: Lanzar excepción si respuesta vacía
 					if ( empty( $body ) ) {
-						Logger::info( '[Offload Plus AzureProvider] Empty response body on page ' . $page_number . ', attempt ' . $attempt );
+						Logger::info( '[Offload+ AzureProvider] Empty response body on page ' . $page_number . ', attempt ' . $attempt );
 						throw new \Exception( 'Azure returned empty response on page ' . $page_number );
 					}
 
@@ -733,7 +733,7 @@ class AzureProvider implements CloudStorageClientInterface {
 
 					// ⭐ FIX: Lanzar excepción si XML inválido
 					if ( $xml === false ) {
-						Logger::error( '[Offload Plus AzureProvider] Failed to parse XML on page ' . $page_number . ', attempt ' . $attempt );
+						Logger::error( '[Offload+ AzureProvider] Failed to parse XML on page ' . $page_number . ', attempt ' . $attempt );
 						throw new \Exception( 'Invalid XML response from Azure on page ' . $page_number );
 					}
 
@@ -755,7 +755,7 @@ class AzureProvider implements CloudStorageClientInterface {
 				} while ( $marker !== null );
 
 				// ✅ SUCCESS: Listado completo exitoso
-				Logger::info( '[Offload Plus AzureProvider] ✅ Successfully listed ' . count( $files ) . ' files from Azure in ' . $page_number . ' pages (attempt ' . $attempt . ')' );
+				Logger::info( '[Offload+ AzureProvider] ✅ Successfully listed ' . count( $files ) . ' files from Azure in ' . $page_number . ' pages (attempt ' . $attempt . ')' );
 				return $files;
 
 			} catch ( \Exception $e ) {
@@ -763,8 +763,8 @@ class AzureProvider implements CloudStorageClientInterface {
 
 				// Do NOT retry client errors (4xx) — they won't resolve on retry
 				if ( $this->is_non_retryable_error( $error_code ) ) {
-					Logger::info( '[Offload Plus AzureProvider] Non-retryable error (' . $error_code . '): ' . $e->getMessage() );
-					\OffloadPlus\ConfigManager::record_connection_failure(
+					Logger::info( '[Offload+ AzureProvider] Non-retryable error (' . $error_code . '): ' . $e->getMessage() );
+					\OffloadDlxPlus\ConfigManager::record_connection_failure(
 						$error_code,
 						$e->getMessage(),
 						'list_files'
@@ -774,11 +774,11 @@ class AzureProvider implements CloudStorageClientInterface {
 
 				// Only retry server errors (5xx) and network errors
 				if ( $attempt < $max_retries ) {
-					Logger::error( '[Offload Plus AzureProvider] Attempt ' . $attempt . ' failed (retryable), retrying in ' . $retry_delay . 's... Error: ' . $e->getMessage() );
+					Logger::error( '[Offload+ AzureProvider] Attempt ' . $attempt . ' failed (retryable), retrying in ' . $retry_delay . 's... Error: ' . $e->getMessage() );
 					sleep( $retry_delay );
 					continue;
 				} else {
-					Logger::info( '[Offload Plus AzureProvider] All ' . $max_retries . ' attempts failed. Last error: ' . $e->getMessage() );
+					Logger::info( '[Offload+ AzureProvider] All ' . $max_retries . ' attempts failed. Last error: ' . $e->getMessage() );
 					throw new \Exception( 'Failed to list Azure files after ' . esc_html( (string) $max_retries ) . ' attempts: ' . esc_html( $e->getMessage() ) );
 				}
 			}
@@ -1075,7 +1075,7 @@ class AzureProvider implements CloudStorageClientInterface {
 					if ( ! empty( $response ) ) {
 						$error_msg .= ' - Azure Response: ' . substr( (string) $response, 0, 500 );
 					}
-					Logger::info( '[Offload Plus AzureProvider] Chunked upload error: ' . $error_msg );
+					Logger::info( '[Offload+ AzureProvider] Chunked upload error: ' . $error_msg );
 					return array(
 						'success'     => false,
 						'error'       => $error_msg,
