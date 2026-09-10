@@ -2,21 +2,21 @@
 namespace Tests\Integration\CloudStorage;
 
 use Tests\Integration\IntegrationTestCase;
-use DiluxWP\CloudStorage\DiluxDB;
+use OffloadPlus\OffloadPlusDB;
 
 /**
- * Integration tests for DiluxDB.
+ * Integration tests for OffloadPlusDB.
  *
- * Exercises CRUD against the wp_dilux_cs_files custom table on a real
+ * Exercises CRUD against the wp_offload_plus_files custom table on a real
  * MySQL database (provided by wp-env's tests environment).
  */
-class DiluxDBTest extends IntegrationTestCase {
+class OffloadPlusDBTest extends IntegrationTestCase {
 
     public function test_create_files_table_creates_table_with_expected_structure(): void {
-        $this->assertTrue(DiluxDB::table_exists());
+        $this->assertTrue(OffloadPlusDB::table_exists());
 
         global $wpdb;
-        $table = DiluxDB::get_table_name();
+        $table = OffloadPlusDB::get_table_name();
         $columns = $wpdb->get_col("SHOW COLUMNS FROM `{$table}`");
 
         $expected_columns = [
@@ -29,14 +29,14 @@ class DiluxDBTest extends IntegrationTestCase {
     }
 
     public function test_add_file_inserts_with_pending_status(): void {
-        $result = DiluxDB::add_file('/2024/01/photo.jpg', 2048576);
+        $result = OffloadPlusDB::add_file('/2024/01/photo.jpg', 2048576);
         $this->assertTrue($result);
 
-        $stats = DiluxDB::get_stats();
+        $stats = OffloadPlusDB::get_stats();
         $this->assertSame(1, (int) $stats['total_files']);
         $this->assertSame(0, (int) $stats['synced_files']);
 
-        $pending = DiluxDB::get_pending_files();
+        $pending = OffloadPlusDB::get_pending_files();
         $this->assertCount(1, $pending);
         $this->assertSame('/2024/01/photo.jpg', $pending[0]['file']);
     }
@@ -48,21 +48,21 @@ class DiluxDBTest extends IntegrationTestCase {
             ['path' => '/2024/01/img3.jpg', 'size' => 3000],
         ];
 
-        $result = DiluxDB::add_files_batch($files);
+        $result = OffloadPlusDB::add_files_batch($files);
         $this->assertTrue($result);
 
-        $stats = DiluxDB::get_stats();
+        $stats = OffloadPlusDB::get_stats();
         $this->assertSame(3, (int) $stats['total_files']);
         $this->assertSame(6000, (int) $stats['total_size']);
     }
 
     public function test_mark_synced_updates_status(): void {
-        DiluxDB::add_file('/2024/01/photo.jpg', 1024);
+        OffloadPlusDB::add_file('/2024/01/photo.jpg', 1024);
 
-        $result = DiluxDB::mark_synced('/2024/01/photo.jpg');
+        $result = OffloadPlusDB::mark_synced('/2024/01/photo.jpg');
         $this->assertNotFalse($result);
 
-        $stats = DiluxDB::get_stats();
+        $stats = OffloadPlusDB::get_stats();
         $this->assertSame(1, (int) $stats['synced_files']);
         $this->assertSame(0, (int) $stats['pending_files']);
     }
@@ -70,14 +70,14 @@ class DiluxDBTest extends IntegrationTestCase {
     public function test_get_stats_counts_by_status(): void {
         $this->addTestFiles(5, 1000);
 
-        DiluxDB::mark_synced('/2024/01/test-file-1.jpg');
-        DiluxDB::mark_synced('/2024/01/test-file-2.jpg');
+        OffloadPlusDB::mark_synced('/2024/01/test-file-1.jpg');
+        OffloadPlusDB::mark_synced('/2024/01/test-file-2.jpg');
 
-        DiluxDB::increment_error('/2024/01/test-file-3.jpg', 'Timeout');
-        DiluxDB::increment_error('/2024/01/test-file-3.jpg', 'Timeout');
-        DiluxDB::increment_error('/2024/01/test-file-3.jpg', 'Timeout');
+        OffloadPlusDB::increment_error('/2024/01/test-file-3.jpg', 'Timeout');
+        OffloadPlusDB::increment_error('/2024/01/test-file-3.jpg', 'Timeout');
+        OffloadPlusDB::increment_error('/2024/01/test-file-3.jpg', 'Timeout');
 
-        $stats = DiluxDB::get_stats();
+        $stats = OffloadPlusDB::get_stats();
         $this->assertSame(5, (int) $stats['total_files']);
         $this->assertSame(2, (int) $stats['synced_files']);
         $this->assertSame(1, (int) $stats['failed_files']);
@@ -86,9 +86,9 @@ class DiluxDBTest extends IntegrationTestCase {
 
     public function test_get_pending_files_returns_only_pending(): void {
         $this->addTestFiles(3, 1024);
-        DiluxDB::mark_synced('/2024/01/test-file-1.jpg');
+        OffloadPlusDB::mark_synced('/2024/01/test-file-1.jpg');
 
-        $pending = DiluxDB::get_pending_files();
+        $pending = OffloadPlusDB::get_pending_files();
         $this->assertCount(2, $pending);
 
         $paths = array_map(fn($f) => $f['file'], $pending);
@@ -98,35 +98,35 @@ class DiluxDBTest extends IntegrationTestCase {
     public function test_get_pending_files_respects_limit(): void {
         $this->addTestFiles(10, 1024);
 
-        $pending = DiluxDB::get_pending_files(3);
+        $pending = OffloadPlusDB::get_pending_files(3);
         $this->assertCount(3, $pending);
     }
 
     public function test_get_failed_files_returns_only_failed(): void {
         $this->addTestFiles(3, 1024);
 
-        DiluxDB::mark_synced('/2024/01/test-file-1.jpg');
-        DiluxDB::increment_error('/2024/01/test-file-2.jpg', 'Error 1');
+        OffloadPlusDB::mark_synced('/2024/01/test-file-1.jpg');
+        OffloadPlusDB::increment_error('/2024/01/test-file-2.jpg', 'Error 1');
 
-        $failed = DiluxDB::get_failed_files();
+        $failed = OffloadPlusDB::get_failed_files();
         $this->assertCount(2, $failed);
     }
 
     public function test_reset_failed_files_to_pending(): void {
         $this->addTestFiles(2, 1024);
 
-        DiluxDB::increment_error('/2024/01/test-file-1.jpg', 'Timeout');
-        DiluxDB::increment_error('/2024/01/test-file-1.jpg', 'Timeout');
-        DiluxDB::increment_error('/2024/01/test-file-1.jpg', 'Timeout');
+        OffloadPlusDB::increment_error('/2024/01/test-file-1.jpg', 'Timeout');
+        OffloadPlusDB::increment_error('/2024/01/test-file-1.jpg', 'Timeout');
+        OffloadPlusDB::increment_error('/2024/01/test-file-1.jpg', 'Timeout');
 
-        $result = DiluxDB::reset_failed_files_to_pending();
+        $result = OffloadPlusDB::reset_failed_files_to_pending();
         $this->assertTrue($result);
 
-        $pending = DiluxDB::get_pending_files();
+        $pending = OffloadPlusDB::get_pending_files();
         $this->assertCount(2, $pending);
 
         global $wpdb;
-        $table = DiluxDB::get_table_name();
+        $table = OffloadPlusDB::get_table_name();
         $max_errors = (int) $wpdb->get_var("SELECT MAX(errors) FROM `{$table}`");
         $this->assertSame(0, $max_errors);
     }
@@ -135,20 +135,20 @@ class DiluxDBTest extends IntegrationTestCase {
         $this->addTestFiles(5, 1024);
         $this->assertSame(5, $this->getTableRowCount());
 
-        $result = DiluxDB::clear_table();
+        $result = OffloadPlusDB::clear_table();
         $this->assertTrue($result);
 
         $this->assertSame(0, $this->getTableRowCount());
     }
 
     public function test_increment_error_tracks_error_count_and_message(): void {
-        DiluxDB::add_file('/2024/01/photo.jpg', 1024);
+        OffloadPlusDB::add_file('/2024/01/photo.jpg', 1024);
 
-        DiluxDB::increment_error('/2024/01/photo.jpg', 'Connection timeout');
-        DiluxDB::increment_error('/2024/01/photo.jpg', 'Server error 500');
+        OffloadPlusDB::increment_error('/2024/01/photo.jpg', 'Connection timeout');
+        OffloadPlusDB::increment_error('/2024/01/photo.jpg', 'Server error 500');
 
         global $wpdb;
-        $table = DiluxDB::get_table_name();
+        $table = OffloadPlusDB::get_table_name();
         $row = $wpdb->get_row(
             $wpdb->prepare("SELECT errors, error_message FROM `{$table}` WHERE file = %s", '/2024/01/photo.jpg')
         );
@@ -158,14 +158,14 @@ class DiluxDBTest extends IntegrationTestCase {
     }
 
     public function test_add_cloud_only_file_inserts_with_synced_and_deleted(): void {
-        $result = DiluxDB::add_cloud_only_file('/2024/01/cloud-only.jpg', 5000);
+        $result = OffloadPlusDB::add_cloud_only_file('/2024/01/cloud-only.jpg', 5000);
         $this->assertTrue($result);
 
-        $deleted_stats = DiluxDB::get_deleted_stats();
+        $deleted_stats = OffloadPlusDB::get_deleted_stats();
         $this->assertSame(1, (int) $deleted_stats['files']);
         $this->assertSame(5000, (int) $deleted_stats['size']);
 
-        $pending = DiluxDB::get_pending_files();
+        $pending = OffloadPlusDB::get_pending_files();
         $this->assertCount(0, $pending);
     }
 }

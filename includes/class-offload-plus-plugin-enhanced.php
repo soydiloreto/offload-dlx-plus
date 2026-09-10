@@ -5,7 +5,7 @@
  * Manages plugin initialization and core components.
  *
  * Direct $wpdb queries against the plugin's own table (`$wpdb->prefix .
- * 'dilux_cs_files'`) drive the AJAX endpoints for sync progress, scan, and
+ * 'offload_plus_files'`) drive the AJAX endpoints for sync progress, scan, and
  * batch delete. The table name is derived from $wpdb->prefix and never from
  * user input; values are passed through $wpdb->prepare() where applicable.
  * Cache layers don't apply: those endpoints poll real-time sync state and a
@@ -20,12 +20,12 @@
  * phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
  * phpcs:disable WordPress.WP.AlternativeFunctions.unlink_unlink
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
-namespace DiluxWP\CloudStorage;
+namespace OffloadPlus;
 
-use DiluxWP\CloudStorage\Enums\PluginState;
+use OffloadPlus\Enums\PluginState;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -67,7 +67,7 @@ class Plugin {
 	 * @return void
 	 */
 	public function init(): void {
-		Logger::log( '[Dilux Plugin] Initializing...', 'info' );
+		Logger::log( '[Offload Plus Plugin] Initializing...', 'info' );
 
 		// Initialize new architecture (legacy removed)
 		$this->init_new_architecture();
@@ -78,14 +78,14 @@ class Plugin {
 	 * Auto-creates or upgrades table on version mismatch
 	 */
 	private function check_and_update_database(): void {
-		require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-db.php';
+		require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-db.php';
 
-		$current_version = get_option( DiluxDB::TABLE_VERSION_OPTION, '0' );
+		$current_version = get_option( OffloadPlusDB::TABLE_VERSION_OPTION, '0' );
 
 		// If version mismatch or table doesn't exist, create/update
-		if ( version_compare( $current_version, DiluxDB::TABLE_VERSION, '<' ) || ! DiluxDB::table_exists() ) {
-			Logger::info( '[Dilux Plugin] Database table needs update (current: ' . $current_version . ', required: ' . DiluxDB::TABLE_VERSION . ')' );
-			DiluxDB::create_files_table();
+		if ( version_compare( $current_version, OffloadPlusDB::TABLE_VERSION, '<' ) || ! OffloadPlusDB::table_exists() ) {
+			Logger::info( '[Offload Plus Plugin] Database table needs update (current: ' . $current_version . ', required: ' . OffloadPlusDB::TABLE_VERSION . ')' );
+			OffloadPlusDB::create_files_table();
 		}
 	}
 
@@ -94,7 +94,7 @@ class Plugin {
 	 */
 	private function init_new_architecture(): void {
 		// Comentado para reducir logs
-		// Logger::log('[Dilux Plugin] Initializing NEW architecture', 'info');
+		// Logger::log('[Offload Plus Plugin] Initializing NEW architecture', 'info');
 
 		// ⭐ Check and update database table if needed
 		$this->check_and_update_database();
@@ -113,51 +113,51 @@ class Plugin {
 			Admin::init(); // Initialize legacy admin correctly
 
 			// Add AJAX handlers for new functionality
-			add_action( 'wp_ajax_dilux_start_sync', array( $this, 'ajax_start_sync' ) );
-			add_action( 'wp_ajax_dilux_get_sync_progress', array( $this, 'ajax_get_sync_progress' ) );
+			add_action( 'wp_ajax_offload_plus_start_sync', array( $this, 'ajax_start_sync' ) );
+			add_action( 'wp_ajax_offload_plus_get_sync_progress', array( $this, 'ajax_get_sync_progress' ) );
 
 			// ⭐ NEW: Recursion-based sync endpoints
-			add_action( 'wp_ajax_dilux_cs_start_sync', array( $this, 'ajax_cs_start_sync' ) );
-			add_action( 'wp_ajax_dilux_cs_process_batch', array( $this, 'ajax_cs_process_batch' ) );
+			add_action( 'wp_ajax_offload_plus_start_sync', array( $this, 'ajax_cs_start_sync' ) );
+			add_action( 'wp_ajax_offload_plus_process_batch', array( $this, 'ajax_cs_process_batch' ) );
 
 			// ⭐ NEW: Cloud comparison endpoint (for cataloging)
-			add_action( 'wp_ajax_dilux_cs_compare_cloud', array( $this, 'ajax_cs_compare_cloud' ) );
+			add_action( 'wp_ajax_offload_plus_compare_cloud', array( $this, 'ajax_cs_compare_cloud' ) );
 
 			// ⭐ NEW: Reverse sync endpoints (disconnect)
-			add_action( 'wp_ajax_dilux_cs_start_reverse_sync', array( $this, 'ajax_cs_start_reverse_sync' ) );
-			add_action( 'wp_ajax_dilux_cs_process_reverse_batch', array( $this, 'ajax_cs_process_reverse_batch' ) );
-			add_action( 'wp_ajax_dilux_cs_get_deleted_stats', array( $this, 'ajax_cs_get_deleted_stats' ) );
-			add_action( 'wp_ajax_dilux_cs_scan_remote', array( $this, 'ajax_cs_scan_remote' ) );
-			add_action( 'wp_ajax_dilux_cs_calculate_download', array( $this, 'ajax_cs_calculate_download' ) );
-			add_action( 'wp_ajax_dilux_cs_calculate_sync', array( $this, 'ajax_cs_calculate_sync' ) );
+			add_action( 'wp_ajax_offload_plus_start_reverse_sync', array( $this, 'ajax_cs_start_reverse_sync' ) );
+			add_action( 'wp_ajax_offload_plus_process_reverse_batch', array( $this, 'ajax_cs_process_reverse_batch' ) );
+			add_action( 'wp_ajax_offload_plus_get_deleted_stats', array( $this, 'ajax_cs_get_deleted_stats' ) );
+			add_action( 'wp_ajax_offload_plus_scan_remote', array( $this, 'ajax_cs_scan_remote' ) );
+			add_action( 'wp_ajax_offload_plus_calculate_download', array( $this, 'ajax_cs_calculate_download' ) );
+			add_action( 'wp_ajax_offload_plus_calculate_sync', array( $this, 'ajax_cs_calculate_sync' ) );
 
 			// ⭐ NEW: Delete local files endpoints
-			add_action( 'wp_ajax_dilux_cs_get_deletable_stats', array( $this, 'ajax_cs_get_deletable_stats' ) );
-			add_action( 'wp_ajax_dilux_cs_process_delete_batch', array( $this, 'ajax_cs_process_delete_batch' ) );
+			add_action( 'wp_ajax_offload_plus_get_deletable_stats', array( $this, 'ajax_cs_get_deletable_stats' ) );
+			add_action( 'wp_ajax_offload_plus_process_delete_batch', array( $this, 'ajax_cs_process_delete_batch' ) );
 
 			// ⭐ Reset state to configured (when canceling sync)
-			add_action( 'wp_ajax_dilux_cs_reset_state_to_configured', array( $this, 'ajax_cs_reset_state_to_configured' ) );
+			add_action( 'wp_ajax_offload_plus_reset_state_to_configured', array( $this, 'ajax_cs_reset_state_to_configured' ) );
 
 			// ⭐ NEW: Prepare resync (clear table and calculate)
-			add_action( 'wp_ajax_dilux_cs_prepare_resync', array( $this, 'ajax_cs_prepare_resync' ) );
+			add_action( 'wp_ajax_offload_plus_prepare_resync', array( $this, 'ajax_cs_prepare_resync' ) );
 
-			add_action( 'wp_ajax_dilux_activate_offloading', array( $this, 'ajax_activate_offloading' ) );
-			add_action( 'wp_ajax_dilux_deactivate_offloading', array( $this, 'ajax_deactivate_offloading' ) );
+			add_action( 'wp_ajax_offload_plus_activate_offloading', array( $this, 'ajax_activate_offloading' ) );
+			add_action( 'wp_ajax_offload_plus_deactivate_offloading', array( $this, 'ajax_deactivate_offloading' ) );
 
 			// ⭐ NEW: Discard failed files endpoint
-			add_action( 'wp_ajax_dilux_cs_discard_failed_files', array( $this, 'ajax_cs_discard_failed_files' ) );
+			add_action( 'wp_ajax_offload_plus_discard_failed_files', array( $this, 'ajax_cs_discard_failed_files' ) );
 
 			// ⭐ NEW: Multi-tab coordination endpoints
-			add_action( 'wp_ajax_dilux_cs_take_control', array( $this, 'ajax_cs_take_control' ) );
-			add_action( 'wp_ajax_dilux_cs_get_sync_state', array( $this, 'ajax_cs_get_sync_state' ) );
+			add_action( 'wp_ajax_offload_plus_take_control', array( $this, 'ajax_cs_take_control' ) );
+			add_action( 'wp_ajax_offload_plus_get_sync_state', array( $this, 'ajax_cs_get_sync_state' ) );
 
 			// ⭐ NEW: Get failed files count (for Enable Offloading validation)
-			add_action( 'wp_ajax_dilux_cs_get_failed_files_count', array( $this, 'ajax_cs_get_failed_files_count' ) );
+			add_action( 'wp_ajax_offload_plus_get_failed_files_count', array( $this, 'ajax_cs_get_failed_files_count' ) );
 
-			// ⭐ DEV MODE: Skip sync endpoints (only registered when DILUX_DEV_MODE is active)
-			if ( defined( 'DILUX_DEV_MODE' ) && DILUX_DEV_MODE ) {
-				add_action( 'wp_ajax_dilux_cs_dev_enable_without_sync', array( $this, 'ajax_dev_enable_without_sync' ) );
-				add_action( 'wp_ajax_dilux_cs_dev_disconnect_without_sync', array( $this, 'ajax_dev_disconnect_without_sync' ) );
+			// ⭐ DEV MODE: Skip sync endpoints (only registered when OFFLOAD_PLUS_DEV_MODE is active)
+			if ( defined( 'OFFLOAD_PLUS_DEV_MODE' ) && OFFLOAD_PLUS_DEV_MODE ) {
+				add_action( 'wp_ajax_offload_plus_dev_enable_without_sync', array( $this, 'ajax_dev_enable_without_sync' ) );
+				add_action( 'wp_ajax_offload_plus_dev_disconnect_without_sync', array( $this, 'ajax_dev_disconnect_without_sync' ) );
 			}
 		}
 	}
@@ -168,20 +168,20 @@ class Plugin {
 	 */
 	private function activate_stream_wrapper(): void {
 		if ( CloudStreamWrapper::activate_offloading() ) {
-			Logger::info( '[Dilux Plugin] Stream wrapper activated' );
+			Logger::info( '[Offload Plus Plugin] Stream wrapper activated' );
 
 			// ⭐ Register custom image editors for thumbnail generation
-			// Uses temp files to handle diluxcloud:// paths (like Infinite Uploads)
+			// Uses temp files to handle offloadplus:// paths (like Infinite Uploads)
 			add_filter( 'wp_image_editors', array( $this, 'filter_image_editors' ), 9 );
 		} else {
-			Logger::error( '[Dilux Plugin] Failed to activate stream wrapper' );
+			Logger::error( '[Offload Plus Plugin] Failed to activate stream wrapper' );
 		}
 	}
 
 	/**
 	 * Filter image editors to use our custom editors
 	 *
-	 * Our custom editors handle diluxcloud:// paths by using temp files.
+	 * Our custom editors handle offloadplus:// paths by using temp files.
 	 * This allows WordPress to generate thumbnails even when offloading is active.
 	 *
 	 * @param array<string, mixed> $editors Array of image editor class names
@@ -195,11 +195,11 @@ class Plugin {
 		}
 
 		// Add our custom Imagick editor first (highest priority)
-		array_unshift( $editors, 'DiluxWP\\CloudStorage\\Dilux_Image_Editor_Imagick' );
+		array_unshift( $editors, 'OffloadPlus\\OffloadPlus_Image_Editor_Imagick' );
 
 		// Add our custom GD editor as fallback
 		// Note: WordPress will try Imagick first, then GD
-		$editors[] = 'DiluxWP\\CloudStorage\\Dilux_Image_Editor_GD';
+		$editors[] = 'OffloadPlus\\OffloadPlus_Image_Editor_GD';
 
 		return $editors;
 	}
@@ -208,14 +208,14 @@ class Plugin {
 	 * AJAX: Start synchronization
 	 */
 	public function ajax_start_sync(): void {
-		check_ajax_referer( 'dilux_admin_nonce', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		$result = $this->sync_manager->start_sync();
@@ -231,14 +231,14 @@ class Plugin {
 	 * AJAX: Get sync progress
 	 */
 	public function ajax_get_sync_progress(): void {
-		check_ajax_referer( 'dilux_admin_nonce', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		// Process batch if sync is active
@@ -265,14 +265,14 @@ class Plugin {
 	 * This prevents race conditions when user takes time to confirm
 	 */
 	public function ajax_cs_start_sync(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		// Get parameters
@@ -280,18 +280,18 @@ class Plugin {
 		$confirmed    = isset( $_POST['confirmed'] ) ? intval( wp_unslash( $_POST['confirmed'] ?? '' ) ) : 0;
 		$retry_failed = isset( $_POST['retry_failed'] ) ? intval( wp_unslash( $_POST['retry_failed'] ?? '' ) ) : 0;
 
-		Logger::info( '[Dilux AJAX] start_sync - session: ' . $session_id . ', confirmed: ' . $confirmed . ', retry_failed: ' . $retry_failed );
+		Logger::info( '[Offload Plus AJAX] start_sync - session: ' . $session_id . ', confirmed: ' . $confirmed . ', retry_failed: ' . $retry_failed );
 
 		// ⭐ VALIDACIÓN SIEMPRE (pre-check o execution-check)
-		require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-validation-helper.php';
-		$validation = DiluxValidationHelper::validate_sync_operation(
+		require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-validation-helper.php';
+		$validation = ValidationHelper::validate_sync_operation(
 			$session_id,
 			$retry_failed ? 'retry_failed' : 'start_sync'
 		);
 
 		if ( ! $validation['passed'] ) {
 			// Validación falló → responder con error específico
-			Logger::error( '[Dilux AJAX] Validation FAILED: ' . $validation['reason'] );
+			Logger::error( '[Offload Plus AJAX] Validation FAILED: ' . $validation['reason'] );
 			wp_send_json_success(
 				array(
 					'validation_failed' => true,
@@ -305,11 +305,11 @@ class Plugin {
 
 		if ( ! $confirmed ) {
 			// PRIMERA VEZ: Pre-check pasó → calcular archivos y pedir confirmación
-			Logger::info( '[Dilux AJAX] Pre-check PASSED, calculating files...' );
+			Logger::info( '[Offload Plus AJAX] Pre-check PASSED, calculating files...' );
 
-			require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-db.php';
+			require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-db.php';
 
-			$stats       = DiluxDB::get_stats();
+			$stats       = OffloadPlusDB::get_stats();
 			$scan_result = $this->sync_manager->scan_files_to_sync( true );
 
 			$new_files      = array();
@@ -317,11 +317,11 @@ class Plugin {
 
 			if ( ! empty( $scan_result ) ) {
 				global $wpdb;
-				$table_name = DiluxDB::get_table_name();
+				$table_name = OffloadPlusDB::get_table_name();
 
 				foreach ( $scan_result as $file_info ) {
 					$relative_path = str_replace( wp_upload_dir()['basedir'], '', $file_info['local_path'] );
-                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted DiluxDB::get_table_name(), value is %s placeholder
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted OffloadPlusDB::get_table_name(), value is %s placeholder
 					$exists = $wpdb->get_var(
 						$wpdb->prepare(
 							"SELECT COUNT(*) FROM $table_name WHERE file = %s",
@@ -339,8 +339,8 @@ class Plugin {
 				}
 
 				if ( ! empty( $new_files ) ) {
-					DiluxDB::add_files_batch( $new_files );
-					$stats = DiluxDB::get_stats();
+					OffloadPlusDB::add_files_batch( $new_files );
+					$stats = OffloadPlusDB::get_stats();
 				}
 			}
 
@@ -374,7 +374,7 @@ class Plugin {
 
 		// ⭐ SEGUNDA VEZ: Usuario confirmó → ejecutar acción
 		// La validación ya pasó arriba (execution-check)
-		Logger::info( '[Dilux AJAX] Execution-check PASSED, starting sync...' );
+		Logger::info( '[Offload Plus AJAX] Execution-check PASSED, starting sync...' );
 
 		$concurrency  = isset( $_POST['concurrency'] ) ? intval( wp_unslash( $_POST['concurrency'] ?? '' ) ) : 5;
 		$from_scratch = isset( $_POST['from_scratch'] ) ? intval( wp_unslash( $_POST['from_scratch'] ?? '' ) ) : 0;
@@ -386,15 +386,15 @@ class Plugin {
 			$concurrency = 40;
 		}
 
-		require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-db.php';
+		require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-db.php';
 
 		// Handle different modes
 		if ( $from_scratch ) {
-			DiluxDB::reset_all_files_to_pending();
-			Logger::info( '[Dilux Sync] Reset all files to pending (from scratch)' );
+			OffloadPlusDB::reset_all_files_to_pending();
+			Logger::info( '[Offload Plus Sync] Reset all files to pending (from scratch)' );
 		} elseif ( $retry_failed ) {
-			DiluxDB::reset_failed_files_to_pending();
-			Logger::info( '[Dilux Sync] Reset only failed files to pending (retry)' );
+			OffloadPlusDB::reset_failed_files_to_pending();
+			Logger::info( '[Offload Plus Sync] Reset only failed files to pending (retry)' );
 		}
 
 		// Set concurrency and start sync
@@ -419,18 +419,18 @@ class Plugin {
 	 * For recursion-based approach
 	 */
 	public function ajax_cs_process_batch(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		// ⭐ FIXED: Restore concurrency level from metadata
-		$sync_meta   = get_option( 'dilux_cs_sync_meta', array() );
+		$sync_meta   = get_option( 'offload_plus_sync_meta', array() );
 		$concurrency = $sync_meta['concurrency'] ?? 5;
 		$this->sync_manager->set_parallel_uploads( $concurrency );
 
@@ -445,21 +445,21 @@ class Plugin {
 	 * Supports 'continue' and 'scratch' modes
 	 */
 	public function ajax_cs_start_reverse_sync(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		// Get parameters
 		$concurrency = isset( $_POST['concurrency'] ) ? intval( wp_unslash( $_POST['concurrency'] ?? '' ) ) : 5;
 		$mode        = isset( $_POST['mode'] ) ? sanitize_text_field( wp_unslash( $_POST['mode'] ?? '' ) ) : 'continue';
 
-		Logger::info( '[Dilux Plugin] Starting reverse sync - mode: ' . $mode . ', concurrency: ' . $concurrency );
+		Logger::info( '[Offload Plus Plugin] Starting reverse sync - mode: ' . $mode . ', concurrency: ' . $concurrency );
 
 		// Set concurrency level in sync manager
 		$this->sync_manager->set_parallel_uploads( $concurrency );
@@ -479,18 +479,18 @@ class Plugin {
 	 * ⭐ OPTIMIZED: Restore concurrency level from metadata
 	 */
 	public function ajax_cs_process_reverse_batch(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		// ⭐ OPTIMIZED: Restore concurrency level from metadata (same as normal sync)
-		$sync_meta   = get_option( 'dilux_cs_sync_meta', array() );
+		$sync_meta   = get_option( 'offload_plus_sync_meta', array() );
 		$concurrency = $sync_meta['concurrency'] ?? 5;
 		$this->sync_manager->set_parallel_uploads( $concurrency );
 
@@ -505,14 +505,14 @@ class Plugin {
 	 * Used before disconnect to catalog cloud files
 	 */
 	public function ajax_cs_compare_cloud(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		// Compare with cloud (no pagination needed)
@@ -529,14 +529,14 @@ class Plugin {
 	 * ⭐ NEW AJAX: Get deleted files stats (for disconnect modal)
 	 */
 	public function ajax_cs_get_deleted_stats(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		// Get deleted files stats from database
-		$stats = DiluxDB::get_deleted_stats();
+		$stats = OffloadPlusDB::get_deleted_stats();
 
 		wp_send_json_success(
 			array(
@@ -553,32 +553,32 @@ class Plugin {
 	 * Finds files in Azure that are not in DB and marks them as deleted=1
 	 */
 	public function ajax_cs_scan_remote(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		try {
-			require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-db.php';
+			require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-db.php';
 
 			// Get cloud client
 			$cloud_client = ConfigManager::get_cloud_client();
 
 			if ( ! $cloud_client ) {
-				wp_send_json_error( esc_html__( 'Cloud client not configured', 'dilux-cloud-storage' ) );
+				wp_send_json_error( esc_html__( 'Cloud client not configured', 'offload-plus' ) );
 			}
 
 			// List all files from Azure
-			Logger::info( '[Dilux Plugin] Starting remote scan for disconnect...' );
+			Logger::info( '[Offload Plus Plugin] Starting remote scan for disconnect...' );
 			$azure_files = $cloud_client->list_files( 'uploads/' );
 
 			if ( empty( $azure_files ) ) {
-				Logger::info( '[Dilux Plugin] No files found in cloud storage' );
+				Logger::info( '[Offload Plus Plugin] No files found in cloud storage' );
 				wp_send_json_success(
 					array(
 						'scanned'   => 0,
@@ -588,10 +588,10 @@ class Plugin {
 				);
 			}
 
-			Logger::info( '[Dilux Plugin] Found ' . count( $azure_files ) . ' files in Azure, checking against DB...' );
+			Logger::info( '[Offload Plus Plugin] Found ' . count( $azure_files ) . ' files in Azure, checking against DB...' );
 
 			global $wpdb;
-			$table_name = DiluxDB::get_table_name();
+			$table_name = OffloadPlusDB::get_table_name();
 
 			$cloud_only_files = array();
 			$already_in_db    = 0;
@@ -600,7 +600,7 @@ class Plugin {
 				$relative_path = str_replace( 'uploads/', '/', $file['path'] );
 
 				// Check if file exists in DB
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted DiluxDB::get_table_name(), value is %s placeholder
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted OffloadPlusDB::get_table_name(), value is %s placeholder
 				$db_file = $wpdb->get_row(
 					$wpdb->prepare(
 						"SELECT * FROM {$table_name} WHERE file = %s",
@@ -615,7 +615,7 @@ class Plugin {
 
 					// If file was not synced but same size, mark as synced
 					if ( ! $db_file['synced'] && (int) $db_file['size'] === (int) $file['size'] ) {
-						Logger::info( '[Dilux Plugin] Already synced file found: ' . $relative_path );
+						Logger::info( '[Offload Plus Plugin] Already synced file found: ' . $relative_path );
 						$wpdb->update(
 							$table_name,
 							array(
@@ -627,7 +627,7 @@ class Plugin {
 					}
 				} else {
 					// File NOT in DB - it's a cloud-only file
-					Logger::info( '[Dilux Plugin] Cloud only file found: ' . $relative_path . ' (' . size_format( $file['size'] ) . ')' );
+					Logger::info( '[Offload Plus Plugin] Cloud only file found: ' . $relative_path . ' (' . size_format( $file['size'] ) . ')' );
 					$cloud_only_files[] = array(
 						'file' => $relative_path,
 						'size' => $file['size'],
@@ -661,7 +661,7 @@ class Plugin {
 
 				$wpdb->query( $query );
 
-				Logger::info( '[Dilux Plugin] Inserted ' . count( $cloud_only_files ) . ' cloud-only files into DB' );
+				Logger::info( '[Offload Plus Plugin] Inserted ' . count( $cloud_only_files ) . ' cloud-only files into DB' );
 			}
 
 			wp_send_json_success(
@@ -674,9 +674,9 @@ class Plugin {
 			);
 
 		} catch ( \Exception $e ) {
-			Logger::info( '[Dilux Plugin] Remote scan error: ' . $e->getMessage() );
+			Logger::info( '[Offload Plus Plugin] Remote scan error: ' . $e->getMessage() );
 			/* translators: %s: error message */
-			wp_send_json_error( sprintf( esc_html__( 'Error scanning remote files: %s', 'dilux-cloud-storage' ), $e->getMessage() ) );
+			wp_send_json_error( sprintf( esc_html__( 'Error scanning remote files: %s', 'offload-plus' ), $e->getMessage() ) );
 		}
 	}
 
@@ -686,25 +686,25 @@ class Plugin {
 	 * Shows what needs to be downloaded before disconnect
 	 */
 	public function ajax_cs_calculate_download(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		try {
-			require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-db.php';
+			require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-db.php';
 
 			global $wpdb;
-			$table_name = DiluxDB::get_table_name();
+			$table_name = OffloadPlusDB::get_table_name();
 
 			// ⭐ Like Infinite Uploads: Query DB for download stats
 			// synced = 1 (exists in cloud), deleted = 1 (needs download)
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted DiluxDB::get_table_name(), no user input
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted OffloadPlusDB::get_table_name(), no user input
 			$pending_download = $wpdb->get_row(
 				"
                 SELECT
@@ -717,7 +717,7 @@ class Plugin {
 			);
 
 			// Files already local (synced = 1, deleted = 0)
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted DiluxDB::get_table_name(), no user input
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted OffloadPlusDB::get_table_name(), no user input
 			$already_local = $wpdb->get_row(
 				"
                 SELECT
@@ -734,7 +734,7 @@ class Plugin {
 			$total_size  = (int) $pending_download['total_size'] + (int) $already_local['total_size'];
 
 			Logger::debug(
-				'[Dilux Plugin] Download calculation from DB: ' .
+				'[Offload Plus Plugin] Download calculation from DB: ' .
 					$total_cloud . ' total, ' .
 					$already_local['count'] . ' local, ' .
 					$pending_download['count'] . ' pending'
@@ -755,9 +755,9 @@ class Plugin {
 			);
 
 		} catch ( \Exception $e ) {
-			Logger::info( '[Dilux Plugin] Calculate download error: ' . $e->getMessage() );
+			Logger::info( '[Offload Plus Plugin] Calculate download error: ' . $e->getMessage() );
 			/* translators: %s: error message */
-			wp_send_json_error( sprintf( esc_html__( 'Error calculating download: %s', 'dilux-cloud-storage' ), $e->getMessage() ) );
+			wp_send_json_error( sprintf( esc_html__( 'Error calculating download: %s', 'offload-plus' ), $e->getMessage() ) );
 		}
 	}
 
@@ -766,18 +766,18 @@ class Plugin {
 	 * This ONLY counts files - it does NOT start the sync
 	 */
 	public function ajax_cs_calculate_sync(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		try {
-			require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-db.php';
+			require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-db.php';
 
 			// ⭐ Check if this is a retry_failed request
 			$retry_failed = isset( $_POST['retry_failed'] ) ? intval( wp_unslash( $_POST['retry_failed'] ?? '' ) ) : 0;
@@ -785,7 +785,7 @@ class Plugin {
 			$current_state = ConfigManager::get_state();
 
 			// Get stats from DB (current state)
-			$stats = DiluxDB::get_stats();
+			$stats = OffloadPlusDB::get_stats();
 
 			// ⭐ ALWAYS scan filesystem to detect new files (even in retry mode)
 			// This compares filesystem vs DB to find new files not yet tracked
@@ -797,13 +797,13 @@ class Plugin {
 			if ( ! empty( $scan_result ) ) {
 				// Compare scanned files with DB to find new ones
 				global $wpdb;
-				$table_name = DiluxDB::get_table_name();
+				$table_name = OffloadPlusDB::get_table_name();
 
 				foreach ( $scan_result as $file_info ) {
 					$relative_path = str_replace( wp_upload_dir()['basedir'], '', $file_info['local_path'] );
 
 					// Check if file exists in DB
-                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted DiluxDB::get_table_name(), value is %s placeholder
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted OffloadPlusDB::get_table_name(), value is %s placeholder
 					$exists = $wpdb->get_var(
 						$wpdb->prepare(
 							"SELECT COUNT(*) FROM $table_name WHERE file = %s",
@@ -813,7 +813,7 @@ class Plugin {
 
 					if ( (int) $exists === 0 ) {
 						// File not in DB = new file
-						Logger::info( '[Dilux Calculate Sync] NEW FILE FOUND: ' . $relative_path . ' (size: ' . size_format( $file_info['size'] ) . ')' );
+						Logger::info( '[Offload Plus Calculate Sync] NEW FILE FOUND: ' . $relative_path . ' (size: ' . size_format( $file_info['size'] ) . ')' );
 						$new_files[]     = array(
 							'path' => $relative_path,
 							'size' => $file_info['size'],
@@ -824,11 +824,11 @@ class Plugin {
 
 				// Add new files to DB (if any)
 				if ( ! empty( $new_files ) ) {
-					DiluxDB::add_files_batch( $new_files );
-					Logger::info( '[Dilux Plugin] Found and added ' . count( $new_files ) . ' new files to DB (' . size_format( $new_files_size ) . ')' );
+					OffloadPlusDB::add_files_batch( $new_files );
+					Logger::info( '[Offload Plus Plugin] Found and added ' . count( $new_files ) . ' new files to DB (' . size_format( $new_files_size ) . ')' );
 
 					// Refresh stats after adding new files
-					$stats = DiluxDB::get_stats();
+					$stats = OffloadPlusDB::get_stats();
 				}
 			}
 
@@ -845,7 +845,7 @@ class Plugin {
 			$old_pending_files = $pending_files - $new_files_count; // Pending from previous sync
 			$old_pending_size  = $pending_size - $new_files_size;
 
-			Logger::info( '[Dilux Plugin] Calculate sync: ' . $total_files . ' total, ' . $synced_files . ' synced, ' . $old_pending_files . ' pending (old), ' . $new_files_count . ' new' );
+			Logger::info( '[Offload Plus Plugin] Calculate sync: ' . $total_files . ' total, ' . $synced_files . ' synced, ' . $old_pending_files . ' pending (old), ' . $new_files_count . ' new' );
 
 			wp_send_json_success(
 				array(
@@ -865,9 +865,9 @@ class Plugin {
 			);
 
 		} catch ( \Exception $e ) {
-			Logger::info( '[Dilux Plugin] Calculate sync error: ' . $e->getMessage() );
+			Logger::info( '[Offload Plus Plugin] Calculate sync error: ' . $e->getMessage() );
 			/* translators: %s: error message */
-			wp_send_json_error( sprintf( esc_html__( 'Error calculating sync: %s', 'dilux-cloud-storage' ), $e->getMessage() ) );
+			wp_send_json_error( sprintf( esc_html__( 'Error calculating sync: %s', 'offload-plus' ), $e->getMessage() ) );
 		}
 	}
 
@@ -875,20 +875,20 @@ class Plugin {
 	 * AJAX: Activate offloading
 	 */
 	public function ajax_activate_offloading(): void {
-		check_ajax_referer( 'dilux_admin_nonce', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		if ( CloudStreamWrapper::activate_offloading() ) {
 			wp_send_json_success( 'Offloading activated' );
 		} else {
-			wp_send_json_error( esc_html__( 'Failed to activate offloading', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Failed to activate offloading', 'offload-plus' ) );
 		}
 	}
 
@@ -896,14 +896,14 @@ class Plugin {
 	 * AJAX: Deactivate offloading
 	 */
 	public function ajax_deactivate_offloading(): void {
-		check_ajax_referer( 'dilux_admin_nonce', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin_nonce', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		if ( CloudStreamWrapper::deactivate_offloading() ) {
@@ -911,10 +911,10 @@ class Plugin {
 			// User must re-sync to enable offloading again
 			ConfigManager::set_state( PluginState::CONFIGURED );
 
-			Logger::info( '[Dilux Plugin] Offloading deactivated, state set to CONFIGURED' );
+			Logger::info( '[Offload Plus Plugin] Offloading deactivated, state set to CONFIGURED' );
 			wp_send_json_success( 'Offloading deactivated' );
 		} else {
-			wp_send_json_error( esc_html__( 'Failed to deactivate offloading', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Failed to deactivate offloading', 'offload-plus' ) );
 		}
 	}
 
@@ -926,14 +926,14 @@ class Plugin {
 	 * @return void
 	 */
 	public function ajax_dev_enable_without_sync(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
-		if ( ! defined( 'DILUX_DEV_MODE' ) || ! DILUX_DEV_MODE ) {
-			wp_send_json_error( esc_html__( 'DILUX_DEV_MODE is not enabled', 'dilux-cloud-storage' ) );
+		if ( ! defined( 'OFFLOAD_PLUS_DEV_MODE' ) || ! OFFLOAD_PLUS_DEV_MODE ) {
+			wp_send_json_error( esc_html__( 'OFFLOAD_PLUS_DEV_MODE is not enabled', 'offload-plus' ) );
 		}
 
 		$current_state = ConfigManager::get_state();
@@ -942,7 +942,7 @@ class Plugin {
 			wp_send_json_error(
 				sprintf(
 				/* translators: %1$s is current state, %2$s is expected state. */
-					esc_html__( 'Invalid state: %1$s. Expected: %2$s', 'dilux-cloud-storage' ),
+					esc_html__( 'Invalid state: %1$s. Expected: %2$s', 'offload-plus' ),
 					$current_state,
 					'configured'
 				)
@@ -953,13 +953,13 @@ class Plugin {
 		ConfigManager::set_state( PluginState::SYNCED );
 
 		if ( CloudStreamWrapper::activate_offloading() ) {
-			Logger::info( '[Dilux DEV MODE] Offloading enabled without sync (skip sync)' );
+			Logger::info( '[Offload Plus DEV MODE] Offloading enabled without sync (skip sync)' );
 			wp_send_json_success( 'Offloading enabled without sync' );
 		} else {
 			// Rollback state on failure
 			ConfigManager::set_state( PluginState::CONFIGURED );
-			Logger::error( '[Dilux DEV MODE] Failed to activate offloading without sync' );
-			wp_send_json_error( esc_html__( 'Failed to activate offloading', 'dilux-cloud-storage' ) );
+			Logger::error( '[Offload Plus DEV MODE] Failed to activate offloading without sync' );
+			wp_send_json_error( esc_html__( 'Failed to activate offloading', 'offload-plus' ) );
 		}
 	}
 
@@ -971,14 +971,14 @@ class Plugin {
 	 * @return void
 	 */
 	public function ajax_dev_disconnect_without_sync(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
-		if ( ! defined( 'DILUX_DEV_MODE' ) || ! DILUX_DEV_MODE ) {
-			wp_send_json_error( esc_html__( 'DILUX_DEV_MODE is not enabled', 'dilux-cloud-storage' ) );
+		if ( ! defined( 'OFFLOAD_PLUS_DEV_MODE' ) || ! OFFLOAD_PLUS_DEV_MODE ) {
+			wp_send_json_error( esc_html__( 'OFFLOAD_PLUS_DEV_MODE is not enabled', 'offload-plus' ) );
 		}
 
 		$current_state = ConfigManager::get_state();
@@ -987,7 +987,7 @@ class Plugin {
 			wp_send_json_error(
 				sprintf(
 				/* translators: %1$s is current state, %2$s is expected state. */
-					esc_html__( 'Invalid state: %1$s. Expected: %2$s', 'dilux-cloud-storage' ),
+					esc_html__( 'Invalid state: %1$s. Expected: %2$s', 'offload-plus' ),
 					$current_state,
 					'offloading_active'
 				)
@@ -1002,9 +1002,9 @@ class Plugin {
 
 		// Clear stale sync tracking data
 		ConfigManager::clear_sync_progress();
-		DiluxDB::clear_table();
+		OffloadPlusDB::clear_table();
 
-		Logger::info( '[Dilux DEV MODE] Offloading disabled without reverse sync (skip sync)' );
+		Logger::info( '[Offload Plus DEV MODE] Offloading disabled without reverse sync (skip sync)' );
 		wp_send_json_success( 'Offloading disabled without sync' );
 	}
 
@@ -1012,19 +1012,19 @@ class Plugin {
 	 * ⭐ Reset state to configured (when canceling sync)
 	 */
 	public function ajax_cs_reset_state_to_configured(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		if ( ! $this->sync_manager ) {
-			wp_send_json_error( esc_html__( 'Sync manager not available', 'dilux-cloud-storage' ) );
+			wp_send_json_error( esc_html__( 'Sync manager not available', 'offload-plus' ) );
 		}
 
 		ConfigManager::set_state( PluginState::CONFIGURED );
 		ConfigManager::clear_sync_progress(); // Clear sync metadata
-		Logger::info( '[Dilux Plugin] State reset to CONFIGURED after cancel (metadata cleared)' );
+		Logger::info( '[Offload Plus Plugin] State reset to CONFIGURED after cancel (metadata cleared)' );
 		wp_send_json_success( 'State reset to configured' );
 	}
 
@@ -1033,28 +1033,28 @@ class Plugin {
 	 * The scan + populate will happen automatically when user clicks "Start Sync" (same flow as first sync)
 	 */
 	public function ajax_cs_prepare_resync(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		try {
 			// Step 1: Clear the database table
-			DiluxDB::clear_table();
-			Logger::info( '[Dilux Plugin] Resync All: Database table cleared' );
+			OffloadPlusDB::clear_table();
+			Logger::info( '[Offload Plus Plugin] Resync All: Database table cleared' );
 
 			// Step 2: Set state to CONFIGURED (ready for fresh sync)
 			ConfigManager::set_state( PluginState::CONFIGURED );
-			Logger::info( '[Dilux Plugin] Resync All: State set to CONFIGURED' );
+			Logger::info( '[Offload Plus Plugin] Resync All: State set to CONFIGURED' );
 
 			// Step 3: Return success (frontend will reload page to show CONFIGURED state)
 			wp_send_json_success( array( 'cleared' => true ) );
 
 		} catch ( \Exception $e ) {
-			Logger::info( '[Dilux Plugin] Resync All prepare error: ' . $e->getMessage() );
+			Logger::info( '[Offload Plus Plugin] Resync All prepare error: ' . $e->getMessage() );
 			/* translators: %s: error message */
-			wp_send_json_error( sprintf( esc_html__( 'Failed to prepare resync: %s', 'dilux-cloud-storage' ), $e->getMessage() ) );
+			wp_send_json_error( sprintf( esc_html__( 'Failed to prepare resync: %s', 'offload-plus' ), $e->getMessage() ) );
 		}
 	}
 
@@ -1063,18 +1063,18 @@ class Plugin {
 	 * Removes ALL files with synced=0 (failed files, regardless of error count)
 	 */
 	public function ajax_cs_discard_failed_files(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		try {
 			global $wpdb;
-			$table_name = DiluxDB::get_table_name();
+			$table_name = OffloadPlusDB::get_table_name();
 
 			// Delete ALL files with synced=0 (all failed files, regardless of error count)
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted DiluxDB::get_table_name(), no user input
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from trusted OffloadPlusDB::get_table_name(), no user input
 			$result = $wpdb->query(
 				"
                 DELETE FROM $table_name
@@ -1083,7 +1083,7 @@ class Plugin {
 			);
 
 			if ( $result !== false ) {
-				Logger::info( '[Dilux Plugin] Discarded ' . $result . ' failed files from database' );
+				Logger::info( '[Offload Plus Plugin] Discarded ' . $result . ' failed files from database' );
 				wp_send_json_success(
 					array(
 						'message'       => 'Failed files discarded',
@@ -1091,13 +1091,13 @@ class Plugin {
 					)
 				);
 			} else {
-				Logger::error( '[Dilux Plugin] Failed to discard failed files' );
-				wp_send_json_error( esc_html__( 'Failed to discard failed files', 'dilux-cloud-storage' ) );
+				Logger::error( '[Offload Plus Plugin] Failed to discard failed files' );
+				wp_send_json_error( esc_html__( 'Failed to discard failed files', 'offload-plus' ) );
 			}
 		} catch ( \Exception $e ) {
-			Logger::info( '[Dilux Plugin] Discard failed files error: ' . $e->getMessage() );
+			Logger::info( '[Offload Plus Plugin] Discard failed files error: ' . $e->getMessage() );
 			/* translators: %s: error message */
-			wp_send_json_error( sprintf( esc_html__( 'Error discarding failed files: %s', 'dilux-cloud-storage' ), $e->getMessage() ) );
+			wp_send_json_error( sprintf( esc_html__( 'Error discarding failed files: %s', 'offload-plus' ), $e->getMessage() ) );
 		}
 	}
 
@@ -1106,14 +1106,14 @@ class Plugin {
 	 * Uses DB-first approach like Infinite Uploads (fast, no filesystem scan)
 	 */
 	public function ajax_cs_get_deletable_stats(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'dilux_cs_files';
+		$table_name = $wpdb->prefix . 'offload_plus_files';
 
 		// ⚡ Query DB instead of scanning filesystem (like Infinite Uploads)
 		// Get files that are synced to cloud but not deleted locally
@@ -1130,7 +1130,7 @@ class Plugin {
 		$total_files = (int) $stats['total_files'];
 		$total_size  = (int) $stats['total_size'];
 
-		Logger::info( '[Dilux Delete] Found ' . $total_files . ' deletable files (' . size_format( $total_size ) . ') in DB' );
+		Logger::info( '[Offload Plus Delete] Found ' . $total_files . ' deletable files (' . size_format( $total_size ) . ') in DB' );
 
 		wp_send_json_success(
 			array(
@@ -1146,23 +1146,23 @@ class Plugin {
 	 * Uses DB-first approach like Infinite Uploads (faster, no filesystem scan)
 	 */
 	public function ajax_cs_process_delete_batch(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		// Get REAL upload path (not stream wrapper)
 		$upload_dir = wp_upload_dir();
 		$base_path  = $upload_dir['basedir'];
 
-		// If offloading is active, basedir might be diluxcloud://
-		if ( strpos( $base_path, 'diluxcloud://' ) === 0 ) {
+		// If offloading is active, basedir might be offloadplus://
+		if ( strpos( $base_path, 'offloadplus://' ) === 0 ) {
 			$base_path = WP_CONTENT_DIR . '/uploads';
 		}
 
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'dilux_cs_files';
+		$table_name = $wpdb->prefix . 'offload_plus_files';
 
 		$deleted_total = 0;
 		$failed_total  = 0;
@@ -1171,7 +1171,7 @@ class Plugin {
 		$batch_size    = 500; // Process 500 files per DB query
 		$break         = false;
 
-		Logger::info( '[Dilux Delete] Starting delete process from: ' . $base_path );
+		Logger::info( '[Offload Plus Delete] Starting delete process from: ' . $base_path );
 
 		// ⚡ WHILE loop like Infinite Uploads (runs until timeout or done)
 		while ( ! $break ) {
@@ -1206,7 +1206,7 @@ class Plugin {
 						++$deleted_total;
 					} else {
 						++$failed_total;
-						Logger::error( '[Dilux Delete] Failed to delete: ' . $file_path );
+						Logger::error( '[Offload Plus Delete] Failed to delete: ' . $file_path );
 					}
 				} else {
 					// Already gone; treat as success.
@@ -1242,14 +1242,14 @@ class Plugin {
 			"SELECT COUNT(*) FROM {$table_name} WHERE synced = 1 AND deleted = 0"
 		);
 
-		Logger::info( '[Dilux Delete] Batch completed: deleted=' . $deleted_total . ', failed=' . $failed_total . ', remaining=' . $remaining_count );
+		Logger::info( '[Offload Plus Delete] Batch completed: deleted=' . $deleted_total . ', failed=' . $failed_total . ', remaining=' . $remaining_count );
 
 		if ( $is_done ) {
 			// ⭐ OPTIMIZATION: Clear table after delete completes
 			// Table has no value once all files are deleted (all records would be deleted=1)
 			// Keeps DB lean and allows fresh catalog on next operation
-			DiluxDB::clear_table();
-			Logger::info( '[Dilux Delete] All files deleted - table cleared (no longer needed)' );
+			OffloadPlusDB::clear_table();
+			Logger::info( '[Offload Plus Delete] All files deleted - table cleared (no longer needed)' );
 
 			wp_send_json_success(
 				array(
@@ -1279,10 +1279,10 @@ class Plugin {
 	 * Allows an inactive tab to take over the sync from another tab
 	 */
 	public function ajax_cs_take_control(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		try {
@@ -1290,14 +1290,14 @@ class Plugin {
 			$new_session_id = isset( $_POST['session_id'] ) ? sanitize_text_field( wp_unslash( $_POST['session_id'] ?? '' ) ) : '';
 
 			if ( empty( $new_session_id ) ) {
-				wp_send_json_error( esc_html__( 'Session ID is required', 'dilux-cloud-storage' ) );
+				wp_send_json_error( esc_html__( 'Session ID is required', 'offload-plus' ) );
 			}
 
 			// Get current sync metadata
-			$sync_meta = get_option( 'dilux_cs_sync_meta', array() );
+			$sync_meta = get_option( 'offload_plus_sync_meta', array() );
 
 			if ( empty( $sync_meta ) ) {
-				wp_send_json_error( esc_html__( 'No active sync found', 'dilux-cloud-storage' ) );
+				wp_send_json_error( esc_html__( 'No active sync found', 'offload-plus' ) );
 			}
 
 			$old_session_id = $sync_meta['sync_session_id'] ?? 'unknown';
@@ -1306,9 +1306,9 @@ class Plugin {
 			$sync_meta['sync_session_id'] = $new_session_id;
 			$sync_meta['last_heartbeat']  = time();
 
-			update_option( 'dilux_cs_sync_meta', $sync_meta, false );
+			update_option( 'offload_plus_sync_meta', $sync_meta, false );
 
-			Logger::info( '[Dilux Multi-Tab] Control transferred from ' . $old_session_id . ' to ' . $new_session_id );
+			Logger::info( '[Offload Plus Multi-Tab] Control transferred from ' . $old_session_id . ' to ' . $new_session_id );
 
 			wp_send_json_success(
 				array(
@@ -1319,9 +1319,9 @@ class Plugin {
 			);
 
 		} catch ( \Exception $e ) {
-			Logger::info( '[Dilux Multi-Tab] Take control error: ' . $e->getMessage() );
+			Logger::info( '[Offload Plus Multi-Tab] Take control error: ' . $e->getMessage() );
 			/* translators: %s: error message */
-			wp_send_json_error( sprintf( esc_html__( 'Error taking control: %s', 'dilux-cloud-storage' ), $e->getMessage() ) );
+			wp_send_json_error( sprintf( esc_html__( 'Error taking control: %s', 'offload-plus' ), $e->getMessage() ) );
 		}
 	}
 
@@ -1331,10 +1331,10 @@ class Plugin {
 	 * Used by inactive tabs to detect if sync is active, inactive, or terminated
 	 */
 	public function ajax_cs_get_sync_state(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		try {
@@ -1342,7 +1342,7 @@ class Plugin {
 			$requesting_session_id = isset( $_POST['session_id'] ) ? sanitize_text_field( wp_unslash( $_POST['session_id'] ?? '' ) ) : '';
 
 			// Get current sync metadata
-			$sync_meta = get_option( 'dilux_cs_sync_meta', array() );
+			$sync_meta = get_option( 'offload_plus_sync_meta', array() );
 
 			if ( empty( $sync_meta ) ) {
 				// Check plugin state - might be SYNCING even without metadata
@@ -1350,7 +1350,7 @@ class Plugin {
 
 				if ( $plugin_state === PluginState::SYNCING ) {
 					// There SHOULD be sync metadata but there isn't - this is an error state
-					Logger::info( '[Dilux Multi-Tab] WARNING: Plugin state is SYNCING but no sync metadata found!' );
+					Logger::info( '[Offload Plus Multi-Tab] WARNING: Plugin state is SYNCING but no sync metadata found!' );
 					wp_send_json_success(
 						array(
 							'state'        => 'no_sync',
@@ -1378,7 +1378,7 @@ class Plugin {
 			$heartbeat_timeout = 90; // 90 seconds without heartbeat = expired session
 			if ( time() - $last_heartbeat > $heartbeat_timeout ) {
 				// Timeout: no tab is actively controlling the sync
-				Logger::warning( '[Dilux Multi-Tab] Sync session expired due to inactivity (no heartbeat for ' . ( time() - $last_heartbeat ) . ' seconds)' );
+				Logger::warning( '[Offload Plus Multi-Tab] Sync session expired due to inactivity (no heartbeat for ' . ( time() - $last_heartbeat ) . ' seconds)' );
 
 				// Reset state to CONFIGURED (sync was abandoned)
 				ConfigManager::set_state( PluginState::CONFIGURED );
@@ -1401,8 +1401,8 @@ class Plugin {
 				// State 3: Terminated
 				// ⭐ FIX: Enrich sync_meta with upload stats from DB for Tab Inactivo
 				// Tab Activo gets these from process_batch response, but Tab Inactivo needs them too
-				require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-db.php';
-				$stats = \DiluxWP\CloudStorage\DiluxDB::get_stats();
+				require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-db.php';
+				$stats = \OffloadPlus\OffloadPlusDB::get_stats();
 
 				$sync_meta['successful_uploads'] = $stats['synced_files'] ?? 0;
 				$sync_meta['failed_uploads']     = $stats['failed_files'] ?? 0;
@@ -1421,8 +1421,8 @@ class Plugin {
 				// State 1: This tab is active (owns the sync)
 				// ⭐ FIX: Enrich sync_meta with current progress from DB for Tab Activo
 				// This ensures the failed_uploads counter updates in real-time
-				require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-db.php';
-				$stats = \DiluxWP\CloudStorage\DiluxDB::get_stats();
+				require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-db.php';
+				$stats = \OffloadPlus\OffloadPlusDB::get_stats();
 
 				$sync_meta['processed_files']    = $stats['synced_files'] ?? 0;
 				$sync_meta['successful_uploads'] = $stats['synced_files'] ?? 0;
@@ -1442,8 +1442,8 @@ class Plugin {
 				// State 2: This tab is inactive (another tab owns the sync)
 				// ⭐ FIX: Enrich sync_meta with current progress from DB for Tab Inactivo
 				// So it shows current progress instead of 0%
-				require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-db.php';
-				$stats = \DiluxWP\CloudStorage\DiluxDB::get_stats();
+				require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-db.php';
+				$stats = \OffloadPlus\OffloadPlusDB::get_stats();
 
 				$sync_meta['processed_files']    = $stats['synced_files'] ?? 0;
 				$sync_meta['successful_uploads'] = $stats['synced_files'] ?? 0;
@@ -1461,9 +1461,9 @@ class Plugin {
 				);
 			}
 		} catch ( \Exception $e ) {
-			Logger::info( '[Dilux Multi-Tab] Get sync state error: ' . $e->getMessage() );
+			Logger::info( '[Offload Plus Multi-Tab] Get sync state error: ' . $e->getMessage() );
 			/* translators: %s: error message */
-			wp_send_json_error( sprintf( esc_html__( 'Error getting sync state: %s', 'dilux-cloud-storage' ), $e->getMessage() ) );
+			wp_send_json_error( sprintf( esc_html__( 'Error getting sync state: %s', 'offload-plus' ), $e->getMessage() ) );
 		}
 	}
 
@@ -1472,16 +1472,16 @@ class Plugin {
 	 * Returns count of failed and pending files to validate before enabling offloading
 	 */
 	public function ajax_cs_get_failed_files_count(): void {
-		check_ajax_referer( 'dilux_cs_admin', 'nonce' );
+		check_ajax_referer( 'offload_plus_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'Unauthorized', 'dilux-cloud-storage' ) );
+			wp_die( esc_html__( 'Unauthorized', 'offload-plus' ) );
 		}
 
 		try {
-			require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-db.php';
+			require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-db.php';
 
-			$stats = \DiluxWP\CloudStorage\DiluxDB::get_stats();
+			$stats = \OffloadPlus\OffloadPlusDB::get_stats();
 
 			$failed_count  = (int) ( $stats['failed_files'] ?? 0 );
 			$pending_count = (int) ( $stats['pending_files'] ?? 0 );
@@ -1494,9 +1494,9 @@ class Plugin {
 			);
 
 		} catch ( \Exception $e ) {
-			Logger::info( '[Dilux Plugin] Get failed files count error: ' . $e->getMessage() );
+			Logger::info( '[Offload Plus Plugin] Get failed files count error: ' . $e->getMessage() );
 			/* translators: %s: error message */
-			wp_send_json_error( sprintf( esc_html__( 'Error getting failed files count: %s', 'dilux-cloud-storage' ), $e->getMessage() ) );
+			wp_send_json_error( sprintf( esc_html__( 'Error getting failed files count: %s', 'offload-plus' ), $e->getMessage() ) );
 		}
 	}
 
@@ -1513,18 +1513,18 @@ class Plugin {
 	 * Plugin activation hook
 	 */
 	public static function activate(): void {
-		Logger::info( '[Dilux Plugin] Activation hook called' );
+		Logger::info( '[Offload Plus Plugin] Activation hook called' );
 
 		// ⭐ Create custom database table for file tracking
-		require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-db.php';
-		DiluxDB::create_files_table();
+		require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-db.php';
+		OffloadPlusDB::create_files_table();
 	}
 
 	/**
 	 * Plugin deactivation hook
 	 */
 	public static function deactivate(): void {
-		Logger::info( '[Dilux Plugin] Deactivation hook called' );
+		Logger::info( '[Offload Plus Plugin] Deactivation hook called' );
 
 		// Deactivate stream wrapper if active
 		CloudStreamWrapper::deactivate_offloading();

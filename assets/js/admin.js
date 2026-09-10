@@ -29,8 +29,8 @@ jQuery(document).ready(function($) {
         
         // Get form data
         var formData = {
-            action: 'dilux_cs_test_connection',
-            nonce: diluxCloudStorageAdmin.nonce,
+            action: 'offload_plus_test_connection',
+            nonce: offloadPlusAdmin.nonce,
             account_name: $('#account_name').val(),
             account_key: $('#account_key').val(),
             container_name: $('#container_name').val(),
@@ -53,7 +53,7 @@ jQuery(document).ready(function($) {
         
         // Make AJAX request
         $.ajax({
-            url: diluxCloudStorageAdmin.ajaxUrl,
+            url: offloadPlusAdmin.ajaxUrl,
             type: 'POST',
             data: formData,
             timeout: 30000, // 30 seconds timeout
@@ -170,8 +170,8 @@ jQuery(document).ready(function($) {
             url: ajaxurl,
             type: 'POST',
             data: {
-                action: 'dilux_cs_migration_action',
-                nonce: diluxCloudStorageAdmin.nonce,
+                action: 'offload_plus_migration_action',
+                nonce: offloadPlusAdmin.nonce,
                 migration_action: action
             },
             success: function(response) {
@@ -255,8 +255,8 @@ jQuery(document).ready(function($) {
             url: ajaxurl,
             type: 'POST',
             data: {
-                action: 'dilux_cs_test_check',
-                nonce: diluxCloudStorageAdmin.nonce,
+                action: 'offload_plus_test_check',
+                nonce: offloadPlusAdmin.nonce,
                 check_type: checkType
             },
             success: function(response) {
@@ -283,7 +283,7 @@ jQuery(document).ready(function($) {
     });
     
     // Auto-refresh status checks every 5 minutes
-    if ($('.dilux-cs-status').length && diluxCloudStorageAdmin.autoRefresh) {
+    if ($('.offload-plus-status').length && offloadPlusAdmin.autoRefresh) {
         setInterval(function() {
             location.reload();
         }, 300000); // 5 minutes
@@ -342,7 +342,7 @@ jQuery(document).ready(function($) {
     }
     
     // Initialize any existing functionality
-    if (typeof initializeDiluxCloudStorage === 'function') {
-        initializeDiluxCloudStorage();
+    if (typeof initializeOffloadPlus === 'function') {
+        initializeOffloadPlus();
     }
 });

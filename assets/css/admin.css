@@ -4,13 +4,13 @@
    Tab Navigation with Icons
    ========================================================================== */
 
-.dilux-cloud-storage-admin .nav-tab-wrapper {
+.offload-plus-admin .nav-tab-wrapper {
     border-bottom: 1px solid #c3c4c7;
     padding: 0;
     margin: 20px 0 0 0;
 }
 
-.dilux-cloud-storage-admin .nav-tab {
+.offload-plus-admin .nav-tab {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -18,27 +18,27 @@
     padding: 10px 15px;
 }
 
-.dilux-cloud-storage-admin .nav-tab .dashicons {
+.offload-plus-admin .nav-tab .dashicons {
     font-size: 16px;
     width: 16px;
     height: 16px;
 }
 
-.dilux-cloud-storage-admin h1 {
+.offload-plus-admin h1 {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.dilux-cloud-storage-admin h1 .dashicons {
+.offload-plus-admin h1 .dashicons {
     color: #0073aa;
 }
 
-.dilux-cs-settings,
-.dilux-cs-overview,
-.dilux-cs-migration,
-.dilux-cs-activity,
-.dilux-cs-status {
+.offload-plus-settings,
+.offload-plus-overview,
+.offload-plus-migration,
+.offload-plus-activity,
+.offload-plus-status {
     margin-top: 20px;
 }
 
@@ -417,13 +417,13 @@
 }
 
 /* DiluxOne Stats Panel */
-.dilux-stats-grid {
+.offload-plus-stats-grid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 12px;
 }
 
-.dilux-stat-card {
+.offload-plus-stat-card {
 	background: #f9f9f9;
 	border: 1px solid #e2e4e7;
 	border-radius: 6px;
@@ -431,11 +431,11 @@
 	text-align: center;
 }
 
-.dilux-stat-card-wide {
+.offload-plus-stat-card-wide {
 	grid-column: 1 / -1;
 }
 
-.dilux-stat-label {
+.offload-plus-stat-label {
 	font-size: 12px;
 	color: #646970;
 	text-transform: uppercase;
@@ -443,26 +443,26 @@
 	margin-bottom: 6px;
 }
 
-.dilux-stat-value {
+.offload-plus-stat-value {
 	font-size: 20px;
 	font-weight: 600;
 	color: #1d2327;
 }
 
-.dilux-stat-detail {
+.offload-plus-stat-detail {
 	font-size: 13px;
 	color: #50575e;
 	margin-top: 6px;
 }
 
-.dilux-stat-bar-container {
+.offload-plus-stat-bar-container {
 	height: 10px;
 	border-radius: 5px;
 	overflow: hidden;
 	margin-top: 8px;
 }
 
-.dilux-stat-bar {
+.offload-plus-stat-bar {
 	height: 100%;
 	border-radius: 5px;
 	transition: width 0.3s ease;
@@ -470,24 +470,24 @@
 
 /* Spin animation for refresh button */
 .dashicons.spin {
-	animation: dilux-spin 1s linear infinite;
+	animation: offload-plus-spin 1s linear infinite;
 }
 
-@keyframes dilux-spin {
+@keyframes offload-plus-spin {
 	100% { transform: rotate(360deg); }
 }
 
 /* Provider Info table */
-.dilux-provider-info th {
+.offload-plus-provider-info th {
 	width: 150px;
 	padding: 8px 10px 8px 0;
 }
 
-.dilux-provider-info td {
+.offload-plus-provider-info td {
 	padding: 8px 10px;
 }
 
-.dilux-provider-info code {
+.offload-plus-provider-info code {
 	background: #f0f0f1;
 	padding: 2px 6px;
 	border-radius: 3px;
@@ -500,7 +500,7 @@
         grid-template-columns: 1fr;
     }
 
-    .dilux-stats-grid {
+    .offload-plus-stats-grid {
         grid-template-columns: 1fr;
     }
     

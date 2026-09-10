@@ -2,10 +2,10 @@
 /**
  * Contract that every cloud-storage provider implementation must satisfy.
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
-namespace DiluxWP\CloudStorage\Interfaces;
+namespace OffloadPlus\Interfaces;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Generic interface for all cloud storage providers
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  * @since 1.0.0
  */
 interface CloudStorageClientInterface {

@@ -2,12 +2,12 @@
 /**
  * Validation helpers for sync operations.
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
-namespace DiluxWP\CloudStorage;
+namespace OffloadPlus;
 
-use DiluxWP\CloudStorage\Enums\PluginState;
+use OffloadPlus\Enums\PluginState;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Esto previene race conditions cuando el usuario tarda en confirmar
  */
-class DiluxValidationHelper {
+class ValidationHelper {
 
 	/**
 	 * Valida si se puede ejecutar una operación sync
@@ -33,7 +33,7 @@ class DiluxValidationHelper {
 	 * @return array<string, mixed> ['passed' => bool, 'reason' => string, 'details' => array]
 	 */
 	public static function validate_sync_operation( $requesting_session_id, $operation_type ) {
-		Logger::debug( '[Dilux Validation] Validating operation: ' . $operation_type . ' from session: ' . $requesting_session_id );
+		Logger::debug( '[Offload Plus Validation] Validating operation: ' . $operation_type . ' from session: ' . $requesting_session_id );
 
 		// 1. Multi-tab check (aplica a operaciones que modifican sync)
 		if ( self::requires_multi_tab_check( $operation_type ) ) {
@@ -56,7 +56,7 @@ class DiluxValidationHelper {
 		}
 
 		// ✅ Todas las validaciones pasaron
-		Logger::info( '[Dilux Validation] All validations PASSED for operation: ' . $operation_type );
+		Logger::info( '[Offload Plus Validation] All validations PASSED for operation: ' . $operation_type );
 		return array(
 			'passed'  => true,
 			'reason'  => '',
@@ -92,7 +92,7 @@ class DiluxValidationHelper {
 	 * @return array<string, mixed>
 	 */
 	private static function validate_multi_tab( $requesting_session_id ): array {
-		$sync_meta = get_option( 'dilux_cs_sync_meta', array() );
+		$sync_meta = get_option( 'offload_plus_sync_meta', array() );
 
 		if ( empty( $sync_meta ) ) {
 			// No hay sync activa → OK
@@ -128,8 +128,8 @@ class DiluxValidationHelper {
 			if ( time() - $last_heartbeat > $heartbeat_timeout ) {
 				// ⭐ FIX: Si es reverse sync, NO cambiar estado (debe permanecer OFFLOADING_ACTIVE)
 				if ( $is_reverse_sync ) {
-					Logger::warning( '[Dilux Validation] Reverse sync session expired (no heartbeat for ' . ( time() - $last_heartbeat ) . 's), clearing metadata but preserving OFFLOADING_ACTIVE state' );
-					delete_option( 'dilux_cs_sync_meta' );
+					Logger::warning( '[Offload Plus Validation] Reverse sync session expired (no heartbeat for ' . ( time() - $last_heartbeat ) . 's), clearing metadata but preserving OFFLOADING_ACTIVE state' );
+					delete_option( 'offload_plus_sync_meta' );
 					return array(
 						'passed'  => true,
 						'reason'  => '',
@@ -138,7 +138,7 @@ class DiluxValidationHelper {
 				}
 
 				// Forward sync expirada → limpiar y resetear a CONFIGURED
-				Logger::warning( '[Dilux Validation] Forward sync session expired (no heartbeat for ' . ( time() - $last_heartbeat ) . 's), cleaning up' );
+				Logger::warning( '[Offload Plus Validation] Forward sync session expired (no heartbeat for ' . ( time() - $last_heartbeat ) . 's), cleaning up' );
 				ConfigManager::set_state( PluginState::CONFIGURED );
 				ConfigManager::clear_sync_progress();
 				return array(
@@ -152,7 +152,7 @@ class DiluxValidationHelper {
 		// Hay sync activa → verificar si este tab es el dueño
 		if ( $active_session !== $requesting_session_id ) {
 			// Otro tab es el dueño → BLOCK
-			Logger::error( '[Dilux Validation] FAILED: Another tab is active (active: ' . $active_session . ', requesting: ' . $requesting_session_id . ')' );
+			Logger::error( '[Offload Plus Validation] FAILED: Another tab is active (active: ' . $active_session . ', requesting: ' . $requesting_session_id . ')' );
 			return array(
 				'passed'  => false,
 				'reason'  => 'sync_active_in_another_tab',
@@ -182,7 +182,7 @@ class DiluxValidationHelper {
 			case 'retry_failed':
 				// No se puede iniciar sync si ya está SYNCING
 				if ( $current_state === PluginState::SYNCING ) {
-					Logger::error( '[Dilux Validation] FAILED: Cannot start sync, state is already SYNCING' );
+					Logger::error( '[Offload Plus Validation] FAILED: Cannot start sync, state is already SYNCING' );
 					return array(
 						'passed'  => false,
 						'reason'  => 'sync_already_active',
@@ -194,7 +194,7 @@ class DiluxValidationHelper {
 			case 'enable_offloading':
 				// Solo se puede activar offloading desde estado SYNCED
 				if ( $current_state !== PluginState::SYNCED ) {
-					Logger::error( '[Dilux Validation] FAILED: Cannot enable offloading, state is ' . $current_state . ' (required: SYNCED)' );
+					Logger::error( '[Offload Plus Validation] FAILED: Cannot enable offloading, state is ' . $current_state . ' (required: SYNCED)' );
 					return array(
 						'passed'  => false,
 						'reason'  => 'state_conflict',
@@ -209,7 +209,7 @@ class DiluxValidationHelper {
 			case 'disconnect':
 				// Solo se puede desconectar desde OFFLOADING_ACTIVE
 				if ( $current_state !== PluginState::OFFLOADING_ACTIVE ) {
-					Logger::error( '[Dilux Validation] FAILED: Cannot disconnect, state is ' . $current_state . ' (required: OFFLOADING_ACTIVE)' );
+					Logger::error( '[Offload Plus Validation] FAILED: Cannot disconnect, state is ' . $current_state . ' (required: OFFLOADING_ACTIVE)' );
 					return array(
 						'passed'  => false,
 						'reason'  => 'state_conflict',
@@ -246,14 +246,14 @@ class DiluxValidationHelper {
 		}
 
 		// Enable offloading requiere que NO haya archivos failed o pending
-		require_once DILUX_CS_PLUGIN_DIR . 'includes/class-dilux-db.php';
-		$stats = DiluxDB::get_stats();
+		require_once OFFLOAD_PLUS_DIR . 'includes/class-offload-plus-db.php';
+		$stats = OffloadPlusDB::get_stats();
 
 		$failed_count  = (int) ( $stats['failed_files'] ?? 0 );
 		$pending_count = (int) ( $stats['pending_files'] ?? 0 );
 
 		if ( $failed_count > 0 || $pending_count > 0 ) {
-			Logger::error( '[Dilux Validation] FAILED: Cannot enable offloading, failed=' . $failed_count . ', pending=' . $pending_count );
+			Logger::error( '[Offload Plus Validation] FAILED: Cannot enable offloading, failed=' . $failed_count . ', pending=' . $pending_count );
 			return array(
 				'passed'  => false,
 				'reason'  => 'files_not_synced',

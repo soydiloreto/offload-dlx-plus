@@ -2,10 +2,10 @@
 /**
  * Symmetric encryption helper for sensitive credentials at rest (AES-256-GCM).
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
-namespace DiluxWP\CloudStorage;
+namespace OffloadPlus;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,7 +25,16 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Crypto {
 
-	private const PREFIX  = 'DILUXENC1:';
+	private const PREFIX = 'OFFLOADPLUSENC1:';
+
+	/**
+	 * Prefixes written by earlier releases of this plugin, still readable.
+	 * The payload format never changed — only the plugin's name did.
+	 *
+	 * @var string[]
+	 */
+	private const LEGACY_PREFIXES = array( 'DILUXENC1:' );
+
 	private const CIPHER  = 'aes-256-gcm';
 	private const IV_LEN  = 12;   // 96-bit IV recommended for GCM
 	private const TAG_LEN = 16;  // 128-bit authentication tag
@@ -45,7 +54,20 @@ class Crypto {
 	 * @param string $value
 	 */
 	public static function is_encrypted( string $value ): bool {
-		return strncmp( $value, self::PREFIX, strlen( self::PREFIX ) ) === 0;
+		return self::match_prefix( $value ) !== null;
+	}
+
+	/**
+	 * @return string|null The prefix this value carries, or null if it carries none.
+	 * @param string $value
+	 */
+	private static function match_prefix( string $value ): ?string {
+		foreach ( array_merge( array( self::PREFIX ), self::LEGACY_PREFIXES ) as $prefix ) {
+			if ( strncmp( $value, $prefix, strlen( $prefix ) ) === 0 ) {
+				return $prefix;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -60,7 +82,7 @@ class Crypto {
 			return $plaintext;
 		}
 		if ( ! self::is_available() ) {
-			Logger::error( '[Dilux Crypto] openssl/AES-256-GCM unavailable; refusing to store credential.' );
+			Logger::error( '[Offload Plus Crypto] openssl/AES-256-GCM unavailable; refusing to store credential.' );
 			return '';
 		}
 
@@ -70,12 +92,12 @@ class Crypto {
 			$tag    = '';
 			$cipher = openssl_encrypt( $plaintext, self::CIPHER, $key, OPENSSL_RAW_DATA, $iv, $tag, '', self::TAG_LEN );
 			if ( $cipher === false ) {
-				Logger::error( '[Dilux Crypto] openssl_encrypt failed.' );
+				Logger::error( '[Offload Plus Crypto] openssl_encrypt failed.' );
 				return '';
 			}
 			return self::PREFIX . base64_encode( $iv . $tag . $cipher );
 		} catch ( \Throwable $e ) {
-			Logger::error( '[Dilux Crypto] Encryption error: ' . $e->getMessage() );
+			Logger::error( '[Offload Plus Crypto] Encryption error: ' . $e->getMessage() );
 			return '';
 		}
 	}
@@ -88,14 +110,15 @@ class Crypto {
 	 *                     should treat as "credential lost — re-enter").
 	 */
 	public static function decrypt( string $ciphertext ): ?string {
-		if ( ! self::is_encrypted( $ciphertext ) ) {
+		$prefix = self::match_prefix( $ciphertext );
+		if ( $prefix === null ) {
 			return null;
 		}
 		if ( ! self::is_available() ) {
 			return null;
 		}
 
-		$payload = base64_decode( substr( $ciphertext, strlen( self::PREFIX ) ), true );
+		$payload = base64_decode( substr( $ciphertext, strlen( $prefix ) ), true );
 		if ( $payload === false || strlen( $payload ) < self::IV_LEN + self::TAG_LEN ) {
 			return null;
 		}
@@ -109,7 +132,7 @@ class Crypto {
 			$plain = openssl_decrypt( $cipher, self::CIPHER, $key, OPENSSL_RAW_DATA, $iv, $tag );
 			return $plain === false ? null : $plain;
 		} catch ( \Throwable $e ) {
-			Logger::error( '[Dilux Crypto] Decryption error: ' . $e->getMessage() );
+			Logger::error( '[Offload Plus Crypto] Decryption error: ' . $e->getMessage() );
 			return null;
 		}
 	}
@@ -121,6 +144,6 @@ class Crypto {
 	 */
 	private static function derive_key(): string {
 		$material = wp_salt( 'auth' ) . wp_salt( 'secure_auth' );
-		return hash_hmac( 'sha256', 'dilux-cs-v1', $material, true );
+		return hash_hmac( 'sha256', 'offload-plus-v1', $material, true );
 	}
 }

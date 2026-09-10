@@ -3,15 +3,15 @@ namespace Tests\Unit\CloudStorage;
 
 use PHPUnit\Framework\TestCase;
 use Mockery;
-use DiluxWP\CloudStorage\DiluxValidationHelper;
+use OffloadPlus\ValidationHelper;
 
 /**
- * Unit tests for DiluxValidationHelper.
+ * Unit tests for ValidationHelper.
  *
  * Note: get_option() is already stubbed in wordpress-stubs.php (returns
  * the default). Brain Monkey's Functions\expect cannot redefine it
  * because Patchwork loads after the stub. The stub behavior — return
- * `[]` for `dilux_cs_sync_meta` — is sufficient for these tests.
+ * `[]` for `offload_plus_sync_meta` — is sufficient for these tests.
  *
  * ConfigManager is replaced via Mockery's `alias:` — that creates a
  * class alias whose static methods are intercepted, so validation
@@ -31,12 +31,12 @@ class ValidationHelperTest extends TestCase {
 
     public function test_validate_sync_start_in_configured_state(): void {
         // Replace ConfigManager statically; configure_state returns 'configured'.
-        $config_manager = Mockery::mock('alias:DiluxWP\CloudStorage\ConfigManager');
+        $config_manager = Mockery::mock('alias:OffloadPlus\ConfigManager');
         $config_manager->shouldReceive('get_state')->andReturn('configured');
 
-        // get_option('dilux_cs_sync_meta', []) returns [] via stub — no active sync.
+        // get_option('offload_plus_sync_meta', []) returns [] via stub — no active sync.
 
-        $result = DiluxValidationHelper::validate_sync_operation('session-123', 'start_sync');
+        $result = ValidationHelper::validate_sync_operation('session-123', 'start_sync');
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('passed', $result);
@@ -44,10 +44,10 @@ class ValidationHelperTest extends TestCase {
 
     public function test_validate_returns_array_structure(): void {
         // Mockery::close() in tearDown clears the previous alias, so re-mock.
-        $config_manager = Mockery::mock('alias:DiluxWP\CloudStorage\ConfigManager');
+        $config_manager = Mockery::mock('alias:OffloadPlus\ConfigManager');
         $config_manager->shouldReceive('get_state')->andReturn('configured');
 
-        $result = DiluxValidationHelper::validate_sync_operation('session-abc', 'start_sync');
+        $result = ValidationHelper::validate_sync_operation('session-abc', 'start_sync');
 
         $this->assertArrayHasKey('passed', $result);
         $this->assertArrayHasKey('reason', $result);

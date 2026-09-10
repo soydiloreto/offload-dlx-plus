@@ -6,7 +6,7 @@
 
 Instead, report the issue privately using **GitHub Security Advisories**:
 
-🔗 **[Open a private security advisory](https://github.com/soydiloreto/dilux-cloud-storage/security/advisories/new)**
+🔗 **[Open a private security advisory](https://github.com/soydiloreto/offload-plus/security/advisories/new)**
 
 This creates a confidential workspace inside the repository where the maintainers and you can discuss the issue, coordinate a fix, and agree on a disclosure timeline. Nothing is public until we both decide it's ready.
 
@@ -50,4 +50,4 @@ The following are **not** considered security vulnerabilities for the purposes o
 - Vulnerabilities in third-party services (Azure, Dilux One Cloud, etc.) — please report those to the respective vendor.
 - Best-practice deviations without a concrete attack path.
 
-Thanks for helping keep Dilux Cloud Storage and its users safe.
+Thanks for helping keep Offload Plus and its users safe.

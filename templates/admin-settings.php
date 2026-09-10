@@ -2,14 +2,14 @@
 /**
  * Admin Settings tab — global plugin settings.
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use DiluxWP\CloudStorage\ConfigManager;
+use OffloadPlus\ConfigManager;
 
 // Variables populated by Admin::render_tab_content() via extract( $template_data ).
 // Initialise defensively so static analysis sees a definite type and a stray
@@ -17,7 +17,7 @@ use DiluxWP\CloudStorage\ConfigManager;
 $config = $config ?? array(); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Local template variable populated by extract( $template_data ); not a true global.
 ?>
 
-<div class="dilux-cs-settings">
+<div class="offload-plus-settings">
 	<?php
 	// Show success/error messages produced by the admin_post handler that
 	// already verified its own nonce and redirected back here. The reads below
@@ -25,35 +25,35 @@ $config = $config ?? array(); // phpcs:ignore WordPress.NamingConventions.Prefix
     // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of message redirected back from a nonce-verified admin_post handler.
 	if ( isset( $_GET['success'] ) ) {
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- See above.
-		$dilux_cs_msg = sanitize_text_field( wp_unslash( $_GET['success'] ) );
-		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $dilux_cs_msg ) . '</p></div>';
+		$offload_plus_msg = sanitize_text_field( wp_unslash( $_GET['success'] ) );
+		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $offload_plus_msg ) . '</p></div>';
 	}
     // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display of message redirected back from a nonce-verified admin_post handler.
 	if ( isset( $_GET['error'] ) ) {
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- See above.
-		$dilux_cs_msg = sanitize_text_field( wp_unslash( $_GET['error'] ) );
-		echo '<div class="notice notice-error is-dismissible"><p>' . esc_html( $dilux_cs_msg ) . '</p></div>';
+		$offload_plus_msg = sanitize_text_field( wp_unslash( $_GET['error'] ) );
+		echo '<div class="notice notice-error is-dismissible"><p>' . esc_html( $offload_plus_msg ) . '</p></div>';
 	}
 	?>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-		<?php wp_nonce_field( 'dilux_cs_save_config' ); ?>
-		<input type="hidden" name="action" value="dilux_cs_save_config">
+		<?php wp_nonce_field( 'offload_plus_save_config' ); ?>
+		<input type="hidden" name="action" value="offload_plus_save_config">
 		<input type="hidden" name="redirect_tab" value="settings">
 
 		<!-- ========================================================================
 			Upload Settings - ALWAYS EDITABLE
 			======================================================================== -->
 		<div class="settings-section">
-			<h3><?php esc_html_e( 'Upload Settings', 'dilux-cloud-storage' ); ?></h3>
+			<h3><?php esc_html_e( 'Upload Settings', 'offload-plus' ); ?></h3>
 			<p class="description">
-				<?php esc_html_e( 'Configure how files are uploaded to cloud storage.', 'dilux-cloud-storage' ); ?>
+				<?php esc_html_e( 'Configure how files are uploaded to cloud storage.', 'offload-plus' ); ?>
 			</p>
 
 			<table class="form-table">
 				<tr>
 					<th scope="row">
-						<label for="max_file_size"><?php esc_html_e( 'Maximum File Size (MB)', 'dilux-cloud-storage' ); ?></label>
+						<label for="max_file_size"><?php esc_html_e( 'Maximum File Size (MB)', 'offload-plus' ); ?></label>
 					</th>
 					<td>
 						<input type="number"
@@ -64,14 +64,14 @@ $config = $config ?? array(); // phpcs:ignore WordPress.NamingConventions.Prefix
 								max="500"
 								class="small-text">
 						<p class="description">
-							<?php esc_html_e( 'Maximum file size allowed for cloud uploads (1-500 MB).', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Maximum file size allowed for cloud uploads (1-500 MB).', 'offload-plus' ); ?>
 						</p>
 					</td>
 				</tr>
 
 				<tr>
 					<th scope="row">
-						<label for="timeout"><?php esc_html_e( 'Upload Timeout (seconds)', 'dilux-cloud-storage' ); ?></label>
+						<label for="timeout"><?php esc_html_e( 'Upload Timeout (seconds)', 'offload-plus' ); ?></label>
 					</th>
 					<td>
 						<input type="number"
@@ -82,7 +82,7 @@ $config = $config ?? array(); // phpcs:ignore WordPress.NamingConventions.Prefix
 								max="600"
 								class="small-text">
 						<p class="description">
-							<?php esc_html_e( 'Maximum time to wait for cloud uploads (30-600 seconds).', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Maximum time to wait for cloud uploads (30-600 seconds).', 'offload-plus' ); ?>
 						</p>
 					</td>
 				</tr>
@@ -93,24 +93,24 @@ $config = $config ?? array(); // phpcs:ignore WordPress.NamingConventions.Prefix
 			Offloading Settings - controls how cloud-offloaded media is served
 			======================================================================== -->
 		<div class="settings-section">
-			<h3><?php esc_html_e( 'Offloading Settings', 'dilux-cloud-storage' ); ?></h3>
+			<h3><?php esc_html_e( 'Offloading Settings', 'offload-plus' ); ?></h3>
 			<p class="description">
-				<?php esc_html_e( 'Settings that control how cloud-offloaded media is served to the front-end.', 'dilux-cloud-storage' ); ?>
+				<?php esc_html_e( 'Settings that control how cloud-offloaded media is served to the front-end.', 'offload-plus' ); ?>
 			</p>
 
 			<table class="form-table">
 				<tr>
-					<th scope="row"><?php esc_html_e( 'Cloud URL Scheme', 'dilux-cloud-storage' ); ?></th>
+					<th scope="row"><?php esc_html_e( 'Cloud URL Scheme', 'offload-plus' ); ?></th>
 					<td>
 						<label>
 							<input type="checkbox"
 									name="force_https_on_cloud"
 									value="1"
 									<?php checked( $config['force_https_on_cloud'] ?? true ); ?>>
-							<?php esc_html_e( 'Force HTTPS for cloud storage URLs', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Force HTTPS for cloud storage URLs', 'offload-plus' ); ?>
 						</label>
 						<p class="description">
-							<?php esc_html_e( 'Re-applies https:// to URLs WordPress emits for the cloud storage. Needed when the site is served over plain http (typical in local dev): WP downgrades them to http and Azure rejects them with HTTP 400. Leave enabled unless you know what you are doing.', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Re-applies https:// to URLs WordPress emits for the cloud storage. Needed when the site is served over plain http (typical in local dev): WP downgrades them to http and Azure rejects them with HTTP 400. Leave enabled unless you know what you are doing.', 'offload-plus' ); ?>
 						</p>
 					</td>
 				</tr>
@@ -122,24 +122,24 @@ $config = $config ?? array(); // phpcs:ignore WordPress.NamingConventions.Prefix
 			Multisite Settings - ALWAYS EDITABLE
 			======================================================================== -->
 		<div class="settings-section">
-			<h3><?php esc_html_e( 'Multisite Settings', 'dilux-cloud-storage' ); ?></h3>
+			<h3><?php esc_html_e( 'Multisite Settings', 'offload-plus' ); ?></h3>
 			<p class="description">
-				<?php esc_html_e( 'Configure how this plugin behaves in a multisite environment.', 'dilux-cloud-storage' ); ?>
+				<?php esc_html_e( 'Configure how this plugin behaves in a multisite environment.', 'offload-plus' ); ?>
 			</p>
 
 			<table class="form-table">
 				<tr>
-					<th scope="row"><?php esc_html_e( 'Network Configuration', 'dilux-cloud-storage' ); ?></th>
+					<th scope="row"><?php esc_html_e( 'Network Configuration', 'offload-plus' ); ?></th>
 					<td>
 						<label>
 							<input type="checkbox"
 									name="use_network_config"
 									value="1"
 									<?php checked( $config['use_network_config'] ); ?>>
-							<?php esc_html_e( 'Use network-wide configuration for this site', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Use network-wide configuration for this site', 'offload-plus' ); ?>
 						</label>
 						<p class="description">
-							<?php esc_html_e( 'When enabled, this site will use the configuration set in Network Admin.', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'When enabled, this site will use the configuration set in Network Admin.', 'offload-plus' ); ?>
 						</p>
 					</td>
 				</tr>
@@ -151,24 +151,24 @@ $config = $config ?? array(); // phpcs:ignore WordPress.NamingConventions.Prefix
 			Debug & Logging - ALWAYS EDITABLE
 			======================================================================== -->
 		<div class="settings-section">
-			<h3><?php esc_html_e( 'Debug & Logging', 'dilux-cloud-storage' ); ?></h3>
+			<h3><?php esc_html_e( 'Debug & Logging', 'offload-plus' ); ?></h3>
 			<p class="description">
-				<?php esc_html_e( 'Enable debug logging to troubleshoot issues. Only enable when needed as it may impact performance.', 'dilux-cloud-storage' ); ?>
+				<?php esc_html_e( 'Enable debug logging to troubleshoot issues. Only enable when needed as it may impact performance.', 'offload-plus' ); ?>
 			</p>
 
 			<table class="form-table">
 				<tr>
-					<th scope="row"><?php esc_html_e( 'Debug Logging', 'dilux-cloud-storage' ); ?></th>
+					<th scope="row"><?php esc_html_e( 'Debug Logging', 'offload-plus' ); ?></th>
 					<td>
 						<label>
 							<input type="checkbox"
 									name="enable_debug_logging"
 									value="1"
 									<?php checked( $config['debug_enabled'] ?? false ); ?>>
-							<?php esc_html_e( 'Enable detailed debug logging', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Enable detailed debug logging', 'offload-plus' ); ?>
 						</label>
 						<p class="description">
-							<?php esc_html_e( 'Enable this only when troubleshooting issues. May impact performance.', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Enable this only when troubleshooting issues. May impact performance.', 'offload-plus' ); ?>
 						</p>
 					</td>
 				</tr>
@@ -183,7 +183,7 @@ $config = $config ?? array(); // phpcs:ignore WordPress.NamingConventions.Prefix
 					name="submit"
 					id="submit"
 					class="button button-primary">
-				<?php esc_html_e( 'Save Settings', 'dilux-cloud-storage' ); ?>
+				<?php esc_html_e( 'Save Settings', 'offload-plus' ); ?>
 			</button>
 		</div>
 	</form>
@@ -191,7 +191,7 @@ $config = $config ?? array(); // phpcs:ignore WordPress.NamingConventions.Prefix
 
 
 <style>
-.dilux-cs-settings {
+.offload-plus-settings {
 	max-width: 800px;
 }
 
@@ -219,7 +219,7 @@ $config = $config ?? array(); // phpcs:ignore WordPress.NamingConventions.Prefix
 }
 
 @media (max-width: 768px) {
-	.dilux-cs-settings {
+	.offload-plus-settings {
 		max-width: 100%;
 	}
 

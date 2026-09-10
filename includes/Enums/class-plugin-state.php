@@ -2,10 +2,10 @@
 /**
  * PluginState enum — values for the plugin top-level state machine.
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
-namespace DiluxWP\CloudStorage\Enums;
+namespace OffloadPlus\Enums;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -51,11 +51,11 @@ class PluginState {
 	 */
 	public static function get_state_name( $state ) {
 		$names = array(
-			self::NOT_CONFIGURED    => __( 'Not Configured', 'dilux-cloud-storage' ),
-			self::CONFIGURED        => __( 'Configured', 'dilux-cloud-storage' ),
-			self::SYNCING           => __( 'Syncing Files', 'dilux-cloud-storage' ),
-			self::SYNCED            => __( 'Synced', 'dilux-cloud-storage' ),
-			self::OFFLOADING_ACTIVE => __( 'Offloading Active', 'dilux-cloud-storage' ),
+			self::NOT_CONFIGURED    => __( 'Not Configured', 'offload-plus' ),
+			self::CONFIGURED        => __( 'Configured', 'offload-plus' ),
+			self::SYNCING           => __( 'Syncing Files', 'offload-plus' ),
+			self::SYNCED            => __( 'Synced', 'offload-plus' ),
+			self::OFFLOADING_ACTIVE => __( 'Offloading Active', 'offload-plus' ),
 		);
 
 		return $names[ $state ] ?? $state;

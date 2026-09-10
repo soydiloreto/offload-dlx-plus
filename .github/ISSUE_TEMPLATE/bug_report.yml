@@ -8,9 +8,9 @@ body:
       value: |
         Thanks for taking the time to report a bug. Before submitting, please confirm:
 
-        - This is a **defect in the plugin code**, not a usage question (those go to the [wp.org support forum](https://wordpress.org/support/plugin/dilux-cloud-storage/)).
-        - This is **not a security vulnerability** (those go to [GitHub Security Advisories](https://github.com/soydiloreto/dilux-cloud-storage/security/advisories/new)).
-        - You have searched [existing issues](https://github.com/soydiloreto/dilux-cloud-storage/issues?q=is%3Aissue) and this is not a duplicate.
+        - This is a **defect in the plugin code**, not a usage question (those go to the [wp.org support forum](https://wordpress.org/support/plugin/offload-plus/)).
+        - This is **not a security vulnerability** (those go to [GitHub Security Advisories](https://github.com/soydiloreto/offload-plus/security/advisories/new)).
+        - You have searched [existing issues](https://github.com/soydiloreto/offload-plus/issues?q=is%3Aissue) and this is not a duplicate.
 
   - type: textarea
     id: what-happened

@@ -2,12 +2,12 @@
 /**
  * Sync progress snapshot value object.
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
-namespace DiluxWP\CloudStorage\DTOs;
+namespace OffloadPlus\DTOs;
 
-use DiluxWP\CloudStorage\Enums\SyncStatus;
+use OffloadPlus\Enums\SyncStatus;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Immutable value object for synchronization progress tracking
  *
- * @package DiluxWP\CloudStorage\DTOs
+ * @package OffloadPlus\DTOs
  * @since 1.0.0
  */
 class SyncProgress {

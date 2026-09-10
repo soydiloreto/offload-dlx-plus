@@ -8,30 +8,30 @@
  *
  * phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use DiluxWP\CloudStorage\Admin;
-use DiluxWP\CloudStorage\ConfigManager;
-use DiluxWP\CloudStorage\Enums\PluginState;
+use OffloadPlus\Admin;
+use OffloadPlus\ConfigManager;
+use OffloadPlus\Enums\PluginState;
 
-// Get all dilux_cs_ options from database. The pattern is hardcoded to our
+// Get all offload_plus_ options from database. The pattern is hardcoded to our
 // own option-name prefix; cache layers don't apply since this is a one-shot
 // admin diagnostic page.
 global $wpdb;
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Diagnostic-only read, hardcoded LIKE pattern, $wpdb->options is the WP-managed table name.
-$dilux_options = $wpdb->get_results(
-	"SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'dilux_cs_%'",
+$offload_plus_options = $wpdb->get_results(
+	"SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'offload_plus_%'",
 	ARRAY_A
 );
 
 // Build config array for display - unserialize values for proper JSON export
 $config_data = array();
-foreach ( $dilux_options as $option ) {
+foreach ( $offload_plus_options as $option ) {
 	$value = $option['option_value'];
 
 	// Try to unserialize - WordPress auto-serializes arrays/objects in options.
@@ -66,11 +66,11 @@ $pause_cause = (string) ( $health['error_code'] ?? '' );
 $pause_label = $is_paused ? Admin::pause_reason_short( $pause_cause ) : '';
 
 // Section to render: 'status' (default) or 'tools'.
-// Set in class-dilux-admin.php based on the current tab.
+// Set in class-offload-plus-admin.php based on the current tab.
 $section = $section ?? 'status';
 ?>
 
-<div class="dilux-cs-status-tools">
+<div class="offload-plus-status-tools">
 	<?php if ( $section === 'status' ) : ?>
 	<!-- =================================================================
 		SECTION 1: SYSTEM STATUS
@@ -78,9 +78,9 @@ $section = $section ?? 'status';
 	<div class="status-section">
 		<!-- Header -->
 		<div class="section-header-main">
-			<h2><?php esc_html_e( 'System Status', 'dilux-cloud-storage' ); ?></h2>
+			<h2><?php esc_html_e( 'System Status', 'offload-plus' ); ?></h2>
 			<p class="description">
-				<?php esc_html_e( 'View plugin status and system information.', 'dilux-cloud-storage' ); ?>
+				<?php esc_html_e( 'View plugin status and system information.', 'offload-plus' ); ?>
 			</p>
 		</div>
 
@@ -92,7 +92,7 @@ $section = $section ?? 'status';
 					<span class="dashicons dashicons-admin-plugins"></span>
 				</div>
 				<div class="state-content">
-					<h3><?php esc_html_e( 'Plugin State', 'dilux-cloud-storage' ); ?></h3>
+					<h3><?php esc_html_e( 'Plugin State', 'offload-plus' ); ?></h3>
 					<p class="state-value">
 						<?php
 						$badge_class = 'state-gray';
@@ -122,7 +122,7 @@ $section = $section ?? 'status';
 						printf(
 							/* translators: %s: short reason, e.g. "credentials unreadable" */
 
-							esc_html__( 'Paused (%s) — see banner above.', 'dilux-cloud-storage' ),
+							esc_html__( 'Paused (%s) — see banner above.', 'offload-plus' ),
 							esc_html( $pause_label )
 						);
 						?>
@@ -137,7 +137,7 @@ $section = $section ?? 'status';
 					<span class="dashicons dashicons-admin-settings"></span>
 				</div>
 				<div class="state-content">
-					<h3><?php esc_html_e( 'Configuration', 'dilux-cloud-storage' ); ?></h3>
+					<h3><?php esc_html_e( 'Configuration', 'offload-plus' ); ?></h3>
 					<?php
 					// Vocabulary intentionally identical to admin-overview.php.
 					// Keep these strings in sync with the Overview tab.
@@ -146,22 +146,22 @@ $section = $section ?? 'status';
 					<p class="state-value">
 						<?php if ( $is_configured && ! $is_paused ) : ?>
 							<span class="status-indicator status-success"></span>
-							<?php esc_html_e( 'Configured', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Configured', 'offload-plus' ); ?>
 						<?php elseif ( $is_decrypt_failure ) : ?>
 							<span class="status-indicator" style="background:#dba617;"></span>
-							<?php esc_html_e( 'Awaiting Re-entry', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Awaiting Re-entry', 'offload-plus' ); ?>
 						<?php elseif ( $is_configured && $is_paused ) : ?>
 							<span class="status-indicator" style="background:#dba617;"></span>
 							<?php
 							printf(
 								/* translators: %s: short reason for the pause */
-								esc_html__( 'Paused (%s)', 'dilux-cloud-storage' ),
+								esc_html__( 'Paused (%s)', 'offload-plus' ),
 								esc_html( $pause_label )
 							);
 							?>
 						<?php else : ?>
 							<span class="status-indicator status-inactive"></span>
-							<?php esc_html_e( 'Not Configured', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Not Configured', 'offload-plus' ); ?>
 						<?php endif; ?>
 					</p>
 					<?php if ( $is_configured && ! $is_paused && ! empty( $plugin_config['cloud_provider'] ) ) : ?>
@@ -169,23 +169,23 @@ $section = $section ?? 'status';
 							<?php
 							echo wp_kses(
 								/* translators: %s: storage provider name (Azure) wrapped in <strong> */
-								sprintf( __( 'Provider: %s', 'dilux-cloud-storage' ), '<strong>Azure</strong>' ),
+								sprintf( __( 'Provider: %s', 'offload-plus' ), '<strong>Azure</strong>' ),
 								array( 'strong' => array() )
 							);
 							?>
 						</p>
 					<?php elseif ( $is_decrypt_failure ) : ?>
 						<p class="state-details" style="color:#856404;">
-							<?php esc_html_e( 'Stored credentials cannot be decrypted. See banner above.', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Stored credentials cannot be decrypted. See banner above.', 'offload-plus' ); ?>
 						</p>
 						<p class="state-details">
-							<a href="?page=dilux-cloud-storage&tab=cloud-provider" class="button button-primary button-small">
-								<?php esc_html_e( 'Re-enter Credentials', 'dilux-cloud-storage' ); ?>
+							<a href="?page=offload-plus&tab=cloud-provider" class="button button-primary button-small">
+								<?php esc_html_e( 'Re-enter Credentials', 'offload-plus' ); ?>
 							</a>
 						</p>
 					<?php elseif ( $is_configured && $is_paused ) : ?>
 						<p class="state-details" style="color:#856404;">
-							<?php esc_html_e( 'See banner above for details.', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'See banner above for details.', 'offload-plus' ); ?>
 						</p>
 					<?php endif; ?>
 				</div>
@@ -197,28 +197,28 @@ $section = $section ?? 'status';
 					<span class="dashicons dashicons-cloud"></span>
 				</div>
 				<div class="state-content">
-					<h3><?php esc_html_e( 'Offloading', 'dilux-cloud-storage' ); ?></h3>
+					<h3><?php esc_html_e( 'Offloading', 'offload-plus' ); ?></h3>
 					<p class="state-value">
 						<?php if ( $is_offloading && ! $is_paused ) : ?>
 							<span class="status-indicator status-success"></span>
-							<?php esc_html_e( 'Active', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Active', 'offload-plus' ); ?>
 						<?php elseif ( $is_offloading && $is_paused ) : ?>
 							<span class="status-indicator" style="background:#dba617;"></span>
 							<?php
 							printf(
 								/* translators: %s: short reason for the pause */
-								esc_html__( 'Paused (%s)', 'dilux-cloud-storage' ),
+								esc_html__( 'Paused (%s)', 'offload-plus' ),
 								esc_html( $pause_label )
 							);
 							?>
 						<?php else : ?>
 							<span class="status-indicator status-inactive"></span>
-							<?php esc_html_e( 'Inactive', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Inactive', 'offload-plus' ); ?>
 						<?php endif; ?>
 					</p>
 					<?php if ( $is_offloading && $is_paused ) : ?>
 					<p class="state-details" style="margin-top:6px; color:#856404; font-size:12px;">
-						<?php esc_html_e( 'Falling back to local storage for new uploads.', 'dilux-cloud-storage' ); ?>
+						<?php esc_html_e( 'Falling back to local storage for new uploads.', 'offload-plus' ); ?>
 					</p>
 					<?php endif; ?>
 				</div>
@@ -230,12 +230,12 @@ $section = $section ?? 'status';
 					<span class="dashicons dashicons-database"></span>
 				</div>
 				<div class="state-content">
-					<h3><?php esc_html_e( 'Database', 'dilux-cloud-storage' ); ?></h3>
+					<h3><?php esc_html_e( 'Database', 'offload-plus' ); ?></h3>
 					<p class="state-value">
 						<span class="status-indicator status-success"></span>
 						<?php
 						/* translators: %d: number of stored options */
-						echo esc_html( sprintf( __( '%d options stored', 'dilux-cloud-storage' ), count( $dilux_options ) ) );
+						echo esc_html( sprintf( __( '%d options stored', 'offload-plus' ), count( $offload_plus_options ) ) );
 						?>
 					</p>
 				</div>
@@ -246,91 +246,91 @@ $section = $section ?? 'status';
 		<div class="system-info-section">
 			<h3>
 				<span class="dashicons dashicons-info"></span>
-				<?php esc_html_e( 'System Information', 'dilux-cloud-storage' ); ?>
+				<?php esc_html_e( 'System Information', 'offload-plus' ); ?>
 			</h3>
 
 			<div class="info-grid">
 				<div class="info-card">
-					<h4><?php esc_html_e( 'WordPress', 'dilux-cloud-storage' ); ?></h4>
+					<h4><?php esc_html_e( 'WordPress', 'offload-plus' ); ?></h4>
 					<table class="info-table">
 						<tr>
-							<td><?php esc_html_e( 'Version', 'dilux-cloud-storage' ); ?></td>
+							<td><?php esc_html_e( 'Version', 'offload-plus' ); ?></td>
 							<td><strong><?php echo esc_html( get_bloginfo( 'version' ) ); ?></strong></td>
 						</tr>
 						<tr>
-							<td><?php esc_html_e( 'Multisite', 'dilux-cloud-storage' ); ?></td>
-							<td><strong><?php echo esc_html( is_multisite() ? __( 'Yes', 'dilux-cloud-storage' ) : __( 'No', 'dilux-cloud-storage' ) ); ?></strong></td>
+							<td><?php esc_html_e( 'Multisite', 'offload-plus' ); ?></td>
+							<td><strong><?php echo esc_html( is_multisite() ? __( 'Yes', 'offload-plus' ) : __( 'No', 'offload-plus' ) ); ?></strong></td>
 						</tr>
 						<tr>
-							<td><?php esc_html_e( 'Upload Directory', 'dilux-cloud-storage' ); ?></td>
+							<td><?php esc_html_e( 'Upload Directory', 'offload-plus' ); ?></td>
 							<td><code><?php echo esc_html( wp_upload_dir()['basedir'] ); ?></code></td>
 						</tr>
 					</table>
 				</div>
 
 				<div class="info-card">
-					<h4><?php esc_html_e( 'PHP Environment', 'dilux-cloud-storage' ); ?></h4>
+					<h4><?php esc_html_e( 'PHP Environment', 'offload-plus' ); ?></h4>
 					<table class="info-table">
 						<tr>
-							<td><?php esc_html_e( 'PHP Version', 'dilux-cloud-storage' ); ?></td>
+							<td><?php esc_html_e( 'PHP Version', 'offload-plus' ); ?></td>
 							<td><strong><?php echo esc_html( PHP_VERSION ); ?></strong></td>
 						</tr>
 						<tr>
-							<td><?php esc_html_e( 'Memory Limit', 'dilux-cloud-storage' ); ?></td>
+							<td><?php esc_html_e( 'Memory Limit', 'offload-plus' ); ?></td>
 							<td><strong><?php echo esc_html( ini_get( 'memory_limit' ) ); ?></strong></td>
 						</tr>
 						<tr>
-							<td><?php esc_html_e( 'Max Upload Size', 'dilux-cloud-storage' ); ?></td>
+							<td><?php esc_html_e( 'Max Upload Size', 'offload-plus' ); ?></td>
 							<td><strong><?php echo esc_html( (string) size_format( wp_max_upload_size() ) ); ?></strong></td>
 						</tr>
 						<tr>
-							<td><?php esc_html_e( 'Max Execution Time', 'dilux-cloud-storage' ); ?></td>
+							<td><?php esc_html_e( 'Max Execution Time', 'offload-plus' ); ?></td>
 							<td><strong><?php echo esc_html( ini_get( 'max_execution_time' ) ); ?>s</strong></td>
 						</tr>
 					</table>
 				</div>
 
 				<div class="info-card">
-					<h4><?php esc_html_e( 'Plugin', 'dilux-cloud-storage' ); ?></h4>
+					<h4><?php esc_html_e( 'Plugin', 'offload-plus' ); ?></h4>
 					<table class="info-table">
 						<tr>
-							<td><?php esc_html_e( 'Version', 'dilux-cloud-storage' ); ?></td>
+							<td><?php esc_html_e( 'Version', 'offload-plus' ); ?></td>
 							<td><strong><?php echo esc_html( Admin::get_plugin_version() ); ?></strong></td>
 						</tr>
 						<tr>
-							<td><?php esc_html_e( 'DB Schema Version', 'dilux-cloud-storage' ); ?></td>
-							<td><strong><?php echo esc_html( get_option( 'dilux_cs_db_version', 'N/A' ) ); ?></strong></td>
+							<td><?php esc_html_e( 'DB Schema Version', 'offload-plus' ); ?></td>
+							<td><strong><?php echo esc_html( get_option( 'offload_plus_db_version', 'N/A' ) ); ?></strong></td>
 						</tr>
 						<tr>
-							<td><?php esc_html_e( 'Plugin Directory', 'dilux-cloud-storage' ); ?></td>
-							<td><code><?php echo esc_html( defined( 'DILUX_CS_PLUGIN_DIR' ) ? DILUX_CS_PLUGIN_DIR : 'N/A' ); ?></code></td>
+							<td><?php esc_html_e( 'Plugin Directory', 'offload-plus' ); ?></td>
+							<td><code><?php echo esc_html( defined( 'OFFLOAD_PLUS_DIR' ) ? OFFLOAD_PLUS_DIR : 'N/A' ); ?></code></td>
 						</tr>
 					</table>
 				</div>
 
 				<?php if ( $is_configured && ! empty( $plugin_config['provider_config'] ) ) : ?>
 				<div class="info-card">
-					<h4><?php esc_html_e( 'Cloud Provider', 'dilux-cloud-storage' ); ?></h4>
+					<h4><?php esc_html_e( 'Cloud Provider', 'offload-plus' ); ?></h4>
 					<table class="info-table">
 						<tr>
-							<td><?php esc_html_e( 'Provider', 'dilux-cloud-storage' ); ?></td>
+							<td><?php esc_html_e( 'Provider', 'offload-plus' ); ?></td>
 							<td><strong>Azure Blob Storage</strong></td>
 						</tr>
 						<?php if ( ! empty( $plugin_config['provider_config']['storage_account'] ) ) : ?>
 						<tr>
-							<td><?php esc_html_e( 'Storage Account', 'dilux-cloud-storage' ); ?></td>
+							<td><?php esc_html_e( 'Storage Account', 'offload-plus' ); ?></td>
 							<td><strong><?php echo esc_html( $plugin_config['provider_config']['storage_account'] ); ?></strong></td>
 						</tr>
 						<?php endif; ?>
 						<?php if ( ! empty( $plugin_config['provider_config']['container_name'] ) ) : ?>
 						<tr>
-							<td><?php esc_html_e( 'Container', 'dilux-cloud-storage' ); ?></td>
+							<td><?php esc_html_e( 'Container', 'offload-plus' ); ?></td>
 							<td><strong><?php echo esc_html( $plugin_config['provider_config']['container_name'] ); ?></strong></td>
 						</tr>
 						<?php endif; ?>
 						<?php if ( ! empty( $plugin_config['provider_config']['custom_domain'] ) ) : ?>
 						<tr>
-							<td><?php esc_html_e( 'Custom Domain', 'dilux-cloud-storage' ); ?></td>
+							<td><?php esc_html_e( 'Custom Domain', 'offload-plus' ); ?></td>
 							<td><strong><?php echo esc_html( $plugin_config['provider_config']['custom_domain'] ); ?></strong></td>
 						</tr>
 						<?php endif; ?>
@@ -349,9 +349,9 @@ $section = $section ?? 'status';
 	<div class="tools-section">
 		<!-- Header -->
 		<div class="section-header-main">
-			<h2><?php esc_html_e( 'Configuration Tools', 'dilux-cloud-storage' ); ?></h2>
+			<h2><?php esc_html_e( 'Configuration Tools', 'offload-plus' ); ?></h2>
 			<p class="description">
-				<?php esc_html_e( 'Export and import plugin configuration for backup, migration, or disaster recovery purposes.', 'dilux-cloud-storage' ); ?>
+				<?php esc_html_e( 'Export and import plugin configuration for backup, migration, or disaster recovery purposes.', 'offload-plus' ); ?>
 			</p>
 		</div>
 
@@ -361,27 +361,27 @@ $section = $section ?? 'status';
 			<div class="tool-card">
 				<div class="tool-header">
 					<span class="dashicons dashicons-download"></span>
-					<h3><?php esc_html_e( 'Export Configuration', 'dilux-cloud-storage' ); ?></h3>
+					<h3><?php esc_html_e( 'Export Configuration', 'offload-plus' ); ?></h3>
 				</div>
 				<p class="tool-description">
-					<?php esc_html_e( 'Download all plugin settings as a JSON file. Use this to backup your configuration or migrate to another site.', 'dilux-cloud-storage' ); ?>
+					<?php esc_html_e( 'Download all plugin settings as a JSON file. Use this to backup your configuration or migrate to another site.', 'offload-plus' ); ?>
 				</p>
 				<div class="tool-info">
-					<p><strong><?php esc_html_e( 'Current configuration:', 'dilux-cloud-storage' ); ?></strong></p>
+					<p><strong><?php esc_html_e( 'Current configuration:', 'offload-plus' ); ?></strong></p>
 					<ul>
 						<li>
 						<?php
 							/* translators: %d: number of stored option rows */
-							echo esc_html( sprintf( __( 'Total options: %d', 'dilux-cloud-storage' ), count( $dilux_options ) ) );
+							echo esc_html( sprintf( __( 'Total options: %d', 'offload-plus' ), count( $offload_plus_options ) ) );
 						?>
 						</li>
-						<li><?php esc_html_e( 'Includes: Credentials, settings, state, and metadata', 'dilux-cloud-storage' ); ?></li>
-						<li><?php esc_html_e( 'Format: JSON (readable and portable)', 'dilux-cloud-storage' ); ?></li>
+						<li><?php esc_html_e( 'Includes: Credentials, settings, state, and metadata', 'offload-plus' ); ?></li>
+						<li><?php esc_html_e( 'Format: JSON (readable and portable)', 'offload-plus' ); ?></li>
 					</ul>
 				</div>
 				<button type="button" id="export-config" class="button button-primary button-large">
 					<span class="dashicons dashicons-download"></span>
-					<?php esc_html_e( 'Export Configuration', 'dilux-cloud-storage' ); ?>
+					<?php esc_html_e( 'Export Configuration', 'offload-plus' ); ?>
 				</button>
 			</div>
 
@@ -389,19 +389,19 @@ $section = $section ?? 'status';
 			<div class="tool-card">
 				<div class="tool-header">
 					<span class="dashicons dashicons-upload"></span>
-					<h3><?php esc_html_e( 'Import Configuration', 'dilux-cloud-storage' ); ?></h3>
+					<h3><?php esc_html_e( 'Import Configuration', 'offload-plus' ); ?></h3>
 				</div>
 				<p class="tool-description">
-					<?php esc_html_e( 'Paste JSON configuration below to restore settings. This will overwrite current configuration.', 'dilux-cloud-storage' ); ?>
+					<?php esc_html_e( 'Paste JSON configuration below to restore settings. This will overwrite current configuration.', 'offload-plus' ); ?>
 				</p>
-				<textarea id="import-config-data" class="import-textarea" placeholder='{"dilux_cs_config": {...}, "dilux_cs_plugin_state": "configured", ...}'></textarea>
+				<textarea id="import-config-data" class="import-textarea" placeholder='{"offload_plus_config": {...}, "offload_plus_plugin_state": "configured", ...}'></textarea>
 				<div class="tool-actions">
 					<button type="button" id="import-config" class="button button-primary button-large">
 						<span class="dashicons dashicons-upload"></span>
-						<?php esc_html_e( 'Import Configuration', 'dilux-cloud-storage' ); ?>
+						<?php esc_html_e( 'Import Configuration', 'offload-plus' ); ?>
 					</button>
 					<button type="button" id="clear-import" class="button button-secondary">
-						<?php esc_html_e( 'Clear', 'dilux-cloud-storage' ); ?>
+						<?php esc_html_e( 'Clear', 'offload-plus' ); ?>
 					</button>
 				</div>
 				<div id="import-result" class="import-result" style="display: none;"></div>
@@ -412,8 +412,8 @@ $section = $section ?? 'status';
 		<div class="tools-warning">
 			<span class="dashicons dashicons-warning"></span>
 			<div>
-				<strong><?php esc_html_e( 'Important:', 'dilux-cloud-storage' ); ?></strong>
-				<p><?php esc_html_e( 'Importing configuration will completely overwrite all current settings including credentials, state, and metadata. Make sure to export your current configuration first as a backup before importing.', 'dilux-cloud-storage' ); ?></p>
+				<strong><?php esc_html_e( 'Important:', 'offload-plus' ); ?></strong>
+				<p><?php esc_html_e( 'Importing configuration will completely overwrite all current settings including credentials, state, and metadata. Make sure to export your current configuration first as a backup before importing.', 'offload-plus' ); ?></p>
 			</div>
 		</div>
 	</div>
@@ -447,7 +447,7 @@ jQuery(document).ready(function($) {
 		var url = URL.createObjectURL(blob);
 		var link = document.createElement('a');
 		link.href = url;
-		link.download = 'dilux-cloud-storage-config-' + new Date().toISOString().slice(0, 10) + '.json';
+		link.download = 'offload-plus-config-' + new Date().toISOString().slice(0, 10) + '.json';
 		document.body.appendChild(link);
 		link.click();
 		document.body.removeChild(link);
@@ -455,7 +455,7 @@ jQuery(document).ready(function($) {
 
 		// Visual feedback
 		var originalHTML = $button.html();
-		$button.html('<span class="dashicons dashicons-yes"></span> <?php esc_html_e( 'Exported!', 'dilux-cloud-storage' ); ?>')
+		$button.html('<span class="dashicons dashicons-yes"></span> <?php esc_html_e( 'Exported!', 'offload-plus' ); ?>')
 			.addClass('button-success')
 			.prop('disabled', true);
 
@@ -480,7 +480,7 @@ jQuery(document).ready(function($) {
 		var jsonData = $textarea.val().trim();
 
 		if (!jsonData) {
-			$result.html('<span class="dashicons dashicons-warning"></span> <?php esc_html_e( 'Please paste configuration JSON first.', 'dilux-cloud-storage' ); ?>')
+			$result.html('<span class="dashicons dashicons-warning"></span> <?php esc_html_e( 'Please paste configuration JSON first.', 'offload-plus' ); ?>')
 				.removeClass('result-success').addClass('result-error').show();
 			return;
 		}
@@ -490,7 +490,7 @@ jQuery(document).ready(function($) {
 		try {
 			importData = JSON.parse(jsonData);
 		} catch (e) {
-			$result.html('<span class="dashicons dashicons-warning"></span> <?php esc_html_e( 'Invalid JSON format:', 'dilux-cloud-storage' ); ?> ' + e.message)
+			$result.html('<span class="dashicons dashicons-warning"></span> <?php esc_html_e( 'Invalid JSON format:', 'offload-plus' ); ?> ' + e.message)
 				.removeClass('result-success').addClass('result-error').show();
 			return;
 		}
@@ -499,26 +499,26 @@ jQuery(document).ready(function($) {
 		var config = importData.configuration || importData;
 
 		// Confirm before importing
-		if (!confirm('<?php esc_html_e( '⚠️ WARNING: This will overwrite your current configuration!\n\nAre you sure you want to continue?', 'dilux-cloud-storage' ); ?>')) {
+		if (!confirm('<?php esc_html_e( '⚠️ WARNING: This will overwrite your current configuration!\n\nAre you sure you want to continue?', 'offload-plus' ); ?>')) {
 			return;
 		}
 
 		// Disable button
 		var originalHTML = $button.html();
-		$button.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> <?php esc_html_e( 'Importing...', 'dilux-cloud-storage' ); ?>');
+		$button.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> <?php esc_html_e( 'Importing...', 'offload-plus' ); ?>');
 
 		// Send to server
 		$.ajax({
-			url: diluxCloudStorageAdmin.ajaxUrl,
+			url: offloadPlusAdmin.ajaxUrl,
 			type: 'POST',
 			data: {
-				action: 'dilux_cs_import_config',
-				nonce: diluxCloudStorageAdmin.nonce,
+				action: 'offload_plus_import_config',
+				nonce: offloadPlusAdmin.nonce,
 				config: JSON.stringify(config)
 			},
 			success: function(response) {
 				if (response.success) {
-					$result.html('<span class="dashicons dashicons-yes"></span> <?php esc_html_e( 'Configuration imported successfully! Reloading page...', 'dilux-cloud-storage' ); ?>')
+					$result.html('<span class="dashicons dashicons-yes"></span> <?php esc_html_e( 'Configuration imported successfully! Reloading page...', 'offload-plus' ); ?>')
 						.removeClass('result-error').addClass('result-success').show();
 
 					// Reload page after 2 seconds
@@ -526,13 +526,13 @@ jQuery(document).ready(function($) {
 						location.reload();
 					}, 2000);
 				} else {
-					$result.html('<span class="dashicons dashicons-warning"></span> ' + (response.data || '<?php esc_html_e( 'Import failed.', 'dilux-cloud-storage' ); ?>'))
+					$result.html('<span class="dashicons dashicons-warning"></span> ' + (response.data || '<?php esc_html_e( 'Import failed.', 'offload-plus' ); ?>'))
 						.removeClass('result-success').addClass('result-error').show();
 					$button.prop('disabled', false).html(originalHTML);
 				}
 			},
 			error: function() {
-				$result.html('<span class="dashicons dashicons-warning"></span> <?php esc_html_e( 'Request failed. Please try again.', 'dilux-cloud-storage' ); ?>')
+				$result.html('<span class="dashicons dashicons-warning"></span> <?php esc_html_e( 'Request failed. Please try again.', 'offload-plus' ); ?>')
 					.removeClass('result-success').addClass('result-error').show();
 				$button.prop('disabled', false).html(originalHTML);
 			}
@@ -543,7 +543,7 @@ jQuery(document).ready(function($) {
 <?php endif; // section === 'tools' (script block) ?>
 
 <style>
-.dilux-cs-status-tools {
+.offload-plus-status-tools {
 	max-width: 1200px;
 }
 

@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
-<ruleset name="Dilux Cloud Storage">
+<ruleset name="Offload Plus">
     <description>
-        WordPress Coding Standards configuration for the Dilux Cloud Storage plugin.
+        WordPress Coding Standards configuration for the Offload Plus plugin.
         Strict mode — runs the full WordPress ruleset (Core + Docs + Extra) plus
         PHP 7.4+ compatibility checks. No baseline.
     </description>
 
     <!-- Files / paths to scan -->
-    <file>dilux-cloud-storage.php</file>
+    <file>offload-plus.php</file>
     <file>includes/</file>
     <file>templates/</file>
 
@@ -37,10 +37,9 @@
     <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>
             <property name="prefixes" type="array">
-                <element value="dilux_cs"/>
-                <element value="DILUX_CS"/>
-                <element value="Dilux"/>
-                <element value="DiluxWP"/>
+                <element value="offload_plus"/>
+                <element value="OFFLOAD_PLUS"/>
+                <element value="OffloadPlus"/>
             </property>
         </properties>
     </rule>
@@ -49,7 +48,7 @@
     <rule ref="WordPress.WP.I18n">
         <properties>
             <property name="text_domain" type="array">
-                <element value="dilux-cloud-storage"/>
+                <element value="offload-plus"/>
             </property>
         </properties>
     </rule>
@@ -110,7 +109,7 @@
     </rule>
 
     <!-- base64_encode and base64_decode are required for the AES-256-GCM
-         ciphertext encoding in includes/class-dilux-crypto.php. The
+         ciphertext encoding in includes/class-offload-plus-crypto.php. The
          "discouraged for obfuscation" rule applies to using them to hide
          malicious payloads, not to legitimate cryptographic envelope
          encoding. -->
@@ -146,7 +145,7 @@
     </rule>
 
     <!-- File naming: this codebase intentionally mixes legacy WP-style
-         (class-dilux-foo.php for older classes) with modern PSR-12
+         (class-offload-plus-foo.php for older classes) with modern PSR-12
          (PascalCase.php for newer DTOs/Enums). The custom autoloader in
          includes/enhanced-autoloader.php maps both styles to the same
          namespace tree. Renaming files would break that mapping. -->

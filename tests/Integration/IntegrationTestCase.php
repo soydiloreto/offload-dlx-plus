@@ -23,18 +23,18 @@ class IntegrationTestCase extends TestCase {
      * @var array<int, string>
      */
     protected static array $plugin_options = [
-        'dilux_cs_config',
-        'dilux_cs_plugin_state',
-        'dilux_cs_sync_meta',
-        'dilux_cs_failed_files',
-        'dilux_cs_connection_health',
+        'offload_plus_config',
+        'offload_plus_plugin_state',
+        'offload_plus_sync_meta',
+        'offload_plus_failed_files',
+        'offload_plus_connection_health',
     ];
 
     /**
      * @beforeClass
      */
     public static function setUpTableName(): void {
-        self::$table_name = \DiluxWP\CloudStorage\DiluxDB::get_table_name();
+        self::$table_name = \OffloadPlus\OffloadPlusDB::get_table_name();
     }
 
     protected function setUp(): void {
@@ -76,7 +76,7 @@ class IntegrationTestCase extends TestCase {
      * @param int    $size File size in bytes.
      */
     protected function addTestFile(string $path, int $size = 1024): bool {
-        return \DiluxWP\CloudStorage\DiluxDB::add_file($path, $size);
+        return \OffloadPlus\OffloadPlusDB::add_file($path, $size);
     }
 
     /**

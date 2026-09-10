@@ -1,4 +1,4 @@
-=== Dilux Cloud Storage ===
+=== Offload Plus ===
 Contributors: pablodiloreto
 Tags: media, offload, azure, cloud storage, uploads
 Requires at least: 5.0
@@ -12,7 +12,7 @@ Offload WordPress media to cloud storage (Azure, Dilux One — more coming). Tra
 
 == Description ==
 
-Dilux Cloud Storage moves your WordPress media library to cloud object storage and serves files directly from the cloud — without breaking the Media Library UI, plugins, or existing content.
+Offload Plus moves your WordPress media library to cloud object storage and serves files directly from the cloud — without breaking the Media Library UI, plugins, or existing content.
 
 The plugin uses a custom PHP stream wrapper to intercept every read and write to `/wp-content/uploads/`, so WordPress, WooCommerce, page builders, image editors, and any plugin that calls standard filesystem functions (`fopen`, `file_get_contents`, `unlink`, etc.) keep working unchanged.
 
@@ -32,13 +32,13 @@ The plugin uses a custom PHP stream wrapper to intercept every read and write to
 
 = Why a stream wrapper instead of URL rewriting =
 
-Most offload plugins rewrite media URLs in post content, which breaks when you switch providers, move domains, or restore from a backup. Dilux Cloud Storage leaves URLs alone and rewrites reads/writes at the filesystem layer, so your content stays portable.
+Most offload plugins rewrite media URLs in post content, which breaks when you switch providers, move domains, or restore from a backup. Offload Plus leaves URLs alone and rewrites reads/writes at the filesystem layer, so your content stays portable.
 
 == Installation ==
 
-1. Upload the `dilux-cloud-storage` folder to `/wp-content/plugins/`, or install via the WordPress Plugins screen.
+1. Upload the `offload-plus` folder to `/wp-content/plugins/`, or install via the WordPress Plugins screen.
 2. Activate the plugin through the **Plugins** screen in WordPress.
-3. Open the new **Dilux Cloud Storage** menu in the admin sidebar.
+3. Open the new **Offload Plus** menu in the admin sidebar.
 4. Go to **Cloud Provider**, pick your provider, enter credentials, and click **Test Connection**.
 5. Save the configuration.
 6. Go to **Sync & Offloading**, run the initial sync, and enable offloading when sync is complete.
@@ -65,7 +65,7 @@ When Azure is selected as the active provider, the plugin sends your media files
 * On read or delete — when WordPress (or any plugin using filesystem APIs against `/uploads/`) reads or deletes a file.
 * Periodic connection-health checks (lightweight HEAD requests).
 
-This is **your own Azure account**. Dilux is not involved and has no access to your data.
+This is **your own Azure account**. Offload Plus is not involved and has no access to your data.
 
 * Service: [Azure Blob Storage](https://azure.microsoft.com/services/storage/blobs/)
 * Terms of Service: [Microsoft Online Services Terms](https://www.microsoft.com/licensing/terms/productoffering/MicrosoftAzure)
@@ -110,7 +110,7 @@ Only if you explicitly opt in. After a successful sync you can click **Delete lo
 
 = How do I enable verbose debug logging? =
 
-Go to **Dilux Cloud Storage → Settings → Enable detailed debug logging**. Logs are written to the standard PHP `error_log` destination. Disable it in production unless you are actively troubleshooting — it will impact performance.
+Go to **Offload Plus → Settings → Enable detailed debug logging**. Logs are written to the standard PHP `error_log` destination. Disable it in production unless you are actively troubleshooting — it will impact performance.
 
 = Is the plugin multisite compatible? =
 

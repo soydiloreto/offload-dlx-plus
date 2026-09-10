@@ -2,7 +2,7 @@
 namespace Tests\Unit\CloudStorage;
 
 use PHPUnit\Framework\TestCase;
-use DiluxWP\CloudStorage\Crypto;
+use OffloadPlus\Crypto;
 
 /**
  * Unit tests for Crypto — AES-256-GCM encryption / decryption with a key
@@ -68,7 +68,7 @@ class CryptoTest extends TestCase {
     }
 
     public function test_decrypt_returns_null_for_unencrypted_string(): void {
-        // A value without the DILUXENC1: prefix is treated as plaintext —
+        // A value without the OFFLOADPLUSENC1: prefix is treated as plaintext —
         // decrypt() returns null so the caller can distinguish "not
         // encrypted" from "decryption failed".
         $this->assertNull(Crypto::decrypt('plain-value-not-encrypted'));
@@ -90,23 +90,23 @@ class CryptoTest extends TestCase {
 
         // A ciphertext shorter than IV (12) + tag (16) bytes cannot
         // possibly be valid; decrypt() should reject without throwing.
-        $truncated = substr($cipher, 0, strlen('DILUXENC1:') + 4);
+        $truncated = substr($cipher, 0, strlen('OFFLOADPLUSENC1:') + 4);
 
         $this->assertNull(Crypto::decrypt($truncated));
     }
 
     public function test_decrypt_returns_null_for_invalid_base64(): void {
-        // DILUXENC1: prefix is present but the body is not valid base64.
-        $invalid = 'DILUXENC1:!!!not-valid-base64!!!';
+        // OFFLOADPLUSENC1: prefix is present but the body is not valid base64.
+        $invalid = 'OFFLOADPLUSENC1:!!!not-valid-base64!!!';
 
         $this->assertNull(Crypto::decrypt($invalid));
     }
 
     public function test_is_encrypted_recognises_only_the_official_prefix(): void {
-        $this->assertTrue(Crypto::is_encrypted('DILUXENC1:anything'));
+        $this->assertTrue(Crypto::is_encrypted('OFFLOADPLUSENC1:anything'));
         $this->assertFalse(Crypto::is_encrypted(''));
         $this->assertFalse(Crypto::is_encrypted('plain'));
         $this->assertFalse(Crypto::is_encrypted('DILUXENC0:legacy'));
-        $this->assertFalse(Crypto::is_encrypted('dilux-enc-1:wrong'));
+        $this->assertFalse(Crypto::is_encrypted('offload-plus-enc-1:wrong'));
     }
 }

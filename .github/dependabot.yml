@@ -1,4 +1,4 @@
-# Dependabot configuration for dilux-cloud-storage.
+# Dependabot configuration for offload-plus.
 #
 # Why this exists, even though the published plugin has zero production
 # dependencies: the GitHub Actions used in CI/CD (deploy to wp.org SVN,

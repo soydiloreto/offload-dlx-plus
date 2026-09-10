@@ -2,10 +2,10 @@
 /**
  * SyncStatus enum — values for the sync state machine.
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
-namespace DiluxWP\CloudStorage\Enums;
+namespace OffloadPlus\Enums;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Represents the current state of a synchronization operation
  *
- * @package DiluxWP\CloudStorage\Enums
+ * @package OffloadPlus\Enums
  * @since 1.0.0
  */
 class SyncStatus {

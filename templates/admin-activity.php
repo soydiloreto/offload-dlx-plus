@@ -8,14 +8,14 @@
  *
  * phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use DiluxWP\CloudStorage\ConfigManager;
+use OffloadPlus\ConfigManager;
 
 // Variables populated by Admin::render_tab_content() via extract( $template_data ).
 // Initialise defensively so static analysis sees a definite type and a stray
@@ -40,11 +40,11 @@ $date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET[
 // phpcs:enable WordPress.Security.NonceVerification.Recommended
 ?>
 
-<div class="dilux-cs-activity">
-	<div class="dilux-cs-header">
-		<h2><?php esc_html_e( 'Activity Monitoring', 'dilux-cloud-storage' ); ?></h2>
+<div class="offload-plus-activity">
+	<div class="offload-plus-header">
+		<h2><?php esc_html_e( 'Activity Monitoring', 'offload-plus' ); ?></h2>
 		<p class="description">
-			<?php esc_html_e( 'Monitor cloud storage operations and system activity logs.', 'dilux-cloud-storage' ); ?>
+			<?php esc_html_e( 'Monitor cloud storage operations and system activity logs.', 'offload-plus' ); ?>
 		</p>
 	</div>
 
@@ -52,13 +52,13 @@ $date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET[
 		<!-- Configuration Required Notice -->
 		<div class="notice notice-warning">
 			<p>
-				<strong><?php esc_html_e( 'Cloud Storage Configuration Required', 'dilux-cloud-storage' ); ?></strong><br>
+				<strong><?php esc_html_e( 'Cloud Storage Configuration Required', 'offload-plus' ); ?></strong><br>
 				<?php
 				echo wp_kses(
 					sprintf(
 						/* translators: %s: URL of the Settings tab */
-						__( 'Please configure your cloud storage settings in the <a href="%s">Settings tab</a> before viewing activity logs.', 'dilux-cloud-storage' ),
-						esc_url( admin_url( 'admin.php?page=dilux-cloud-storage&tab=settings' ) )
+						__( 'Please configure your cloud storage settings in the <a href="%s">Settings tab</a> before viewing activity logs.', 'offload-plus' ),
+						esc_url( admin_url( 'admin.php?page=offload-plus&tab=settings' ) )
 					),
 					array( 'a' => array( 'href' => true ) )
 				);
@@ -69,61 +69,61 @@ $date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET[
 
 	<div class="activity-content">
 	<div class="activity-filters">
-		<h3><?php esc_html_e( 'Activity Filters', 'dilux-cloud-storage' ); ?></h3>
+		<h3><?php esc_html_e( 'Activity Filters', 'offload-plus' ); ?></h3>
 		
 		<form method="get" class="filters-form">
-			<input type="hidden" name="page" value="dilux-cloud-storage" />
+			<input type="hidden" name="page" value="offload-plus" />
 			<input type="hidden" name="tab" value="activity" />
 			
 			<div class="filter-row">
 				<div class="filter-group">
-					<label for="activity_type"><?php esc_html_e( 'Activity Type:', 'dilux-cloud-storage' ); ?></label>
+					<label for="activity_type"><?php esc_html_e( 'Activity Type:', 'offload-plus' ); ?></label>
 					<select name="activity_type" id="activity_type">
-						<option value=""><?php esc_html_e( 'All Types', 'dilux-cloud-storage' ); ?></option>
+						<option value=""><?php esc_html_e( 'All Types', 'offload-plus' ); ?></option>
 						<option value="upload" <?php selected( $activity_type, 'upload' ); ?>>
-							<?php esc_html_e( 'File Upload', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'File Upload', 'offload-plus' ); ?>
 						</option>
 						<option value="delete" <?php selected( $activity_type, 'delete' ); ?>>
-							<?php esc_html_e( 'File Delete', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'File Delete', 'offload-plus' ); ?>
 						</option>
 						<option value="migration" <?php selected( $activity_type, 'migration' ); ?>>
-							<?php esc_html_e( 'Migration', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Migration', 'offload-plus' ); ?>
 						</option>
 						<option value="config" <?php selected( $activity_type, 'config' ); ?>>
-							<?php esc_html_e( 'Configuration', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Configuration', 'offload-plus' ); ?>
 						</option>
 						<option value="error" <?php selected( $activity_type, 'error' ); ?>>
-							<?php esc_html_e( 'Error', 'dilux-cloud-storage' ); ?>
+							<?php esc_html_e( 'Error', 'offload-plus' ); ?>
 						</option>
 					</select>
 				</div>
 				
 				<div class="filter-group">
-					<label for="date_from"><?php esc_html_e( 'From Date:', 'dilux-cloud-storage' ); ?></label>
+					<label for="date_from"><?php esc_html_e( 'From Date:', 'offload-plus' ); ?></label>
 					<input type="date" name="date_from" id="date_from" value="<?php echo esc_attr( $date_from ); ?>" />
 				</div>
 				
 				<div class="filter-group">
-					<label for="date_to"><?php esc_html_e( 'To Date:', 'dilux-cloud-storage' ); ?></label>
+					<label for="date_to"><?php esc_html_e( 'To Date:', 'offload-plus' ); ?></label>
 					<input type="date" name="date_to" id="date_to" value="<?php echo esc_attr( $date_to ); ?>" />
 				</div>
 				
 				<div class="filter-actions">
-					<button type="submit" class="button button-primary"><?php esc_html_e( 'Filter', 'dilux-cloud-storage' ); ?></button>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=dilux-cloud-storage&tab=activity' ) ); ?>"
-						class="button"><?php esc_html_e( 'Reset', 'dilux-cloud-storage' ); ?></a>
+					<button type="submit" class="button button-primary"><?php esc_html_e( 'Filter', 'offload-plus' ); ?></button>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=offload-plus&tab=activity' ) ); ?>"
+						class="button"><?php esc_html_e( 'Reset', 'offload-plus' ); ?></a>
 				</div>
 			</div>
 		</form>
 	</div>
 
 	<div class="activity-statistics">
-		<h3><?php esc_html_e( 'Activity Statistics', 'dilux-cloud-storage' ); ?></h3>
+		<h3><?php esc_html_e( 'Activity Statistics', 'offload-plus' ); ?></h3>
 		
 		<div class="stats-cards">
 			<div class="stat-card">
 				<div class="stat-number"><?php echo esc_html( number_format( $activity_stats['total_today'] ) ); ?></div>
-				<div class="stat-label"><?php esc_html_e( 'Activities Today', 'dilux-cloud-storage' ); ?></div>
+				<div class="stat-label"><?php esc_html_e( 'Activities Today', 'offload-plus' ); ?></div>
 				<div class="stat-trend">
 					<?php if ( $activity_stats['trend_today'] > 0 ) : ?>
 						<span class="trend-up">
@@ -146,13 +146,13 @@ $date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET[
 
 			<div class="stat-card">
 				<div class="stat-number"><?php echo esc_html( number_format( $activity_stats['total_week'] ) ); ?></div>
-				<div class="stat-label"><?php esc_html_e( 'This Week', 'dilux-cloud-storage' ); ?></div>
+				<div class="stat-label"><?php esc_html_e( 'This Week', 'offload-plus' ); ?></div>
 				<div class="stat-breakdown">
 					<?php
 					echo esc_html(
 						sprintf(
 						/* translators: 1: number of uploads, 2: number of deletions */
-							__( '%1$d uploads, %2$d deletions', 'dilux-cloud-storage' ),
+							__( '%1$d uploads, %2$d deletions', 'offload-plus' ),
 							$activity_stats['week_uploads'],
 							$activity_stats['week_deletions']
 						)
@@ -163,19 +163,19 @@ $date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET[
 
 			<div class="stat-card">
 				<div class="stat-number"><?php echo esc_html( number_format( $activity_stats['total_month'] ) ); ?></div>
-				<div class="stat-label"><?php esc_html_e( 'This Month', 'dilux-cloud-storage' ); ?></div>
+				<div class="stat-label"><?php esc_html_e( 'This Month', 'offload-plus' ); ?></div>
 				<div class="stat-size"><?php echo esc_html( (string) size_format( $activity_stats['month_size'] ) ); ?></div>
 			</div>
 
 			<div class="stat-card">
 				<div class="stat-number"><?php echo esc_html( number_format( $activity_stats['errors_count'] ) ); ?></div>
-				<div class="stat-label"><?php esc_html_e( 'Errors (24h)', 'dilux-cloud-storage' ); ?></div>
+				<div class="stat-label"><?php esc_html_e( 'Errors (24h)', 'offload-plus' ); ?></div>
 				<div class="stat-status <?php echo esc_attr( $activity_stats['errors_count'] > 0 ? 'has-errors' : 'no-errors' ); ?>">
 					<?php
 					echo esc_html(
 						$activity_stats['errors_count'] > 0
-						? __( 'Needs attention', 'dilux-cloud-storage' )
-						: __( 'All good', 'dilux-cloud-storage' )
+						? __( 'Needs attention', 'offload-plus' )
+						: __( 'All good', 'offload-plus' )
 					);
 					?>
 				</div>
@@ -184,48 +184,48 @@ $date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET[
 	</div>
 
 	<div class="activity-chart">
-		<h3><?php esc_html_e( 'Activity Chart (Last 30 Days)', 'dilux-cloud-storage' ); ?></h3>
+		<h3><?php esc_html_e( 'Activity Chart (Last 30 Days)', 'offload-plus' ); ?></h3>
 		<canvas id="activity-chart" width="800" height="200"></canvas>
 	</div>
 
 	<div class="activity-actions">
 		<div class="bulk-actions">
-			<h3><?php esc_html_e( 'Activity Actions', 'dilux-cloud-storage' ); ?></h3>
+			<h3><?php esc_html_e( 'Activity Actions', 'offload-plus' ); ?></h3>
 			
 			<div class="action-buttons">
 				<button type="button" id="export-activity" class="button button-secondary">
 					<span class="dashicons dashicons-download"></span>
-					<?php esc_html_e( 'Export Activity Log', 'dilux-cloud-storage' ); ?>
+					<?php esc_html_e( 'Export Activity Log', 'offload-plus' ); ?>
 				</button>
 				
 				<button type="button" id="clear-old-logs" class="button button-secondary">
 					<span class="dashicons dashicons-trash"></span>
-					<?php esc_html_e( 'Clear Old Logs', 'dilux-cloud-storage' ); ?>
+					<?php esc_html_e( 'Clear Old Logs', 'offload-plus' ); ?>
 				</button>
 				
 				<button type="button" id="refresh-activity" class="button button-secondary">
 					<span class="dashicons dashicons-update"></span>
-					<?php esc_html_e( 'Refresh', 'dilux-cloud-storage' ); ?>
+					<?php esc_html_e( 'Refresh', 'offload-plus' ); ?>
 				</button>
 			</div>
 		</div>
 	</div>
 
 	<div class="activity-log">
-		<h3><?php esc_html_e( 'Recent Activity', 'dilux-cloud-storage' ); ?></h3>
+		<h3><?php esc_html_e( 'Recent Activity', 'offload-plus' ); ?></h3>
 		
 		<?php if ( ! empty( $activity_log ) ) : ?>
 			<div class="activity-table-container">
 				<table class="wp-list-table widefat fixed striped activity-table">
 					<thead>
 						<tr>
-							<th scope="col" class="column-type"><?php esc_html_e( 'Type', 'dilux-cloud-storage' ); ?></th>
-							<th scope="col" class="column-message"><?php esc_html_e( 'Message', 'dilux-cloud-storage' ); ?></th>
-							<th scope="col" class="column-file"><?php esc_html_e( 'File', 'dilux-cloud-storage' ); ?></th>
-							<th scope="col" class="column-size"><?php esc_html_e( 'Size', 'dilux-cloud-storage' ); ?></th>
-							<th scope="col" class="column-user"><?php esc_html_e( 'User', 'dilux-cloud-storage' ); ?></th>
-							<th scope="col" class="column-date"><?php esc_html_e( 'Date', 'dilux-cloud-storage' ); ?></th>
-							<th scope="col" class="column-details"><?php esc_html_e( 'Details', 'dilux-cloud-storage' ); ?></th>
+							<th scope="col" class="column-type"><?php esc_html_e( 'Type', 'offload-plus' ); ?></th>
+							<th scope="col" class="column-message"><?php esc_html_e( 'Message', 'offload-plus' ); ?></th>
+							<th scope="col" class="column-file"><?php esc_html_e( 'File', 'offload-plus' ); ?></th>
+							<th scope="col" class="column-size"><?php esc_html_e( 'Size', 'offload-plus' ); ?></th>
+							<th scope="col" class="column-user"><?php esc_html_e( 'User', 'offload-plus' ); ?></th>
+							<th scope="col" class="column-date"><?php esc_html_e( 'Date', 'offload-plus' ); ?></th>
+							<th scope="col" class="column-details"><?php esc_html_e( 'Details', 'offload-plus' ); ?></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -259,22 +259,22 @@ $date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET[
 										<?php
 										switch ( $log['type'] ) {
 											case 'upload':
-												esc_html_e( 'Upload', 'dilux-cloud-storage' );
+												esc_html_e( 'Upload', 'offload-plus' );
 												break;
 											case 'delete':
-												esc_html_e( 'Delete', 'dilux-cloud-storage' );
+												esc_html_e( 'Delete', 'offload-plus' );
 												break;
 											case 'migration':
-												esc_html_e( 'Migration', 'dilux-cloud-storage' );
+												esc_html_e( 'Migration', 'offload-plus' );
 												break;
 											case 'config':
-												esc_html_e( 'Config', 'dilux-cloud-storage' );
+												esc_html_e( 'Config', 'offload-plus' );
 												break;
 											case 'error':
-												esc_html_e( 'Error', 'dilux-cloud-storage' );
+												esc_html_e( 'Error', 'offload-plus' );
 												break;
 											default:
-												esc_html_e( 'Info', 'dilux-cloud-storage' );
+												esc_html_e( 'Info', 'offload-plus' );
 										}
 										?>
 									</span>
@@ -284,7 +284,7 @@ $date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET[
 									<?php echo esc_html( $log['message'] ); ?>
 									<?php if ( ! empty( $log['error_details'] ) ) : ?>
 										<button type="button" class="show-error-details button-link">
-											<?php esc_html_e( 'Show details', 'dilux-cloud-storage' ); ?>
+											<?php esc_html_e( 'Show details', 'offload-plus' ); ?>
 										</button>
 										<div class="error-details" style="display: none;">
 											<pre><?php echo esc_html( $log['error_details'] ); ?></pre>
@@ -299,7 +299,7 @@ $date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET[
 										</span>
 										<?php if ( strlen( $log['file_path'] ) > 30 ) : ?>
 											<button type="button" class="show-full-path button-link">
-												<?php esc_html_e( 'Full path', 'dilux-cloud-storage' ); ?>
+												<?php esc_html_e( 'Full path', 'offload-plus' ); ?>
 											</button>
 										<?php endif; ?>
 									<?php else : ?>
@@ -323,24 +323,24 @@ $date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET[
 											echo esc_html( $user->display_name );
 										} else {
 											/* translators: %d: user ID */
-											echo esc_html( sprintf( __( 'User #%d', 'dilux-cloud-storage' ), $log['user_id'] ) );
+											echo esc_html( sprintf( __( 'User #%d', 'offload-plus' ), $log['user_id'] ) );
 										}
 										?>
 									<?php else : ?>
-										<span class="system-user"><?php esc_html_e( 'System', 'dilux-cloud-storage' ); ?></span>
+										<span class="system-user"><?php esc_html_e( 'System', 'offload-plus' ); ?></span>
 									<?php endif; ?>
 								</td>
 
 								<td class="column-date">
 									<abbr title="<?php echo esc_attr( (string) mysql2date( 'c', $log['created_at'] ) ); ?>">
-										<?php echo esc_html( human_time_diff( (int) strtotime( $log['created_at'] ), time() ) . ' ' . __( 'ago', 'dilux-cloud-storage' ) ); ?>
+										<?php echo esc_html( human_time_diff( (int) strtotime( $log['created_at'] ), time() ) . ' ' . __( 'ago', 'offload-plus' ) ); ?>
 									</abbr>
 								</td>
 								
 								<td class="column-details">
 									<?php if ( ! empty( $log['metadata'] ) ) : ?>
 										<button type="button" class="show-metadata button-link">
-											<?php esc_html_e( 'View', 'dilux-cloud-storage' ); ?>
+											<?php esc_html_e( 'View', 'offload-plus' ); ?>
 										</button>
 										<div class="activity-metadata" style="display: none;">
 											<?php
@@ -372,8 +372,8 @@ $date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET[
 							array(
 								'base'      => (string) add_query_arg( 'paged', '%#%' ),
 								'format'    => '',
-								'prev_text' => __( '&laquo; Previous', 'dilux-cloud-storage' ),
-								'next_text' => __( 'Next &raquo;', 'dilux-cloud-storage' ),
+								'prev_text' => __( '&laquo; Previous', 'offload-plus' ),
+								'next_text' => __( 'Next &raquo;', 'offload-plus' ),
 								'total'     => $total_pages,
 								'current'   => $current_page,
 								'type'      => 'array',
@@ -396,8 +396,8 @@ $date_to   = isset( $_GET['date_to'] ) ? sanitize_text_field( wp_unslash( $_GET[
 				<div class="no-activity-icon">
 					<span class="dashicons dashicons-info"></span>
 				</div>
-				<h4><?php esc_html_e( 'No Activity Found', 'dilux-cloud-storage' ); ?></h4>
-				<p><?php esc_html_e( 'No activity matches your current filters. Try adjusting your search criteria.', 'dilux-cloud-storage' ); ?></p>
+				<h4><?php esc_html_e( 'No Activity Found', 'offload-plus' ); ?></h4>
+				<p><?php esc_html_e( 'No activity matches your current filters. Try adjusting your search criteria.', 'offload-plus' ); ?></p>
 			</div>
 		<?php endif; ?>
 	</div>
@@ -416,13 +416,13 @@ jQuery(document).ready(function($) {
 			data: {
 				labels: chartData.labels,
 				datasets: [{
-					label: '<?php esc_html_e( 'Uploads', 'dilux-cloud-storage' ); ?>',
+					label: '<?php esc_html_e( 'Uploads', 'offload-plus' ); ?>',
 					data: chartData.uploads,
 					borderColor: '#0073aa',
 					backgroundColor: 'rgba(0, 115, 170, 0.1)',
 					fill: true
 				}, {
-					label: '<?php esc_html_e( 'Deletions', 'dilux-cloud-storage' ); ?>',
+					label: '<?php esc_html_e( 'Deletions', 'offload-plus' ); ?>',
 					data: chartData.deletions,
 					borderColor: '#dc3545',
 					backgroundColor: 'rgba(220, 53, 69, 0.1)',
@@ -454,8 +454,8 @@ jQuery(document).ready(function($) {
 		var $details = $(this).next('.error-details');
 		$details.toggle();
 		$(this).text($details.is(':visible') ? 
-			'<?php esc_html_e( 'Hide details', 'dilux-cloud-storage' ); ?>' : 
-			'<?php esc_html_e( 'Show details', 'dilux-cloud-storage' ); ?>'
+			'<?php esc_html_e( 'Hide details', 'offload-plus' ); ?>' : 
+			'<?php esc_html_e( 'Show details', 'offload-plus' ); ?>'
 		);
 	});
 	
@@ -464,8 +464,8 @@ jQuery(document).ready(function($) {
 		var $metadata = $(this).next('.activity-metadata');
 		$metadata.toggle();
 		$(this).text($metadata.is(':visible') ? 
-			'<?php esc_html_e( 'Hide', 'dilux-cloud-storage' ); ?>' : 
-			'<?php esc_html_e( 'View', 'dilux-cloud-storage' ); ?>'
+			'<?php esc_html_e( 'Hide', 'offload-plus' ); ?>' : 
+			'<?php esc_html_e( 'View', 'offload-plus' ); ?>'
 		);
 	});
 	
@@ -477,10 +477,10 @@ jQuery(document).ready(function($) {
 		
 		if (isExpanded) {
 			$filePath.text(fullPath.split('/').pop());
-			$(this).text('<?php esc_html_e( 'Full path', 'dilux-cloud-storage' ); ?>');
+			$(this).text('<?php esc_html_e( 'Full path', 'offload-plus' ); ?>');
 		} else {
 			$filePath.text(fullPath);
-			$(this).text('<?php esc_html_e( 'Short name', 'dilux-cloud-storage' ); ?>');
+			$(this).text('<?php esc_html_e( 'Short name', 'offload-plus' ); ?>');
 		}
 	});
 	
@@ -489,9 +489,9 @@ jQuery(document).ready(function($) {
 		var $button = $(this);
 		$button.prop('disabled', true).find('.dashicons').removeClass('dashicons-download').addClass('dashicons-update');
 		
-		$.post(diluxCloudStorageAdmin.ajaxUrl, {
-			action: 'dilux_cs_export_activity',
-			nonce: diluxCloudStorageAdmin.nonce,
+		$.post(offloadPlusAdmin.ajaxUrl, {
+			action: 'offload_plus_export_activity',
+			nonce: offloadPlusAdmin.nonce,
 			activity_type: '<?php echo esc_js( $activity_type ); ?>',
 			date_from: '<?php echo esc_js( $date_from ); ?>',
 			date_to: '<?php echo esc_js( $date_to ); ?>'
@@ -500,10 +500,10 @@ jQuery(document).ready(function($) {
 				// Create download link
 				var link = document.createElement('a');
 				link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(response.csv);
-				link.download = 'dilux-activity-log-' + new Date().toISOString().substr(0, 10) + '.csv';
+				link.download = 'offload-plus-activity-log-' + new Date().toISOString().substr(0, 10) + '.csv';
 				link.click();
 			} else {
-				alert('<?php esc_html_e( 'Export failed:', 'dilux-cloud-storage' ); ?> ' + response.error);
+				alert('<?php esc_html_e( 'Export failed:', 'offload-plus' ); ?> ' + response.error);
 			}
 		}).always(function() {
 			$button.prop('disabled', false).find('.dashicons').removeClass('dashicons-update').addClass('dashicons-download');
@@ -512,21 +512,21 @@ jQuery(document).ready(function($) {
 	
 	// Clear old logs
 	$('#clear-old-logs').on('click', function() {
-		if (!confirm('<?php esc_html_e( 'Are you sure you want to delete activity logs older than 30 days? This action cannot be undone.', 'dilux-cloud-storage' ); ?>')) {
+		if (!confirm('<?php esc_html_e( 'Are you sure you want to delete activity logs older than 30 days? This action cannot be undone.', 'offload-plus' ); ?>')) {
 			return;
 		}
 		
 		var $button = $(this);
 		$button.prop('disabled', true).find('.dashicons').removeClass('dashicons-trash').addClass('dashicons-update');
 		
-		$.post(diluxCloudStorageAdmin.ajaxUrl, {
-			action: 'dilux_cs_clear_old_logs',
-			nonce: diluxCloudStorageAdmin.nonce
+		$.post(offloadPlusAdmin.ajaxUrl, {
+			action: 'offload_plus_clear_old_logs',
+			nonce: offloadPlusAdmin.nonce
 		}, function(response) {
 			if (response.success) {
 				location.reload();
 			} else {
-				alert('<?php esc_html_e( 'Clear failed:', 'dilux-cloud-storage' ); ?> ' + response.error);
+				alert('<?php esc_html_e( 'Clear failed:', 'offload-plus' ); ?> ' + response.error);
 			}
 		}).always(function() {
 			$button.prop('disabled', false).find('.dashicons').removeClass('dashicons-update').addClass('dashicons-trash');
@@ -542,9 +542,9 @@ jQuery(document).ready(function($) {
 	setInterval(function() {
 		if (document.visibilityState === 'visible') {
 			// Only refresh statistics, not the full page
-			$.post(diluxCloudStorageAdmin.ajaxUrl, {
-				action: 'dilux_cs_refresh_stats',
-				nonce: diluxCloudStorageAdmin.nonce
+			$.post(offloadPlusAdmin.ajaxUrl, {
+				action: 'offload_plus_refresh_stats',
+				nonce: offloadPlusAdmin.nonce
 			}, function(response) {
 				if (response.success) {
 					// Update statistics cards
@@ -562,7 +562,7 @@ jQuery(document).ready(function($) {
 </script>
 
 <style>
-.dilux-cs-activity {
+.offload-plus-activity {
 	max-width: 1200px;
 }
 
@@ -913,4 +913,4 @@ jQuery(document).ready(function($) {
 
 	</div> <!-- end activity-content -->
 	<?php endif; ?>
-</div> <!-- end dilux-cs-activity -->
+</div> <!-- end offload-plus-activity -->

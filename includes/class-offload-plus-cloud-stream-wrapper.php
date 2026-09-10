@@ -19,13 +19,13 @@
  * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
  * phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
-namespace DiluxWP\CloudStorage;
+namespace OffloadPlus;
 
-use DiluxWP\CloudStorage\Enums\PluginState;
-use DiluxWP\CloudStorage\Interfaces\CloudStorageClientInterface;
+use OffloadPlus\Enums\PluginState;
+use OffloadPlus\Interfaces\CloudStorageClientInterface;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -40,7 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class CloudStreamWrapper {
 
 	/** @var string Protocol name */
-	const PROTOCOL = 'diluxcloud';
+	const PROTOCOL = 'offloadplus';
 
 	/** @var resource Stream context (set by PHP automatically for stream wrappers) */
 	public $context;
@@ -104,9 +104,9 @@ class CloudStreamWrapper {
 		$registered = stream_wrapper_register( self::PROTOCOL, __CLASS__ );
 
 		if ( $registered ) {
-			Logger::debug( '[Dilux CloudStreamWrapper] Registered protocol: ' . self::PROTOCOL . '://' );
+			Logger::debug( '[Offload Plus CloudStreamWrapper] Registered protocol: ' . self::PROTOCOL . '://' );
 		} else {
-			Logger::error( '[Dilux CloudStreamWrapper] Failed to register protocol' );
+			Logger::error( '[Offload Plus CloudStreamWrapper] Failed to register protocol' );
 		}
 
 		return $registered;
@@ -122,7 +122,7 @@ class CloudStreamWrapper {
 			$unregistered = stream_wrapper_unregister( self::PROTOCOL );
 
 			if ( $unregistered ) {
-				Logger::debug( '[Dilux CloudStreamWrapper] Unregistered protocol: ' . self::PROTOCOL . '://' );
+				Logger::debug( '[Offload Plus CloudStreamWrapper] Unregistered protocol: ' . self::PROTOCOL . '://' );
 			}
 
 			return $unregistered;
@@ -168,7 +168,7 @@ class CloudStreamWrapper {
 		}
 
 		if ( ! PluginState::can_activate_offloading( $state ) ) {
-			Logger::error( '[Dilux CloudStreamWrapper] Cannot activate offloading in state: ' . $state );
+			Logger::error( '[Offload Plus CloudStreamWrapper] Cannot activate offloading in state: ' . $state );
 			return false;
 		}
 
@@ -193,10 +193,10 @@ class CloudStreamWrapper {
 		// ⭐ FIX: Limpiar sync_meta de forward sync completada
 		// No necesitamos metadata de sync forward cuando offloading está activo
 		// Esto previene que validate_multi_tab() vea heartbeat expirado y cambie estado a CONFIGURED
-		delete_option( 'dilux_cs_sync_meta' );
-		Logger::debug( '[Dilux CloudStreamWrapper] Cleared completed sync metadata' );
+		delete_option( 'offload_plus_sync_meta' );
+		Logger::debug( '[Offload Plus CloudStreamWrapper] Cleared completed sync metadata' );
 
-		Logger::info( '[Dilux CloudStreamWrapper] Offloading activated' );
+		Logger::info( '[Offload Plus CloudStreamWrapper] Offloading activated' );
 
 		return true;
 	}
@@ -217,7 +217,7 @@ class CloudStreamWrapper {
 		// Update state
 		ConfigManager::set_state( PluginState::SYNCED );
 
-		Logger::info( '[Dilux CloudStreamWrapper] Offloading deactivated' );
+		Logger::info( '[Offload Plus CloudStreamWrapper] Offloading deactivated' );
 
 		return true;
 	}
@@ -248,7 +248,7 @@ class CloudStreamWrapper {
 	 */
 	public static function tear_down(): void {
 		remove_filter( 'upload_dir', array( __CLASS__, 'filter_upload_dir' ) );
-		Logger::warning( '[Dilux CloudStreamWrapper] Temporarily disabled upload_dir filter for plugin/theme/core operation' );
+		Logger::warning( '[Offload Plus CloudStreamWrapper] Temporarily disabled upload_dir filter for plugin/theme/core operation' );
 	}
 
 	/**
@@ -264,12 +264,12 @@ class CloudStreamWrapper {
 		// Extra safety: Skip filtering if path contains 'upgrade' directory
 		// This handles edge cases where tear_down() hooks might not fire
 		if ( isset( $upload_dir['path'] ) && strpos( $upload_dir['path'], 'wp-content/upgrade' ) !== false ) {
-			Logger::warning( '[Dilux CloudStreamWrapper] Skipping upload_dir filter - detected upgrade directory' );
+			Logger::warning( '[Offload Plus CloudStreamWrapper] Skipping upload_dir filter - detected upgrade directory' );
 			return $upload_dir;
 		}
 
 		if ( isset( $upload_dir['basedir'] ) && strpos( $upload_dir['basedir'], 'wp-content/upgrade' ) !== false ) {
-			Logger::warning( '[Dilux CloudStreamWrapper] Skipping upload_dir filter - detected upgrade directory in basedir' );
+			Logger::warning( '[Offload Plus CloudStreamWrapper] Skipping upload_dir filter - detected upgrade directory in basedir' );
 			return $upload_dir;
 		}
 
@@ -300,7 +300,7 @@ class CloudStreamWrapper {
 				// For baseurl, use just 'uploads'
 				$upload_dir['baseurl'] = $cloud_client->get_file_url( 'uploads' );
 			} catch ( \Exception $e ) {
-				Logger::error( '[Dilux CloudStreamWrapper] filter_upload_dir exception: ' . $e->getMessage() );
+				Logger::error( '[Offload Plus CloudStreamWrapper] filter_upload_dir exception: ' . $e->getMessage() );
 				// Fall back to original URLs on error
 			}
 		}
@@ -446,12 +446,12 @@ class CloudStreamWrapper {
 		$this->content  = '';
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			Logger::debug( '[Dilux CloudStreamWrapper] Opening: ' . $this->path . ' (mode: ' . $mode . ')' );
+			Logger::debug( '[Offload Plus CloudStreamWrapper] Opening: ' . $this->path . ' (mode: ' . $mode . ')' );
 		}
 
 		$cloud_client = self::get_cloud_client();
 		if ( ! $cloud_client ) {
-			Logger::error( '[Dilux CloudStreamWrapper] Cloud client not available' );
+			Logger::error( '[Offload Plus CloudStreamWrapper] Cloud client not available' );
 			return false;
 		}
 
@@ -463,7 +463,7 @@ class CloudStreamWrapper {
 			if ( $cached_content !== null ) {
 				// ✅ Cache HIT - use cached content
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					Logger::debug( '[Dilux CloudStreamWrapper] Cache HIT: ' . $this->path );
+					Logger::debug( '[Offload Plus CloudStreamWrapper] Cache HIT: ' . $this->path );
 				}
 
 				// Write cached content to temp file
@@ -475,7 +475,7 @@ class CloudStreamWrapper {
 
 			// ❌ Cache MISS - download from Azure
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				Logger::debug( '[Dilux CloudStreamWrapper] Cache MISS: ' . $this->path );
+				Logger::debug( '[Offload Plus CloudStreamWrapper] Cache MISS: ' . $this->path );
 			}
 
 			$temp_file = wp_tempnam( $this->path );
@@ -483,7 +483,7 @@ class CloudStreamWrapper {
 			try {
 				$result = $cloud_client->download_file( $this->path, $temp_file );
 			} catch ( \Exception $e ) {
-				Logger::error( '[Dilux CloudStreamWrapper] stream_open read exception: ' . $this->path . ' - ' . $e->getMessage() );
+				Logger::error( '[Offload Plus CloudStreamWrapper] stream_open read exception: ' . $this->path . ' - ' . $e->getMessage() );
 				@unlink( $temp_file );
 				return false;
 			}
@@ -516,7 +516,7 @@ class CloudStreamWrapper {
 						unlink( $temp_file );
 					}
 				} catch ( \Exception $e ) {
-					Logger::error( '[Dilux CloudStreamWrapper] stream_open append exception: ' . $this->path . ' - ' . $e->getMessage() );
+					Logger::error( '[Offload Plus CloudStreamWrapper] stream_open append exception: ' . $this->path . ' - ' . $e->getMessage() );
 					@unlink( $temp_file );
 				}
 				// Si falla, $this->content queda vacío (nuevo archivo)
@@ -610,7 +610,7 @@ class CloudStreamWrapper {
 		}
 
 		// Pre-upload health check: if 3+ consecutive failures, fallback to local
-		$health = \DiluxWP\CloudStorage\ConfigManager::get_connection_health();
+		$health = \OffloadPlus\ConfigManager::get_connection_health();
 		if ( ( $health['consecutive_failures'] ?? 0 ) >= 3 ) {
 			$relative_path = $this->path;
 			// Strip 'uploads/' prefix if present to get relative path within uploads dir
@@ -624,9 +624,9 @@ class CloudStreamWrapper {
 			}
 			$written = @file_put_contents( $local_path, $this->content );
 			if ( $written !== false ) {
-				Logger::warning( '[Dilux CloudStreamWrapper] FALLBACK: Saved locally due to unhealthy connection (' . $health['consecutive_failures'] . ' failures): ' . $this->path );
+				Logger::warning( '[Offload Plus CloudStreamWrapper] FALLBACK: Saved locally due to unhealthy connection (' . $health['consecutive_failures'] . ' failures): ' . $this->path );
 				// Track fallback for admin notification
-				$fallbacks = get_transient( 'dilux_cs_fallback_uploads' );
+				$fallbacks = get_transient( 'offload_plus_fallback_uploads' );
 				if ( ! is_array( $fallbacks ) ) {
 					$fallbacks = array();
 				}
@@ -637,17 +637,17 @@ class CloudStreamWrapper {
 				if ( count( $fallbacks ) > 100 ) {
 					$fallbacks = array_slice( $fallbacks, -100 );
 				}
-				set_transient( 'dilux_cs_fallback_uploads', $fallbacks, DAY_IN_SECONDS );
+				set_transient( 'offload_plus_fallback_uploads', $fallbacks, DAY_IN_SECONDS );
 				return true;
 			}
-			Logger::error( '[Dilux CloudStreamWrapper] FALLBACK FAILED: Could not write to local path: ' . $local_path );
+			Logger::error( '[Offload Plus CloudStreamWrapper] FALLBACK FAILED: Could not write to local path: ' . $local_path );
 		}
 
 		// Upload content to cloud
 		$cloud_client = self::get_cloud_client();
 		if ( ! $cloud_client ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				Logger::error( '[Dilux CloudStreamWrapper] stream_flush: Cloud client not available' );
+				Logger::error( '[Offload Plus CloudStreamWrapper] stream_flush: Cloud client not available' );
 			}
 			return false;
 		}
@@ -662,8 +662,8 @@ class CloudStreamWrapper {
 		try {
 			$result = $cloud_client->upload_file( $temp_file, $this->path, array( 'mime_type_from_path' => $this->path ) );
 		} catch ( \Exception $e ) {
-			Logger::error( '[Dilux CloudStreamWrapper] stream_flush exception: ' . $this->path . ' - ' . $e->getMessage() );
-			\DiluxWP\CloudStorage\ConfigManager::record_connection_failure( 'exception', $e->getMessage(), 'upload' );
+			Logger::error( '[Offload Plus CloudStreamWrapper] stream_flush exception: ' . $this->path . ' - ' . $e->getMessage() );
+			\OffloadPlus\ConfigManager::record_connection_failure( 'exception', $e->getMessage(), 'upload' );
 			@unlink( $temp_file );
 			return false;
 		}
@@ -673,23 +673,23 @@ class CloudStreamWrapper {
 
 		if ( ! $result['success'] ) {
 			$error_msg = $result['error'] ?? 'Unknown upload error';
-			Logger::info( '[Dilux CloudStreamWrapper] stream_flush failed: ' . $this->path . ' - ' . $error_msg );
+			Logger::info( '[Offload Plus CloudStreamWrapper] stream_flush failed: ' . $this->path . ' - ' . $error_msg );
 			$error_code = '';
 			if ( preg_match( '/(\d{3})/', $error_msg, $matches ) ) {
 				$error_code = $matches[1];
 			}
-			\DiluxWP\CloudStorage\ConfigManager::record_connection_failure( $error_code, $error_msg, 'upload' );
+			\OffloadPlus\ConfigManager::record_connection_failure( $error_code, $error_msg, 'upload' );
 			return false;
 		}
 
 		// Auto-recovery: if was unhealthy and upload succeeded, mark healthy
-		$health = \DiluxWP\CloudStorage\ConfigManager::get_connection_health();
+		$health = \OffloadPlus\ConfigManager::get_connection_health();
 		if ( $health['status'] === 'unhealthy' ) {
-			\DiluxWP\CloudStorage\ConfigManager::record_connection_success();
+			\OffloadPlus\ConfigManager::record_connection_success();
 		}
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			Logger::debug( '[Dilux CloudStreamWrapper] stream_flush: Uploaded ' . $this->path . ' (' . strlen( $this->content ) . ' bytes)' );
+			Logger::debug( '[Offload Plus CloudStreamWrapper] stream_flush: Uploaded ' . $this->path . ' (' . strlen( $this->content ) . ' bytes)' );
 		}
 
 		// ✅ OPTIMIZATION 1: Cache stat to avoid immediate HEAD request
@@ -940,7 +940,7 @@ class CloudStreamWrapper {
 		try {
 			$exists = $cloud_client->file_exists( $path );
 		} catch ( \Exception $e ) {
-			Logger::error( '[Dilux CloudStreamWrapper] create_stat exception: ' . $path . ' - ' . $e->getMessage() );
+			Logger::error( '[Offload Plus CloudStreamWrapper] create_stat exception: ' . $path . ' - ' . $e->getMessage() );
 			return $this->trigger_error_internal( 'Cloud error: ' . $e->getMessage(), $flags );
 		}
 
@@ -1078,7 +1078,7 @@ class CloudStreamWrapper {
 		try {
 			$result = $cloud_client->delete_file( $parsed_path );
 		} catch ( \Exception $e ) {
-			Logger::error( '[Dilux CloudStreamWrapper] unlink exception (non-critical): ' . $parsed_path . ' - ' . $e->getMessage() );
+			Logger::error( '[Offload Plus CloudStreamWrapper] unlink exception (non-critical): ' . $parsed_path . ' - ' . $e->getMessage() );
 			$result = array(
 				'success' => false,
 				'error'   => $e->getMessage(),
@@ -1095,10 +1095,10 @@ class CloudStreamWrapper {
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			if ( $result['success'] ) {
-				Logger::info( '[Dilux CloudStreamWrapper] Deleted: ' . $parsed_path );
+				Logger::info( '[Offload Plus CloudStreamWrapper] Deleted: ' . $parsed_path );
 			} else {
 				// Log but don't fail (file might already be deleted, that's fine)
-				Logger::error( '[Dilux CloudStreamWrapper] Delete result (non-critical): ' . $parsed_path . ' - ' . $result['error'] );
+				Logger::error( '[Offload Plus CloudStreamWrapper] Delete result (non-critical): ' . $parsed_path . ' - ' . $result['error'] );
 			}
 		}
 
@@ -1127,12 +1127,12 @@ class CloudStreamWrapper {
 		$parsed_to   = $this->parse_path( $path_to );
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			Logger::info( '[Dilux CloudStreamWrapper] rename: ' . $parsed_from . ' -> ' . $parsed_to );
+			Logger::info( '[Offload Plus CloudStreamWrapper] rename: ' . $parsed_from . ' -> ' . $parsed_to );
 		}
 
 		$cloud_client = self::get_cloud_client();
 		if ( ! $cloud_client ) {
-			Logger::error( '[Dilux CloudStreamWrapper] rename failed: Cloud client not available' );
+			Logger::error( '[Offload Plus CloudStreamWrapper] rename failed: Cloud client not available' );
 			return false;
 		}
 
@@ -1140,13 +1140,13 @@ class CloudStreamWrapper {
 		try {
 			$copy_result = $cloud_client->copy_blob( $parsed_from, $parsed_to );
 		} catch ( \Exception $e ) {
-			Logger::error( '[Dilux CloudStreamWrapper] rename copy exception: ' . $parsed_from . ' -> ' . $parsed_to . ' - ' . $e->getMessage() );
+			Logger::error( '[Offload Plus CloudStreamWrapper] rename copy exception: ' . $parsed_from . ' -> ' . $parsed_to . ' - ' . $e->getMessage() );
 			return false;
 		}
 
 		if ( ! $copy_result['success'] ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				Logger::warning( '[Dilux CloudStreamWrapper] rename failed at copy: ' . ( $copy_result['error'] ?? 'Unknown error' ) );
+				Logger::warning( '[Offload Plus CloudStreamWrapper] rename failed at copy: ' . ( $copy_result['error'] ?? 'Unknown error' ) );
 			}
 			return false;
 		}
@@ -1155,7 +1155,7 @@ class CloudStreamWrapper {
 		try {
 			$delete_result = $cloud_client->delete_file( $parsed_from );
 		} catch ( \Exception $e ) {
-			Logger::error( '[Dilux CloudStreamWrapper] rename delete exception (non-critical): ' . $parsed_from . ' - ' . $e->getMessage() );
+			Logger::error( '[Offload Plus CloudStreamWrapper] rename delete exception (non-critical): ' . $parsed_from . ' - ' . $e->getMessage() );
 			$delete_result = array(
 				'success' => false,
 				'error'   => $e->getMessage(),
@@ -1168,7 +1168,7 @@ class CloudStreamWrapper {
 		// - Goal of rename is achieved: file exists at destination
 		if ( ! $delete_result['success'] ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				Logger::warning( '[Dilux CloudStreamWrapper] rename: copy succeeded but delete failed (non-critical): ' . ( $delete_result['error'] ?? 'Unknown error' ) );
+				Logger::warning( '[Offload Plus CloudStreamWrapper] rename: copy succeeded but delete failed (non-critical): ' . ( $delete_result['error'] ?? 'Unknown error' ) );
 			}
 		}
 
@@ -1190,7 +1190,7 @@ class CloudStreamWrapper {
 		self::$stat_cache[ $parsed_from ] = false; // Mark as deleted
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			Logger::info( '[Dilux CloudStreamWrapper] rename successful: ' . $parsed_from . ' -> ' . $parsed_to );
+			Logger::info( '[Offload Plus CloudStreamWrapper] rename successful: ' . $parsed_from . ' -> ' . $parsed_to );
 		}
 
 		return true;
@@ -1254,7 +1254,7 @@ class CloudStreamWrapper {
 		try {
 			$result = $cloud_client->upload_file( $temp_file, $this->path, array( 'mime_type_from_path' => $this->path ) );
 		} catch ( \Exception $e ) {
-			Logger::error( '[Dilux CloudStreamWrapper] upload_content_to_cloud exception: ' . $this->path . ' - ' . $e->getMessage() );
+			Logger::error( '[Offload Plus CloudStreamWrapper] upload_content_to_cloud exception: ' . $this->path . ' - ' . $e->getMessage() );
 			@unlink( $temp_file );
 			return false;
 		}
@@ -1264,7 +1264,7 @@ class CloudStreamWrapper {
 
 		if ( $result['success'] ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				Logger::info( '[Dilux CloudStreamWrapper] Uploaded: ' . $this->path );
+				Logger::info( '[Offload Plus CloudStreamWrapper] Uploaded: ' . $this->path );
 			}
 
 			// Cache stat AFTER upload to avoid immediate HEAD requests
@@ -1300,7 +1300,7 @@ class CloudStreamWrapper {
 			return true;
 		} else {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				Logger::error( '[Dilux CloudStreamWrapper] Failed to upload: ' . $this->path . ' - ' . $result['error'] );
+				Logger::error( '[Offload Plus CloudStreamWrapper] Failed to upload: ' . $this->path . ' - ' . $result['error'] );
 			}
 			return false;
 		}
@@ -1360,7 +1360,7 @@ class CloudStreamWrapper {
 		// Don't cache files that are too big (like Infinite Uploads)
 		if ( strlen( $content ) > self::CACHE_MAX_BYTES ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				Logger::info( '[Dilux CloudStreamWrapper] File too large to cache: ' . $path . ' (' . strlen( $content ) . ' bytes)' );
+				Logger::info( '[Offload Plus CloudStreamWrapper] File too large to cache: ' . $path . ' (' . strlen( $content ) . ' bytes)' );
 			}
 			return;
 		}
@@ -1370,7 +1370,7 @@ class CloudStreamWrapper {
 		self::$file_cache[ $path ] = $content;
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			Logger::info( '[Dilux CloudStreamWrapper] Cached file: ' . $path . ' (' . strlen( $content ) . ' bytes)' );
+			Logger::info( '[Offload Plus CloudStreamWrapper] Cached file: ' . $path . ' (' . strlen( $content ) . ' bytes)' );
 		}
 	}
 
@@ -1404,7 +1404,7 @@ class CloudStreamWrapper {
 
 		$cloud_client = self::get_cloud_client();
 		if ( ! $cloud_client ) {
-			Logger::error( '[Dilux CloudStreamWrapper] dir_opendir: Cloud client not available' );
+			Logger::error( '[Offload Plus CloudStreamWrapper] dir_opendir: Cloud client not available' );
 			return false;
 		}
 
@@ -1415,7 +1415,7 @@ class CloudStreamWrapper {
 		$this->dir_iterator = array();
 
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			Logger::info( '[Dilux CloudStreamWrapper] dir_opendir: ' . $this->dir_path );
+			Logger::info( '[Offload Plus CloudStreamWrapper] dir_opendir: ' . $this->dir_path );
 		}
 
 		return true;

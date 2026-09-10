@@ -2,10 +2,10 @@
 /**
  * Extension-to-MIME-type mapping helper.
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
-namespace DiluxWP\CloudStorage;
+namespace OffloadPlus;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,9 +24,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * - SyncManager: Batch sync operations
  * - Future providers (AWS, GCP)
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
-class DiluxMimeHelper {
+class MimeHelper {
 
 	/**
 	 * Get MIME type from file path (extension-based)

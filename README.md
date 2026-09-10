@@ -1,4 +1,4 @@
-# Dilux Cloud Storage
+# Offload Plus
 
 > Offload WordPress media to cloud object storage (Azure Blob, Dilux One Cloud) with a transparent PHP stream wrapper — no URL rewriting, no database migration.
 
@@ -6,7 +6,7 @@
 
 ## What is this?
 
-Dilux Cloud Storage is a WordPress plugin that moves your media library to cloud object storage and serves files directly from the cloud — without breaking the Media Library UI, third-party plugins, or existing post content.
+Offload Plus is a WordPress plugin that moves your media library to cloud object storage and serves files directly from the cloud — without breaking the Media Library UI, third-party plugins, or existing post content.
 
 It uses a **PHP stream wrapper** to intercept every read and write to `/wp-content/uploads/`, so WordPress, WooCommerce, page builders, image editors, and any plugin that calls standard filesystem functions (`fopen`, `file_get_contents`, `unlink`, etc.) keep working unchanged.
 
@@ -14,7 +14,7 @@ It uses a **PHP stream wrapper** to intercept every read and write to `/wp-conte
 
 If you just want to **install and use** the plugin on your WordPress site, get it from the official directory:
 
-🔗 **[wordpress.org/plugins/dilux-cloud-storage](https://wordpress.org/plugins/dilux-cloud-storage/)** *(coming soon — pending wp.org review)*
+🔗 **[wordpress.org/plugins/offload-plus](https://wordpress.org/plugins/offload-plus/)** *(coming soon — pending wp.org review)*
 
 User-facing documentation (features, installation, configuration, FAQ) lives in [`readme.txt`](readme.txt) — that's the version rendered on the wp.org plugin page.
 
@@ -25,13 +25,13 @@ This README and the rest of this repository are aimed at developers who want to 
 ## Quick start (developers)
 
 ```bash
-git clone https://github.com/soydiloreto/dilux-cloud-storage.git
-cd dilux-cloud-storage
+git clone https://github.com/soydiloreto/offload-plus.git
+cd offload-plus
 make install     # composer install — populate vendor/
 make env         # boots wp-env at http://localhost:8888
 ```
 
-When it finishes, open <http://localhost:8888>. Log in with `admin` / `password`. The plugin is already mounted at `wp-content/plugins/dilux-cloud-storage/` — activate it from the **Plugins** screen.
+When it finishes, open <http://localhost:8888>. Log in with `admin` / `password`. The plugin is already mounted at `wp-content/plugins/offload-plus/` — activate it from the **Plugins** screen.
 
 `make help` lists every available target. For the full setup walkthrough, the day-to-day commands, the Docker plumbing, and the `wp-env` configuration, see [`docs/development.md`](docs/development.md).
 
@@ -39,7 +39,7 @@ When it finishes, open <http://localhost:8888>. Log in with `admin` / `password`
 
 | Path | What it contains |
 |------|------------------|
-| `dilux-cloud-storage.php` | Main plugin file — bootstraps everything and loads `includes/`. |
+| `offload-plus.php` | Main plugin file — bootstraps everything and loads `includes/`. |
 | `includes/` | Core PHP classes: config manager, stream wrapper, sync engine, admin pages, REST handlers. |
 | `templates/` | Admin page views (rendered by the admin classes). |
 | `assets/` | Plugin runtime assets — JS, CSS, images bundled with the plugin. |

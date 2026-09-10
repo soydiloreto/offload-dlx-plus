@@ -1,4 +1,4 @@
-# dilux-cloud-storage — developer task runner.
+# offload-plus — developer task runner.
 #
 # All PHP-based commands run inside the official `composer:2` Docker
 # image by default. That keeps the host clean of plugin-specific PHP
@@ -91,11 +91,11 @@ psalm: ## Psalm taint analysis (XSS / SQLi / RCE).
 	$(PSALM_CMD) --taint-analysis --no-cache --no-progress
 
 .PHONY: i18n
-i18n: ## Generate dilux-cloud-storage.pot via WP-CLI.
+i18n: ## Generate offload-plus.pot via WP-CLI.
 	mkdir -p build
-	$(WP_CLI) i18n make-pot . build/dilux-cloud-storage.pot \
-	    --slug=dilux-cloud-storage \
-	    --domain=dilux-cloud-storage \
+	$(WP_CLI) i18n make-pot . build/offload-plus.pot \
+	    --slug=offload-plus \
+	    --domain=offload-plus \
 	    --exclude=tests,vendor,node_modules,.wordpress-org,assets,docs,build
 
 # -- Tests -------------------------------------------------------------
@@ -131,7 +131,7 @@ env-clean: ## Destroy the local wp-env Docker stack and its volumes.
 
 # -- Deploy / release --------------------------------------------------
 # Override DEPLOY_SCRIPT= to point at your own copy of the script.
-DEPLOY_SCRIPT ?= $(HOME)/.local/bin/dilux-deploy-to-mug
+DEPLOY_SCRIPT ?= $(HOME)/.local/bin/offload-plus-deploy-to-mug
 
 .PHONY: deploy-test
 deploy-test: ## Deploy current branch to the mug-website-v2 sibling repo for manual smoke-testing.
@@ -145,7 +145,7 @@ deploy-test: ## Deploy current branch to the mug-website-v2 sibling repo for man
 .PHONY: release
 release: check ## Pre-release validation: full quality gate + version-alignment dry-run.
 	@echo "── version alignment check ─────────────────────────────"
-	@PHP_VERSION=$$(grep -E '^[[:space:]]*\*[[:space:]]*Version:' dilux-cloud-storage.php | head -1 | sed -E 's/.*Version:[[:space:]]*//'); \
+	@PHP_VERSION=$$(grep -E '^[[:space:]]*\*[[:space:]]*Version:' offload-plus.php | head -1 | sed -E 's/.*Version:[[:space:]]*//'); \
 	 STABLE_TAG=$$(grep -E '^Stable tag:' readme.txt | sed -E 's/Stable tag:[[:space:]]*//'); \
 	 PHP_BASE=$$(echo $$PHP_VERSION | sed -E 's/-(dev|alpha|beta|rc).*$$//'); \
 	 echo "  PHP header Version : $$PHP_VERSION"; \

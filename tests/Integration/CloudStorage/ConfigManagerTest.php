@@ -2,8 +2,8 @@
 namespace Tests\Integration\CloudStorage;
 
 use Tests\Integration\IntegrationTestCase;
-use DiluxWP\CloudStorage\ConfigManager;
-use DiluxWP\CloudStorage\Enums\PluginState;
+use OffloadPlus\ConfigManager;
+use OffloadPlus\Enums\PluginState;
 
 /**
  * Integration tests for ConfigManager.
@@ -158,7 +158,7 @@ class ConfigManagerTest extends IntegrationTestCase {
         $this->assertTrue($config['keep_local_files']);
         $this->assertSame(60, $config['timeout']);
         // 20 MB default — see ConfigManager::DEFAULT_CONFIG. The mug-website-v2
-        // version of this plugin used 500 MB; the current dilux-cloud-storage
+        // version of this plugin used 500 MB; the current offload-plus
         // tightened it to a safer cap that fits most shared-hosting limits.
         $this->assertSame(20971520, $config['max_file_size']);
     }

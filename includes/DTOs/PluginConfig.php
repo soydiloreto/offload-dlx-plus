@@ -2,10 +2,10 @@
 /**
  * Plugin-level configuration value object.
  *
- * @package DiluxWP\CloudStorage
+ * @package OffloadPlus
  */
 
-namespace DiluxWP\CloudStorage\DTOs;
+namespace OffloadPlus\DTOs;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Immutable value object that composes provider configuration and plugin settings
  * This is the main configuration object used throughout the plugin.
  *
- * @package DiluxWP\CloudStorage\DTOs
+ * @package OffloadPlus\DTOs
  * @since 1.0.0
  */
 class PluginConfig {

@@ -20,13 +20,13 @@ If you do have a full PHP CLI locally (with `dom`, `mbstring`, `xml`, `xmlwriter
 ## First run
 
 ```bash
-git clone https://github.com/soydiloreto/dilux-cloud-storage.git
-cd dilux-cloud-storage
+git clone https://github.com/soydiloreto/offload-plus.git
+cd offload-plus
 make install     # composer install — pulls dev tooling into vendor/
 make env         # boots wp-env at http://localhost:8888
 ```
 
-When `make env` finishes, open <http://localhost:8888>. Log in with `admin` / `password`. The plugin is already mounted at `wp-content/plugins/dilux-cloud-storage/` — activate it from the **Plugins** screen.
+When `make env` finishes, open <http://localhost:8888>. Log in with `admin` / `password`. The plugin is already mounted at `wp-content/plugins/offload-plus/` — activate it from the **Plugins** screen.
 
 ## Day-to-day commands
 
@@ -41,11 +41,11 @@ When `make env` finishes, open <http://localhost:8888>. Log in with `admin` / `p
 | `make lint-fix` | PHPCBF — auto-fix the violations PHPCS can repair. |
 | `make stan` | PHPStan level 8 (no baseline). |
 | `make psalm` | Psalm taint analysis (XSS / SQLi / RCE). |
-| `make i18n` | `wp i18n make-pot` — extract the translatable strings into `build/dilux-cloud-storage.pot`. |
+| `make i18n` | `wp i18n make-pot` — extract the translatable strings into `build/offload-plus.pot`. |
 | `make test` | Run the unit-test suite (the default test target — fast, no WordPress runtime needed). |
 | `make test-integration` | Run the integration-test suite against `wp-env` (must be `make env` first). |
 | `make check` | Run every quality gate CI runs: lint + stan + psalm + tests. |
-| `make deploy-test` | Sync the current branch into `~/repos/mug-website-v2/wp-content/plugins/dilux-cloud-storage/` for a smoke test on a real site (the script lives at `~/.local/bin/dilux-deploy-to-mug` by default — override with `DEPLOY_SCRIPT=/path/to/script`). |
+| `make deploy-test` | Sync the current branch into `~/repos/mug-website-v2/wp-content/plugins/offload-plus/` for a smoke test on a real site (the script lives at `~/.local/bin/offload-plus-deploy-to-mug` by default — override with `DEPLOY_SCRIPT=/path/to/script`). |
 | `make release` | `make check` plus a version-alignment dry-run; fails if the PHP `Version:` header and the `readme.txt` `Stable tag:` would not match at tag time. |
 | `make clean` | Wipe caches and build artefacts. |
 
@@ -62,7 +62,7 @@ To override any of these on your local machine without committing the changes, c
 
 ## Manual install (alternative)
 
-If you'd rather use your own WordPress setup instead of `wp-env`, clone this repo directly into `wp-content/plugins/dilux-cloud-storage/` of your existing WordPress install. The plugin has no build step — it runs straight from source.
+If you'd rather use your own WordPress setup instead of `wp-env`, clone this repo directly into `wp-content/plugins/offload-plus/` of your existing WordPress install. The plugin has no build step — it runs straight from source.
 
 You'll lose the convenience of `make env*`, but `make lint` / `make stan` / `make test` / etc. all work exactly the same, because they don't depend on a running WordPress.
 

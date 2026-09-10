@@ -1,4 +1,4 @@
-# PHPStan configuration for dilux-cloud-storage.
+# PHPStan configuration for offload-plus.
 #
 # Level 8 (max strictness) on the production code. The WordPress
 # extension (szepeviktor/phpstan-wordpress) is auto-registered via the
@@ -12,7 +12,7 @@ parameters:
     - phpstan-bootstrap.php
 
   paths:
-    - dilux-cloud-storage.php
+    - offload-plus.php
     - includes
     - templates
 
@@ -32,9 +32,9 @@ parameters:
   # `define()`s become visible to static analysis, but their *runtime* values
   # are user-controlled (typically from wp-config.php) and may flip on a
   # per-deployment basis. Mark them dynamic so PHPStan does not collapse
-  # `if ( DILUX_DEV_MODE )` into "always false" based on the stub.
+  # `if ( OFFLOAD_PLUS_DEV_MODE )` into "always false" based on the stub.
   dynamicConstantNames:
-    - DILUX_DEV_MODE
-    - DILUX_VERBOSE_LOGGING
+    - OFFLOAD_PLUS_DEV_MODE
+    - OFFLOAD_PLUS_VERBOSE_LOGGING
     - DILUX_API_URL
     - WP_DEBUG
